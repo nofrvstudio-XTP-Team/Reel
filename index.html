@@ -40,36 +40,16 @@ button{cursor:pointer}
     height:100%;
     border-radius:0
   }
-
-  .playerSlot{
-    height:56.25vw!important
-  }
-
-  #buffer{
-    height:56.25vw!important
-  }
-
-  #reelInfo{
-    top:calc(var(--safe-t) + 54px + 56.25vw + 15px)!important
-  }
-
-  #rail{
-    top:calc(var(--safe-t) + 54px + 56.25vw + 64px)!important
-  }
 }
 
 /* player ring */
 
 .playerSlot{
   position:absolute;
-  left:0;
-  right:0;
-  top:calc(54px + var(--safe-t));
-  height:31.640625%;
+  inset:0;
   opacity:0;
   pointer-events:none;
   background:#000;
-  overflow:hidden;
   transition:opacity .08s linear
 }
 
@@ -82,19 +62,17 @@ button{cursor:pointer}
   width:100%!important;
   height:100%!important;
   border:0!important;
-  background:#000;
-  display:block
+  background:#000
 }
 
 #shade{
   position:absolute;
+  inset:0;
   z-index:3;
-  top:calc(54px + var(--safe-t));
-  left:0;
-  right:0;
-  height:58px;
   pointer-events:none;
-  background:linear-gradient(to bottom,#000 0,#000 18px,rgba(0,0,0,.88) 32px,rgba(0,0,0,.18) 51px,transparent 58px)
+  background:
+    linear-gradient(to bottom,rgba(0,0,0,.50),rgba(0,0,0,.06) 18%,transparent 35%),
+    linear-gradient(to top,rgba(0,0,0,.95),rgba(0,0,0,.44) 25%,transparent 55%)
 }
 
 #gesture{
@@ -106,10 +84,7 @@ button{cursor:pointer}
 
 #buffer{
   position:absolute;
-  top:calc(54px + var(--safe-t));
-  left:0;
-  right:0;
-  height:31.640625%;
+  inset:0;
   z-index:6;
   display:grid;
   place-items:center;
@@ -141,17 +116,15 @@ button{cursor:pointer}
 
 #top{
   position:absolute;
-  z-index:20;
-  top:0;
-  left:0;
-  right:0;
-  height:calc(54px + var(--safe-t));
-  padding:var(--safe-t) 13px 0;
+  z-index:10;
+  top:var(--safe-t);
+  left:13px;
+  right:13px;
+  height:44px;
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:center;
-  pointer-events:none;
-  background:#000
+  pointer-events:none
 }
 
 #brand{
@@ -214,18 +187,17 @@ button{cursor:pointer}
 #reelInfo{
   position:absolute;
   z-index:9;
-  top:calc(var(--safe-t) + 54px + 31.640625% + 15px);
-  left:17px;
-  right:62px;
-  bottom:auto;
-  text-shadow:none
+  left:15px;
+  right:74px;
+  bottom:calc(74px + var(--safe-b));
+  text-shadow:0 2px 13px rgba(0,0,0,.98)
 }
 
 #channelRow{
   display:flex;
   align-items:center;
   gap:8px;
-  margin-bottom:16px
+  margin-bottom:10px
 }
 
 #channelButton{
@@ -283,14 +255,12 @@ button{cursor:pointer}
   display:flex;
   flex-wrap:wrap;
   align-items:baseline;
-  gap:0 3px;
+  gap:0 4px;
   max-width:100%;
-  max-height:2.9em;
-  overflow:hidden;
-  font-size:clamp(18px,4.4vw,22px);
-  font-weight:850;
-  line-height:1.45;
-  letter-spacing:-.12px;
+  font-size:clamp(22px,5.3vw,29px);
+  font-weight:900;
+  line-height:1.38;
+  letter-spacing:-.25px;
   pointer-events:auto
 }
 
@@ -316,7 +286,10 @@ button{cursor:pointer}
 }
 
 #sentenceProgress{
-  display:none
+  margin-top:8px;
+  font-size:10px;
+  font-weight:750;
+  opacity:.48
 }
 
 /* right rail */
@@ -324,24 +297,24 @@ button{cursor:pointer}
 #rail{
   position:absolute;
   z-index:10;
-  top:calc(var(--safe-t) + 54px + 31.640625% + 64px);
   right:8px;
-  bottom:auto;
+  bottom:calc(92px + var(--safe-b));
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:5px
+  gap:8px
 }
 
 .railBtn{
-  width:40px;
-  height:40px;
+  width:47px;
+  height:47px;
   border:0;
   border-radius:50%;
-  background:#181818;
+  background:rgba(15,15,15,.56);
+  backdrop-filter:blur(10px);
   display:grid;
   place-items:center;
-  font-size:17px
+  font-size:19px
 }
 
 .railBtn.active{
@@ -354,7 +327,10 @@ button{cursor:pointer}
 }
 
 .railLabel{
-  display:none
+  font-size:9px;
+  font-weight:750;
+  margin-top:-5px;
+  text-shadow:0 2px 8px #000
 }
 
 /* bottom nav */
@@ -755,6 +731,179 @@ button{cursor:pointer}
 #toast.on{
   opacity:1
 }
+
+/* =========================================================
+   TIKTOK-LIKE FIXED REEL LAYOUT — PATCH
+   Everything stays on one 9:16 canvas.
+   Video remains the background layer; UI is fixed overlay.
+   ========================================================= */
+
+#ytChromeMask{
+  position:absolute;
+  z-index:5;
+  top:0;
+  left:0;
+  right:0;
+  height:102px;
+  pointer-events:none;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,.92) 0,
+      rgba(0,0,0,.72) 38px,
+      rgba(0,0,0,.42) 66px,
+      rgba(0,0,0,.10) 88px,
+      transparent 100%
+    );
+}
+
+/* Fixed header overlay */
+#top{
+  top:var(--safe-t);
+  left:12px;
+  right:12px;
+  height:42px;
+}
+
+/*
+  Fixed bottom-left information zone.
+  Its height never changes when the active phrase changes.
+*/
+#reelInfo{
+  left:14px;
+  right:72px;
+  bottom:calc(66px + var(--safe-b));
+  height:142px;
+  text-shadow:0 2px 12px rgba(0,0,0,.98);
+  pointer-events:none;
+}
+
+/* Channel row has its own fixed coordinates. */
+#channelRow{
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:36px;
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  pointer-events:auto;
+}
+
+/* Caption area has its own fixed coordinates and fixed height. */
+#sentenceWrap{
+  position:absolute;
+  left:0;
+  right:0;
+  top:47px;
+  height:76px;
+  margin:0;
+  overflow:hidden;
+  pointer-events:auto;
+}
+
+/*
+  One active Japanese phrase only.
+  Fixed two-line box: phrase changes cannot move channel/buttons/nav.
+*/
+#sentence{
+  display:flex;
+  flex-wrap:wrap;
+  align-content:flex-start;
+  align-items:baseline;
+  gap:0 3px;
+  width:100%;
+  height:58px;
+  max-height:58px;
+  overflow:hidden;
+  font-size:clamp(18px,4.5vw,21px);
+  font-weight:900;
+  line-height:1.36;
+  letter-spacing:-.15px;
+  pointer-events:auto;
+}
+
+#sentenceProgress{
+  display:none!important;
+}
+
+/* Keep channel compact and fixed. */
+.avatar{
+  width:32px;
+  height:32px;
+}
+
+#channelName{
+  font-size:13px;
+  max-width:min(47vw,240px);
+}
+
+.followPill{
+  height:28px;
+  padding:0 10px;
+  font-size:10px;
+}
+
+/* Fixed TikTok-style right rail. */
+#rail{
+  right:8px;
+  bottom:calc(78px + var(--safe-b));
+  gap:7px;
+}
+
+.railBtn{
+  width:42px;
+  height:42px;
+  font-size:18px;
+  background:rgba(15,15,15,.52);
+}
+
+.railLabel{
+  display:none!important;
+}
+
+/* Bottom nav stays pinned; content never reflows it. */
+#nav{
+  height:calc(58px + var(--safe-b));
+  padding:0 4px var(--safe-b);
+  background:
+    linear-gradient(
+      to top,
+      rgba(0,0,0,.96) 0,
+      rgba(0,0,0,.72) 58%,
+      transparent 100%
+    );
+}
+
+.navBtn{
+  height:46px;
+}
+
+/* Spinner belongs to the whole reel canvas, not document flow. */
+#buffer{
+  position:absolute;
+  inset:0;
+}
+
+/* Slightly stronger bottom readability without creating a separate panel. */
+#shade{
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,.32) 0,
+      transparent 23%
+    ),
+    linear-gradient(
+      to top,
+      rgba(0,0,0,.90) 0,
+      rgba(0,0,0,.54) 19%,
+      rgba(0,0,0,.16) 39%,
+      transparent 55%
+    );
+}
+
 </style>
 </head>
 
@@ -777,6 +926,7 @@ button{cursor:pointer}
   </div>
 
   <div id="shade"></div>
+  <div id="ytChromeMask"></div>
   <div id="gesture"></div>
 
   <div id="buffer">
@@ -2352,65 +2502,16 @@ function splitByJapanesePunctuation(text){
 
   }
 
-  const raw =
-    (
-      cleaned.match(
-        /[^。！？!?、，,]+[。！？!?、，,]+|[^。！？!?、，,]+$/g
-      )
-      || []
+  return (
+    cleaned.match(
+      /[^。！？!?、，,]+[。！？!?、，,]+|[^。！？!?、，,]+$/g
     )
-    .map(
+    ?.map(
       normalizeText
     )
-    .filter(Boolean);
-
-  const parts =
-    [];
-
-  for(
-    let i=0;
-    i<raw.length;
-    i++
-  ){
-
-    const part =
-      raw[i];
-
-    const coreLength =
-      part
-        .replace(
-          /[。！？!?、，,\s]/g,
-          ''
-        )
-        .length;
-
-    /*
-      A tiny connector such as "でも、" should stay with
-      what follows instead of becoming a useless flash phrase.
-    */
-
-    if(
-      coreLength <= 2
-      &&
-      i+1 < raw.length
-    ){
-
-      raw[i+1] =
-        normalizeText(
-          part + raw[i+1]
-        );
-
-      continue;
-
-    }
-
-    parts.push(
-      part
-    );
-
-  }
-
-  return parts;
+    .filter(Boolean)
+    || []
+  );
 
 }
 
@@ -2755,9 +2856,32 @@ function buildSentences(blocks){
 
     }
 
-    if(
-      /[。！？!?、，,]$/.test(
+    const hardBoundary =
+      /[。！？!?]$/.test(
         atomText
+      );
+
+    const softBoundary =
+      /[、，,]$/.test(
+        atomText
+      );
+
+    if(
+      hardBoundary
+      ||
+      (
+        softBoundary
+        &&
+        current
+        &&
+        (
+          current.text.length >= 8
+          ||
+          (
+            current.end
+            - current.start
+          ) >= 1.7
+        )
       )
     ){
 
@@ -2802,6 +2926,262 @@ function buildSentences(blocks){
   }
 
   return sentences;
+
+}
+
+
+/* =========================================================
+   DISPLAY PHRASE ENGINE
+
+   Stored clips may have been imported by an older version.
+   Do NOT require re-import: split the active stored sentence
+   into short display phrases at runtime and distribute its
+   existing timestamp proportionally.
+   ========================================================= */
+
+function buildDisplayPhrases(
+  sentence
+){
+
+  if(
+    !sentence
+    ||
+    !sentence.text
+  ){
+
+    return [];
+
+  }
+
+  let pieces =
+    splitByJapanesePunctuation(
+      sentence.text
+    )
+    .flatMap(
+      part =>
+        softSplitLong(
+          part,
+          MAX_SENTENCE_CHARS
+        )
+    )
+    .map(
+      normalizeText
+    )
+    .filter(Boolean);
+
+  if(
+    !pieces.length
+  ){
+
+    pieces =
+      [
+        normalizeText(
+          sentence.text
+        )
+      ];
+
+  }
+
+  /*
+    Merge stupidly tiny comma fragments such as:
+    "でも、" + next phrase.
+  */
+  const merged =
+    [];
+
+  for(
+    const piece
+    of pieces
+  ){
+
+    if(
+      merged.length
+      &&
+      (
+        piece.length <= 3
+        ||
+        merged[
+          merged.length - 1
+        ].length <= 3
+      )
+    ){
+
+      merged[
+        merged.length - 1
+      ] =
+        normalizeText(
+          merged[
+            merged.length - 1
+          ]
+          + piece
+        );
+
+    }else{
+
+      merged.push(
+        piece
+      );
+
+    }
+
+  }
+
+  const weights =
+    merged.map(
+      text =>
+        Math.max(
+          1,
+          text
+            .replace(
+              /\s/g,
+              ''
+            )
+            .length
+        )
+    );
+
+  const total =
+    weights.reduce(
+      (
+        sum,
+        value
+      ) =>
+        sum + value,
+      0
+    );
+
+  const fullDuration =
+    Math.max(
+      .25,
+      sentence.end
+      - sentence.start
+    );
+
+  let cursor =
+    sentence.start;
+
+  return merged.map(
+    (
+      text,
+      index
+    )=>{
+
+      const start =
+        cursor;
+
+      const end =
+        index === merged.length - 1
+          ? sentence.end
+          : Math.min(
+              sentence.end,
+              cursor
+              +
+              (
+                fullDuration
+                *
+                (
+                  weights[index]
+                  / total
+                )
+              )
+            );
+
+      cursor =
+        end;
+
+      return {
+        id:
+          `${sentence.id || 's'}:p${index}`,
+
+        parentSentenceId:
+          sentence.id || '',
+
+        start,
+
+        end:
+          Math.max(
+            start + .08,
+            end
+          ),
+
+        text
+      };
+
+    }
+  );
+
+}
+
+function activeDisplayPhraseAt(
+  clip,
+  time
+){
+
+  if(
+    !clip?.sentences?.length
+  ){
+
+    return null;
+
+  }
+
+  let sentence =
+    clip.sentences.find(
+      item =>
+        time >= item.start
+        &&
+        time < item.end
+    );
+
+  if(
+    !sentence
+  ){
+
+    for(
+      let i=clip.sentences.length-1;
+      i>=0;
+      i--
+    ){
+
+      if(
+        time
+        >= clip.sentences[i].start
+      ){
+
+        sentence =
+          clip.sentences[i];
+
+        break;
+
+      }
+
+    }
+
+  }
+
+  sentence =
+    sentence
+    || clip.sentences[0];
+
+  const phrases =
+    buildDisplayPhrases(
+      sentence
+    );
+
+  return (
+    phrases.find(
+      phrase =>
+        time >= phrase.start
+        &&
+        time < phrase.end
+    )
+    ||
+    phrases[
+      phrases.length - 1
+    ]
+    ||
+    null
+  );
 
 }
 
@@ -3368,155 +3748,6 @@ async function importVideo(){
 }
 
 /* =========================================================
-   STORED SENTENCE MIGRATION
-   ========================================================= */
-
-function splitStoredSentence(sentence){
-
-  if(
-    !sentence
-    ||
-    !sentence.text
-  ){
-
-    return [];
-
-  }
-
-  return splitBlockIntoTimedPieces({
-    start:
-      Number(sentence.start) || 0,
-
-    end:
-      Number(sentence.end) || (Number(sentence.start) || 0) + .5,
-
-    text:
-      sentence.text
-  });
-
-}
-
-async function migrateStoredSentences(){
-
-  let changedAny =
-    false;
-
-  for(
-    const channel
-    of channels
-  ){
-
-    let changedChannel =
-      false;
-
-    for(
-      const clip
-      of (channel.clips || [])
-    ){
-
-      if(
-        !Array.isArray(clip.sentences)
-        ||
-        !clip.sentences.length
-      ){
-
-        continue;
-
-      }
-
-      const rebuilt =
-        [];
-
-      for(
-        const sentence
-        of clip.sentences
-      ){
-
-        const pieces =
-          splitStoredSentence(
-            sentence
-          );
-
-        pieces.forEach(
-          (
-            piece,
-            index
-          )=>{
-
-            rebuilt.push({
-              id:
-                `${sentence.id || 's'}:p${index}`,
-
-              start:
-                piece.start,
-
-              end:
-                piece.end,
-
-              text:
-                piece.text
-            });
-
-          }
-        );
-
-      }
-
-      const before =
-        clip.sentences
-          .map(
-            item => item.text
-          )
-          .join('|');
-
-      const after =
-        rebuilt
-          .map(
-            item => item.text
-          )
-          .join('|');
-
-      if(
-        rebuilt.length
-        &&
-        before !== after
-      ){
-
-        clip.sentences =
-          rebuilt;
-
-        clip.preview =
-          rebuilt[0]?.text
-          || clip.preview
-          || '';
-
-        changedChannel =
-          true;
-
-      }
-
-    }
-
-    if(
-      changedChannel
-    ){
-
-      changedAny =
-        true;
-
-      await dbPut(
-        channel
-      );
-
-    }
-
-  }
-
-  return changedAny;
-
-}
-
-/* =========================================================
    FEED
    ========================================================= */
 
@@ -4056,13 +4287,15 @@ function stopPlayer(
 
   try{
 
-    player.pauseVideo();
-
     if(
       hard
     ){
 
       player.stopVideo();
+
+    }else{
+
+      player.pauseVideo();
 
     }
 
@@ -4101,7 +4334,16 @@ function stopBackgroundPlayers(){
 
 }
 
-function enforceSinglePlayer(){
+
+function enforceSingleActivePlayer(){
+
+  if(
+    !ytReady
+  ){
+
+    return;
+
+  }
 
   for(
     let i=0;
@@ -4111,8 +4353,17 @@ function enforceSinglePlayer(){
 
     if(
       i === role.current
-      ||
-      !players[i]
+    ){
+
+      continue;
+
+    }
+
+    const player =
+      players[i];
+
+    if(
+      !player
     ){
 
       continue;
@@ -4121,20 +4372,48 @@ function enforceSinglePlayer(){
 
     try{
 
-      players[i].mute();
+      player.mute();
+
+    }catch{}
+
+    try{
+
+      const status =
+        player.getPlayerState();
 
       if(
-        players[i].getPlayerState()
-        === YT.PlayerState.PLAYING
+        status === YT.PlayerState.PLAYING
+        ||
+        status === YT.PlayerState.BUFFERING
       ){
 
-        players[i].pauseVideo();
+        player.pauseVideo();
 
       }
 
     }catch{}
 
   }
+
+}
+
+function scheduleSinglePlayerGuard(){
+
+  [
+    0,
+    80,
+    220,
+    500
+  ].forEach(
+    delay =>{
+
+      setTimeout(
+        enforceSingleActivePlayer,
+        delay
+      );
+
+    }
+  );
 
 }
 
@@ -4230,13 +4509,12 @@ function prewarmNext(
 
   try{
 
-    players[index].mute();
-
     /*
-      Keep the iframe/player warm, but NEVER start background
-      playback. This trades a little buffer depth for correct
-      single-video playback.
+      cueVideoById prepares the next iframe without
+      starting hidden playback. This prevents the
+      previous/next reel from continuing behind current.
     */
+    players[index].mute();
 
     players[index].cueVideoById({
 
@@ -4344,20 +4622,7 @@ function playCurrent(){
 
     player.playVideo();
 
-    setTimeout(
-      enforceSinglePlayer,
-      0
-    );
-
-    setTimeout(
-      enforceSinglePlayer,
-      120
-    );
-
-    setTimeout(
-      enforceSinglePlayer,
-      350
-    );
+    scheduleSinglePlayerGuard();
 
   }catch{}
 
@@ -4443,11 +4708,22 @@ function onPlayerState(
     if(
       status
       === YT.PlayerState.PLAYING
+      ||
+      status
+      === YT.PlayerState.BUFFERING
     ){
 
       stopPlayer(
         index
       );
+
+    }else{
+
+      try{
+
+        players[index]?.mute();
+
+      }catch{}
 
     }
 
@@ -4588,6 +4864,8 @@ function goNext(){
 
   playCurrent();
 
+  scheduleSinglePlayerGuard();
+
   prewarmNext(
     role.next,
     clipForRole(
@@ -4648,6 +4926,8 @@ function goPrev(){
   activateSlot();
 
   playCurrent();
+
+  scheduleSinglePlayerGuard();
 
   cuePrev(
     role.prev,
@@ -4856,14 +5136,8 @@ function renderSentence(
 
   }
 
-  const index =
-    clip.sentences.findIndex(
-      item =>
-        item.id === sentence.id
-    );
-
   sentenceProgress.textContent =
-    `${index+1}/${clip.sentences.length} · ${fmt(sentence.start)}–${fmt(sentence.end)}`;
+    '';
 
 }
 
@@ -5026,7 +5300,10 @@ function renderCurrent(){
   */
 
   renderSentence(
-    clip.sentences?.[0]
+    buildDisplayPhrases(
+      clip.sentences?.[0]
+      || null
+    )[0]
     || null,
     clip
   );
@@ -5102,6 +5379,8 @@ function startMonitor(){
     setInterval(
       ()=>{
 
+        enforceSingleActivePlayer();
+
         if(
           !ytReady
           ||
@@ -5111,8 +5390,6 @@ function startMonitor(){
           return;
 
         }
-
-        enforceSinglePlayer();
 
         const player =
           players[
@@ -5159,7 +5436,7 @@ function startMonitor(){
         */
 
         renderSentence(
-          activeSentenceAt(
+          activeDisplayPhraseAt(
             clip,
             time
           ),
@@ -6825,8 +7102,6 @@ async function boot(){
 
     channels =
       await dbAll();
-
-    await migrateStoredSentences();
 
     channels.sort(
       (
