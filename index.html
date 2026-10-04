@@ -3,888 +3,6103 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#000">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Kiku Reels</title>
+<link rel="preconnect" href="https://www.youtube.com">
+<link rel="preconnect" href="https://i.ytimg.com">
+<title>Kiku</title>
+
 <style>
 :root{
   color-scheme:dark;
   --safe-t:max(12px,env(safe-area-inset-top));
   --safe-b:max(10px,env(safe-area-inset-bottom));
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif
-}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff}
-button,input{font:inherit}
-button{color:inherit}
-.hidden{display:none!important}
-#app{position:fixed;inset:0;background:#000;overflow:hidden}
-
-/* Reel stage */
-#stage{position:absolute;inset:0;background:#000;overflow:hidden}
-.playerSlot{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .12s linear;background:#000}
-.playerSlot.active{opacity:1}
-.playerSlot>div,.playerSlot iframe{width:100%!important;height:100%!important;border:0!important;background:#000}
-#shade{position:absolute;inset:0;z-index:3;pointer-events:none;background:
- linear-gradient(to bottom,rgba(0,0,0,.30),transparent 17%,transparent 62%,rgba(0,0,0,.78))}
-#gesture{position:absolute;inset:0;z-index:4;touch-action:none}
-#buffer{position:absolute;inset:0;z-index:5;display:grid;place-items:center;pointer-events:none;opacity:0;transition:.15s}
-#buffer.on{opacity:1}
-.spinner{width:34px;height:34px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Top */
-#top{
-  position:absolute;z-index:8;top:var(--safe-t);left:14px;right:14px;
-  display:flex;align-items:center;justify-content:space-between;pointer-events:none
-}
-#brand{font-weight:900;font-size:19px;letter-spacing:-.4px;text-shadow:0 2px 9px #000}
-.topActions{display:flex;gap:8px;pointer-events:auto}
-.iconBtn{
-  width:42px;height:42px;border:0;border-radius:999px;background:rgba(22,22,22,.62);
-  display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(14px);font-size:18px
-}
-.iconBtn:active{transform:scale(.96)}
-
-/* Caption + bottom metadata */
-#reelInfo{
-  position:absolute;z-index:8;left:14px;right:76px;
-  bottom:calc(72px + var(--safe-b));text-shadow:0 2px 12px #000;pointer-events:none
-}
-#channelButton{
-  pointer-events:auto;border:0;background:transparent;padding:0;color:#fff;cursor:pointer;
-  display:flex;align-items:center;gap:9px;max-width:100%;margin-bottom:10px;text-align:left
-}
-.avatar{
-  width:35px;height:35px;border-radius:50%;object-fit:cover;background:#222;border:1px solid rgba(255,255,255,.25)
-}
-#channelName{font-weight:800;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#caption{
-  font-size:clamp(19px,4.7vw,28px);font-weight:780;line-height:1.28;
-  max-width:min(820px,100%);white-space:pre-wrap
-}
-#clipMeta{font-size:12px;opacity:.65;margin-top:8px}
-
-/* right rail */
-#rail{
-  position:absolute;z-index:9;right:11px;bottom:calc(92px + var(--safe-b));
-  display:flex;flex-direction:column;gap:12px;align-items:center
-}
-.railBtn{
-  width:48px;height:48px;border:0;border-radius:50%;background:rgba(25,25,25,.62);
-  display:grid;place-items:center;font-size:20px;cursor:pointer;backdrop-filter:blur(12px)
-}
-.railLabel{font-size:10px;margin-top:-8px;text-shadow:0 2px 8px #000}
-
-/* Bottom nav */
-#nav{
-  position:absolute;z-index:12;left:0;right:0;bottom:0;height:calc(58px + var(--safe-b));
-  padding:0 10px var(--safe-b);display:flex;align-items:center;justify-content:space-around;
-  background:linear-gradient(to top,rgba(0,0,0,.92),rgba(0,0,0,.55),transparent)
-}
-.navBtn{
-  min-width:76px;height:48px;border:0;background:transparent;color:#fff;opacity:.65;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer
-}
-.navBtn.active{opacity:1;font-weight:800}
-.navIcon{font-size:20px;line-height:20px}.navText{font-size:10px}
-#addNav .navIcon{
-  width:38px;height:28px;border-radius:8px;background:#fff;color:#000;display:grid;place-items:center;font-size:24px;font-weight:700
+  --line:rgba(255,255,255,.10);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
 }
 
-/* Empty */
-#empty{
-  position:absolute;z-index:7;inset:0;display:grid;place-items:center;padding:28px;text-align:center;
+*{
+  box-sizing:border-box
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#070707;
+  color:#fff
+}
+
+button,input{
+  font:inherit
+}
+
+button{
+  color:inherit
+}
+
+.hidden{
+  display:none!important
+}
+
+#app{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(
+      circle at 50% 12%,
+      #191919 0,
+      #0b0b0b 36%,
+      #050505 80%
+    );
+  overflow:hidden
+}
+
+/* =========================================================
+   ENTIRE APP = ONE PORTRAIT SHELL
+   ========================================================= */
+
+#phone{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  background:#000;
+  overflow:hidden
+}
+
+@media(min-width:700px){
+  #phone{
+    width:min(
+      430px,
+      calc(100vw - 32px),
+      calc((100vh - 24px) * 9 / 16)
+    );
+
+    height:auto;
+    aspect-ratio:9 / 16;
+
+    border-radius:22px;
+
+    box-shadow:
+      0 20px 80px rgba(0,0,0,.78),
+      0 0 0 1px rgba(255,255,255,.08)
+  }
+}
+
+@media(max-width:699px){
+  #phone{
+    width:100%;
+    height:100%;
+    border-radius:0
+  }
+}
+
+/* =========================================================
+   YOUTUBE PLAYERS
+   ========================================================= */
+
+.playerSlot{
+  position:absolute;
+  inset:0;
+
+  opacity:0;
+  pointer-events:none;
+
+  background:#000;
+
+  transition:opacity .10s linear
+}
+
+.playerSlot.active{
+  opacity:1
+}
+
+.playerSlot>div,
+.playerSlot iframe{
+  width:100%!important;
+  height:100%!important;
+
+  border:0!important;
+
   background:#000
 }
-#emptyCard{max-width:520px}
-#empty h1{margin:0 0 8px;font-size:clamp(34px,9vw,64px);letter-spacing:-1.5px}
-#empty p{margin:0 auto 20px;max-width:450px;opacity:.68;line-height:1.48}
+
+/* =========================================================
+   VIDEO OVERLAYS
+   ========================================================= */
+
+#shade{
+  position:absolute;
+  inset:0;
+
+  z-index:3;
+
+  pointer-events:none;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0,0,0,.52),
+      rgba(0,0,0,.06) 18%,
+      transparent 35%
+    ),
+    linear-gradient(
+      to top,
+      rgba(0,0,0,.92),
+      rgba(0,0,0,.44) 22%,
+      transparent 52%
+    )
+}
+
+#gesture{
+  position:absolute;
+  inset:0;
+
+  z-index:4;
+
+  touch-action:none
+}
+
+#buffer{
+  position:absolute;
+  inset:0;
+
+  z-index:6;
+
+  display:grid;
+  place-items:center;
+
+  pointer-events:none;
+
+  opacity:0;
+
+  transition:.12s
+}
+
+#buffer.on{
+  opacity:1
+}
+
+.spinner{
+  width:36px;
+  height:36px;
+
+  border:
+    3px solid rgba(255,255,255,.22);
+
+  border-top-color:#fff;
+
+  border-radius:50%;
+
+  animation:
+    spin .72s linear infinite
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg)
+  }
+}
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
+#top{
+  position:absolute;
+
+  z-index:10;
+
+  top:var(--safe-t);
+  left:14px;
+  right:14px;
+
+  height:44px;
+
+  display:grid;
+
+  grid-template-columns:
+    1fr auto 1fr;
+
+  align-items:center;
+
+  pointer-events:none
+}
+
+#brand{
+  justify-self:start;
+
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:-.6px;
+
+  text-shadow:
+    0 2px 10px #000
+}
+
+#feedTabs{
+  justify-self:center;
+
+  display:flex;
+
+  gap:17px;
+
+  align-items:center;
+
+  font-size:14px;
+  font-weight:850;
+
+  pointer-events:auto;
+
+  text-shadow:
+    0 2px 10px #000
+}
+
+.feedTab{
+  border:0;
+
+  background:transparent;
+
+  padding:8px 0;
+
+  opacity:.5;
+
+  cursor:pointer
+}
+
+.feedTab.active{
+  opacity:1;
+
+  position:relative
+}
+
+.feedTab.active:after{
+  content:"";
+
+  position:absolute;
+
+  left:50%;
+  bottom:1px;
+
+  width:22px;
+  height:2px;
+
+  border-radius:2px;
+
+  background:#fff;
+
+  transform:
+    translateX(-50%)
+}
+
+#shuffleBtn{
+  justify-self:end;
+
+  pointer-events:auto;
+
+  width:38px;
+  height:38px;
+
+  border:0;
+  border-radius:50%;
+
+  background:
+    rgba(15,15,15,.48);
+
+  backdrop-filter:
+    blur(10px);
+
+  display:grid;
+  place-items:center;
+
+  cursor:pointer;
+
+  font-size:18px
+}
+
+/* =========================================================
+   REEL INFORMATION
+   ========================================================= */
+
+#reelInfo{
+  position:absolute;
+
+  z-index:9;
+
+  left:15px;
+  right:75px;
+
+  bottom:
+    calc(72px + var(--safe-b));
+
+  text-shadow:
+    0 2px 12px rgba(0,0,0,.96);
+
+  pointer-events:none
+}
+
+#channelRow{
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  margin-bottom:10px;
+
+  max-width:100%
+}
+
+#channelButton{
+  pointer-events:auto;
+
+  border:0;
+
+  background:transparent;
+
+  padding:0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:9px;
+
+  min-width:0;
+
+  cursor:pointer;
+
+  text-align:left
+}
+
+.avatar{
+  width:34px;
+  height:34px;
+
+  border-radius:50%;
+
+  object-fit:cover;
+
+  background:#222;
+
+  border:
+    1px solid rgba(255,255,255,.42)
+}
+
+#channelName{
+  font-size:14px;
+  font-weight:900;
+
+  max-width:
+    min(52vw,280px);
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+  white-space:nowrap
+}
+
+.followPill{
+  pointer-events:auto;
+
+  height:29px;
+
+  border-radius:999px;
+
+  padding:0 11px;
+
+  border:
+    1px solid rgba(255,255,255,.34);
+
+  background:
+    rgba(12,12,12,.48);
+
+  backdrop-filter:
+    blur(10px);
+
+  color:#fff;
+
+  font-size:11px;
+
+  font-weight:900;
+
+  cursor:pointer;
+
+  white-space:nowrap
+}
+
+.followPill.following{
+  background:#fff;
+  color:#000;
+  border-color:#fff
+}
+
+#caption{
+  white-space:pre-wrap;
+
+  line-height:1.28;
+
+  font-size:
+    clamp(18px,4.4vw,25px);
+
+  font-weight:850;
+
+  letter-spacing:-.15px
+}
+
+#clipMeta{
+  font-size:11px;
+
+  font-weight:650;
+
+  opacity:.55;
+
+  margin-top:7px
+}
+
+/* =========================================================
+   ACTION RAIL
+   ========================================================= */
+
+#rail{
+  position:absolute;
+
+  z-index:10;
+
+  right:9px;
+
+  bottom:
+    calc(91px + var(--safe-b));
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  gap:8px
+}
+
+.railBtn{
+  width:47px;
+  height:47px;
+
+  border:0;
+
+  border-radius:50%;
+
+  background:
+    rgba(15,15,15,.55);
+
+  backdrop-filter:
+    blur(10px);
+
+  display:grid;
+
+  place-items:center;
+
+  font-size:19px;
+
+  cursor:pointer
+}
+
+.railBtn.active{
+  background:#fff;
+  color:#000
+}
+
+.railBtn:active{
+  transform:scale(.95)
+}
+
+.railLabel{
+  font-size:9px;
+
+  font-weight:750;
+
+  margin-top:-5px;
+
+  text-shadow:
+    0 2px 8px #000
+}
+
+/* =========================================================
+   BOTTOM NAV
+   ========================================================= */
+
+#nav{
+  position:absolute;
+
+  z-index:12;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  height:
+    calc(61px + var(--safe-b));
+
+  padding:
+    0 9px var(--safe-b);
+
+  display:grid;
+
+  grid-template-columns:
+    1fr 1fr 1fr;
+
+  align-items:center;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0,0,0,.97),
+      rgba(0,0,0,.62),
+      transparent
+    )
+}
+
+.navBtn{
+  height:48px;
+
+  border:0;
+
+  background:transparent;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:2px;
+
+  opacity:.5;
+
+  cursor:pointer
+}
+
+.navBtn.active{
+  opacity:1
+}
+
+.navIcon{
+  font-size:21px;
+  line-height:21px
+}
+
+.navText{
+  font-size:10px;
+  font-weight:750
+}
+
+#addNav .navIcon{
+  width:36px;
+  height:27px;
+
+  border-radius:8px;
+
+  background:#fff;
+  color:#000;
+
+  display:grid;
+  place-items:center;
+
+  font-size:23px;
+
+  font-weight:950
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+#empty{
+  position:absolute;
+
+  inset:0;
+
+  z-index:7;
+
+  display:grid;
+
+  place-items:center;
+
+  text-align:center;
+
+  padding:28px;
+
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      #1b1b1b,
+      #090909 50%,
+      #000 82%
+    )
+}
+
+#emptyCard{
+  max-width:390px
+}
+
+#empty h1{
+  margin:0 0 7px;
+
+  font-size:48px;
+
+  letter-spacing:-2px
+}
+
+#empty p{
+  margin:
+    0 auto 20px;
+
+  opacity:.62;
+
+  line-height:1.5;
+
+  font-size:14px
+}
+
 .primary{
-  border:0;border-radius:13px;background:#fff;color:#000;height:46px;padding:0 18px;font-weight:850;cursor:pointer
+  height:45px;
+
+  border:0;
+
+  border-radius:999px;
+
+  padding:0 18px;
+
+  background:#fff;
+  color:#000;
+
+  font-weight:900;
+
+  cursor:pointer
 }
 
-/* sheets */
-.sheet{
-  position:absolute;z-index:40;inset:0;background:#0b0b0b;transform:translateY(101%);
-  transition:transform .22s ease;overflow:auto;padding-bottom:calc(22px + var(--safe-b))
-}
-.sheet.open{transform:translateY(0)}
-.sheetHead{
-  position:sticky;top:0;z-index:3;height:calc(58px + var(--safe-t));padding:var(--safe-t) 14px 0;
-  display:flex;align-items:center;gap:10px;background:rgba(11,11,11,.92);backdrop-filter:blur(18px);
-  border-bottom:1px solid rgba(255,255,255,.07)
-}
-.backBtn{width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.08);font-size:20px;cursor:pointer}
-.sheetTitle{font-size:18px;font-weight:850;flex:1}
-.sheetBody{padding:16px}
+.secondary{
+  height:42px;
 
-/* Add dialog */
-#addSheet{background:rgba(6,6,6,.98)}
-.addBox{max-width:650px;margin:8vh auto 0;padding:18px}
-.addBox h2{font-size:30px;margin:0 0 7px;letter-spacing:-.7px}
-.addBox p{opacity:.62;margin:0 0 18px;line-height:1.45}
-.urlRow{display:flex;gap:8px}
+  border:0;
+
+  border-radius:999px;
+
+  padding:0 14px;
+
+  background:#242424;
+
+  color:#fff;
+
+  font-weight:820;
+
+  cursor:pointer
+}
+
+/* =========================================================
+   INTERNAL APP SCREENS
+   ========================================================= */
+
+.screen{
+  position:absolute;
+
+  z-index:40;
+
+  inset:0;
+
+  background:#0b0b0b;
+
+  transform:
+    translateY(101%);
+
+  transition:
+    transform .20s cubic-bezier(.2,.75,.2,1);
+
+  overflow:auto;
+
+  overscroll-behavior:contain;
+
+  padding-bottom:
+    calc(22px + var(--safe-b))
+}
+
+.screen.open{
+  transform:
+    translateY(0)
+}
+
+.screenHead{
+  position:sticky;
+
+  top:0;
+
+  z-index:3;
+
+  height:
+    calc(58px + var(--safe-t));
+
+  padding:
+    var(--safe-t) 14px 0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  background:
+    rgba(11,11,11,.90);
+
+  backdrop-filter:
+    blur(18px);
+
+  border-bottom:
+    1px solid var(--line)
+}
+
+.backBtn{
+  width:38px;
+  height:38px;
+
+  border:0;
+
+  border-radius:50%;
+
+  background:#1e1e1e;
+
+  font-size:23px;
+
+  cursor:pointer
+}
+
+.screenTitle{
+  font-size:18px;
+
+  font-weight:900;
+
+  flex:1
+}
+
+.screenBody{
+  padding:15px
+}
+
+/* =========================================================
+   ADD SCREEN
+   ========================================================= */
+
+.addBox{
+  padding:24px 18px;
+
+  max-width:100%
+}
+
+.addBox h2{
+  margin:0 0 7px;
+
+  font-size:31px;
+
+  letter-spacing:-1px
+}
+
+.addBox p{
+  margin:0 0 18px;
+
+  opacity:.62;
+
+  line-height:1.5;
+
+  font-size:13px
+}
+
+.urlRow{
+  display:flex;
+
+  gap:8px
+}
+
 #urlInput{
-  min-width:0;flex:1;height:48px;border-radius:13px;border:1px solid rgba(255,255,255,.14);
-  background:#181818;color:#fff;padding:0 13px;outline:none
-}
-#urlInput:focus{border-color:rgba(255,255,255,.45)}
-#addStatus{margin-top:14px;min-height:22px;font-size:13px;opacity:.72}
-.note{margin-top:18px;font-size:12px;opacity:.45;line-height:1.5}
+  flex:1;
 
-/* Channels sheet */
-.channelList{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  min-width:0;
+
+  height:49px;
+
+  border-radius:14px;
+
+  border:
+    1px solid var(--line);
+
+  background:#171717;
+
+  color:#fff;
+
+  padding:0 13px;
+
+  outline:none
+}
+
+#urlInput:focus{
+  border-color:
+    rgba(255,255,255,.4)
+}
+
+#importBtn{
+  height:49px
+}
+
+#addStatus{
+  min-height:22px;
+
+  margin-top:13px;
+
+  font-size:12px;
+
+  opacity:.72
+}
+
+.note{
+  font-size:11px;
+
+  line-height:1.55;
+
+  opacity:.35;
+
+  margin-top:16px
+}
+
+/* =========================================================
+   FOLLOWING LIST
+   ========================================================= */
+
+#channelList{
+  display:grid;
+
+  grid-template-columns:1fr;
+
+  gap:10px
+}
+
 .channelCard{
-  border:0;padding:0;background:#151515;border-radius:15px;overflow:hidden;text-align:left;cursor:pointer
-}
-.channelThumb{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#222}
-.channelCardText{padding:11px 12px 13px}
-.channelCardTitle{font-weight:800;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.channelCardMeta{font-size:12px;opacity:.55;margin-top:6px}
+  border:
+    1px solid rgba(255,255,255,.05);
 
-/* Channel detail */
-.hero{max-width:920px;margin:0 auto}
-.heroImg{width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:16px;background:#222}
-.heroTitle{font-size:25px;font-weight:900;letter-spacing:-.5px;margin:14px 0 4px}
-.heroMeta{opacity:.55;font-size:13px}
-.heroActions{display:flex;gap:8px;margin:14px 0 20px}
-.secondary{border:0;border-radius:12px;background:#232323;color:#fff;height:43px;padding:0 14px;font-weight:750;cursor:pointer}
-.clipGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  border-radius:15px;
+
+  background:#151515;
+
+  overflow:hidden;
+
+  display:grid;
+
+  grid-template-columns:
+    112px 1fr;
+
+  min-height:92px;
+
+  padding:0;
+
+  text-align:left;
+
+  cursor:pointer
+}
+
+.channelThumb{
+  width:112px;
+
+  height:100%;
+
+  object-fit:cover;
+
+  background:#222
+}
+
+.channelText{
+  padding:11px;
+
+  min-width:0
+}
+
+.channelTitle{
+  font-size:14px;
+
+  font-weight:880;
+
+  line-height:1.3;
+
+  display:-webkit-box;
+
+  -webkit-line-clamp:2;
+
+  -webkit-box-orient:vertical;
+
+  overflow:hidden
+}
+
+.channelMeta{
+  font-size:11px;
+
+  opacity:.5;
+
+  margin-top:6px
+}
+
+/* =========================================================
+   CHANNEL DETAIL
+   ========================================================= */
+
+#heroImg{
+  width:100%;
+
+  aspect-ratio:16 / 7;
+
+  object-fit:cover;
+
+  border-radius:16px;
+
+  background:#222
+}
+
+#heroTitle{
+  font-size:25px;
+
+  font-weight:950;
+
+  letter-spacing:-.6px;
+
+  margin:13px 0 4px
+}
+
+#heroMeta{
+  font-size:11px;
+
+  opacity:.52
+}
+
+.heroActions{
+  display:flex;
+
+  gap:7px;
+
+  flex-wrap:wrap;
+
+  margin:14px 0 18px
+}
+
+#clipGrid{
+  display:grid;
+
+  grid-template-columns:1fr;
+
+  gap:9px
+}
+
 .clipCard{
-  display:grid;grid-template-columns:108px 1fr;min-height:92px;border:0;border-radius:13px;background:#161616;
-  color:#fff;padding:0;overflow:hidden;text-align:left;cursor:pointer
-}
-.clipImg{width:108px;height:100%;object-fit:cover;background:#222}
-.clipText{padding:10px;min-width:0}
-.clipTime{font-size:11px;opacity:.55;margin-bottom:4px}
-.clipCaption{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  border:
+    1px solid rgba(255,255,255,.05);
 
-/* toast */
+  border-radius:14px;
+
+  background:#151515;
+
+  overflow:hidden;
+
+  display:grid;
+
+  grid-template-columns:
+    112px 1fr;
+
+  min-height:92px;
+
+  padding:0;
+
+  text-align:left;
+
+  cursor:pointer
+}
+
+.clipImg{
+  width:112px;
+
+  height:100%;
+
+  object-fit:cover;
+
+  background:#222
+}
+
+.clipText{
+  padding:9px;
+
+  min-width:0
+}
+
+.clipTime{
+  font-size:10px;
+
+  opacity:.5;
+
+  margin-bottom:5px
+}
+
+.clipCaption{
+  font-size:13px;
+
+  line-height:1.35;
+
+  display:-webkit-box;
+
+  -webkit-line-clamp:3;
+
+  -webkit-box-orient:vertical;
+
+  overflow:hidden
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
 #toast{
-  position:absolute;z-index:100;left:50%;top:calc(64px + var(--safe-t));transform:translateX(-50%);
-  max-width:calc(100vw - 28px);padding:10px 14px;border-radius:12px;background:rgba(25,25,25,.94);
-  border:1px solid rgba(255,255,255,.12);opacity:0;pointer-events:none;transition:.16s;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
-}
-#toast.on{opacity:1}
+  position:absolute;
 
-@media(min-width:900px){
-  #stage{left:50%;transform:translateX(-50%);width:min(560px,100vw);box-shadow:0 0 70px rgba(255,255,255,.04)}
-  body{background:#080808}
+  z-index:100;
+
+  left:50%;
+
+  top:
+    calc(62px + var(--safe-t));
+
+  transform:
+    translateX(-50%);
+
+  max-width:
+    calc(100% - 28px);
+
+  padding:9px 13px;
+
+  border-radius:999px;
+
+  background:
+    rgba(24,24,24,.95);
+
+  border:
+    1px solid var(--line);
+
+  font-size:12px;
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:.14s
+}
+
+#toast.on{
+  opacity:1
 }
 </style>
 </head>
+
 <body>
+
 <div id="app">
-  <main id="stage">
-    <div class="playerSlot" id="slot0"><div id="yt0"></div></div>
-    <div class="playerSlot" id="slot1"><div id="yt1"></div></div>
-    <div class="playerSlot" id="slot2"><div id="yt2"></div></div>
-    <div id="shade"></div>
-    <div id="gesture"></div>
-    <div id="buffer"><div class="spinner"></div></div>
 
-    <div id="top">
-      <div id="brand">Kiku</div>
-      <div class="topActions">
-        <button class="iconBtn" id="shuffleBtn" title="Shuffle feed">⤨</button>
-      </div>
+<main id="phone">
+
+  <!-- =====================================================
+       3-PLAYER RING
+       ===================================================== -->
+
+  <div
+    class="playerSlot"
+    id="slot0"
+  >
+    <div id="yt0"></div>
+  </div>
+
+  <div
+    class="playerSlot"
+    id="slot1"
+  >
+    <div id="yt1"></div>
+  </div>
+
+  <div
+    class="playerSlot"
+    id="slot2"
+  >
+    <div id="yt2"></div>
+  </div>
+
+  <div id="shade"></div>
+
+  <div id="gesture"></div>
+
+  <div id="buffer">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- =====================================================
+       TOP
+       ===================================================== -->
+
+  <header id="top">
+
+    <div id="brand">
+      Kiku
     </div>
 
-    <section id="reelInfo">
-      <button id="channelButton">
-        <img class="avatar" id="avatar" alt="">
-        <span id="channelName">—</span>
+    <div id="feedTabs">
+
+      <button
+        class="feedTab active"
+        id="forYouTab"
+      >
+        For you
       </button>
-      <div id="caption">—</div>
-      <div id="clipMeta">—</div>
-    </section>
 
-    <aside id="rail">
-      <button class="railBtn" id="soundBtn" title="Sound">🔇</button>
-      <span class="railLabel">sound</span>
-      <button class="railBtn" id="fullBtn" title="Fullscreen">⛶</button>
-      <span class="railLabel">full</span>
-      <button class="railBtn" id="ytBtn" title="Open YouTube">↗</button>
-      <span class="railLabel">YouTube</span>
-    </aside>
+      <button
+        class="feedTab"
+        id="followingTab"
+      >
+        Following
+      </button>
 
-    <div id="empty">
-      <div id="emptyCard">
-        <h1>Kiku Reels</h1>
-        <p>Mỗi link YouTube là một “kênh”. App lấy caption theo timestamp, biến chúng thành clip tự nhiên rồi trộn vào feed.</p>
-        <button class="primary" id="emptyAdd">Thêm link YouTube</button>
-      </div>
     </div>
 
-    <nav id="nav">
-      <button class="navBtn active" id="homeNav"><span class="navIcon">⌂</span><span class="navText">Home</span></button>
-      <button class="navBtn" id="channelsNav"><span class="navIcon">▦</span><span class="navText">Channels</span></button>
-      <button class="navBtn" id="addNav"><span class="navIcon">＋</span><span class="navText">Add</span></button>
-    </nav>
-  </main>
+    <button
+      id="shuffleBtn"
+      title="Shuffle"
+    >
+      ⤨
+    </button>
 
-  <section class="sheet" id="addSheet">
-    <header class="sheetHead">
-      <button class="backBtn" data-close="addSheet">‹</button>
-      <div class="sheetTitle">Add channel</div>
+  </header>
+
+  <!-- =====================================================
+       REEL CAPTION
+       ===================================================== -->
+
+  <section id="reelInfo">
+
+    <div id="channelRow">
+
+      <button id="channelButton">
+
+        <img
+          class="avatar"
+          id="avatar"
+          alt=""
+        >
+
+        <span id="channelName">
+          —
+        </span>
+
+      </button>
+
+      <button
+        id="followQuick"
+        class="followPill"
+      >
+        Follow
+      </button>
+
+    </div>
+
+    <div id="caption">
+      —
+    </div>
+
+    <div id="clipMeta">
+      —
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       ACTION RAIL
+       ===================================================== -->
+
+  <aside id="rail">
+
+    <button
+      class="railBtn"
+      id="likeBtn"
+      title="Like"
+    >
+      ♡
+    </button>
+
+    <span class="railLabel">
+      like
+    </span>
+
+    <button
+      class="railBtn"
+      id="saveBtn"
+      title="Save"
+    >
+      ▱
+    </button>
+
+    <span class="railLabel">
+      save
+    </span>
+
+    <button
+      class="railBtn"
+      id="soundBtn"
+      title="Sound"
+    >
+      🔇
+    </button>
+
+    <span class="railLabel">
+      sound
+    </span>
+
+    <button
+      class="railBtn"
+      id="fullBtn"
+      title="Fullscreen"
+    >
+      ⛶
+    </button>
+
+    <span class="railLabel">
+      full
+    </span>
+
+    <button
+      class="railBtn"
+      id="ytBtn"
+      title="YouTube"
+    >
+      ↗
+    </button>
+
+    <span class="railLabel">
+      YouTube
+    </span>
+
+  </aside>
+
+  <!-- =====================================================
+       EMPTY
+       ===================================================== -->
+
+  <section id="empty">
+
+    <div id="emptyCard">
+
+      <h1>
+        Kiku
+      </h1>
+
+      <p>
+        Thêm video YouTube.
+        App lấy caption theo timestamp,
+        tách thành reel rồi trộn vào feed.
+      </p>
+
+      <button
+        class="primary"
+        id="emptyAdd"
+      >
+        Add video
+      </button>
+
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       BOTTOM NAV
+       ===================================================== -->
+
+  <nav id="nav">
+
+    <button
+      class="navBtn active"
+      id="homeNav"
+    >
+      <span class="navIcon">
+        ⌂
+      </span>
+
+      <span class="navText">
+        Home
+      </span>
+    </button>
+
+    <button
+      class="navBtn"
+      id="channelsNav"
+    >
+      <span class="navIcon">
+        ▦
+      </span>
+
+      <span class="navText">
+        Following
+      </span>
+    </button>
+
+    <button
+      class="navBtn"
+      id="addNav"
+    >
+      <span class="navIcon">
+        ＋
+      </span>
+
+      <span class="navText">
+        Add
+      </span>
+    </button>
+
+  </nav>
+
+  <!-- =====================================================
+       ADD VIDEO SCREEN
+       ===================================================== -->
+
+  <section
+    class="screen"
+    id="addScreen"
+  >
+
+    <header class="screenHead">
+
+      <button
+        class="backBtn"
+        data-close="addScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Add video
+      </div>
+
     </header>
+
     <div class="addBox">
-      <h2>Paste YouTube link</h2>
-      <p>Mỗi link được coi là một kênh riêng. Caption tiếng Nhật sẽ quyết định ranh giới clip — không cắt theo số giây cố định.</p>
+
+      <h2>
+        Paste YouTube video
+      </h2>
+
+      <p>
+        Link chỉ là nguồn video.
+        App tự lấy channel thật,
+        transcript tiếng Nhật
+        và chia clip tại boundary của caption.
+      </p>
+
       <div class="urlRow">
-        <input id="urlInput" autocomplete="off" spellcheck="false" placeholder="https://youtube.com/watch?v=…">
-        <button class="primary" id="importBtn">Import</button>
+
+        <input
+          id="urlInput"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="https://youtube.com/watch?v=…"
+        >
+
+        <button
+          class="primary"
+          id="importBtn"
+        >
+          Import
+        </button>
+
       </div>
+
       <div id="addStatus"></div>
-      <div class="note">Bản HTML này dùng YouTube embed để phát video và một transcript endpoint CORS công khai để đọc timestamp caption. Deploy file này lên HTTPS (ví dụ GitHub Pages).</div>
-    </div>
-  </section>
 
-  <section class="sheet" id="channelsSheet">
-    <header class="sheetHead">
-      <button class="backBtn" data-close="channelsSheet">‹</button>
-      <div class="sheetTitle">Channels</div>
-      <button class="secondary" id="channelsAdd">＋ Add</button>
-    </header>
-    <div class="sheetBody">
-      <div class="channelList" id="channelList"></div>
-    </div>
-  </section>
-
-  <section class="sheet" id="channelSheet">
-    <header class="sheetHead">
-      <button class="backBtn" data-close="channelSheet">‹</button>
-      <div class="sheetTitle">Channel</div>
-    </header>
-    <div class="sheetBody">
-      <div class="hero">
-        <img class="heroImg" id="heroImg" alt="">
-        <div class="heroTitle" id="heroTitle">—</div>
-        <div class="heroMeta" id="heroMeta">—</div>
-        <div class="heroActions">
-          <button class="primary" id="playChannel">▶ Play channel</button>
-          <button class="secondary" id="deleteChannel">Delete</button>
-        </div>
-        <div class="clipGrid" id="clipGrid"></div>
+      <div class="note">
+        Static HTML:
+        video phát bằng YouTube embed;
+        metadata lấy qua noembed;
+        transcript lấy qua endpoint CORS.
+        Dữ liệu app được lưu local bằng
+        IndexedDB/localStorage.
       </div>
+
     </div>
+
+  </section>
+
+  <!-- =====================================================
+       FOLLOWING SCREEN
+       ===================================================== -->
+
+  <section
+    class="screen"
+    id="channelsScreen"
+  >
+
+    <header class="screenHead">
+
+      <button
+        class="backBtn"
+        data-close="channelsScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Following
+      </div>
+
+      <button
+        class="secondary"
+        id="channelsAdd"
+      >
+        ＋ Add
+      </button>
+
+    </header>
+
+    <div class="screenBody">
+
+      <div id="channelList"></div>
+
+    </div>
+
+  </section>
+
+  <!-- =====================================================
+       CHANNEL DETAIL SCREEN
+       ===================================================== -->
+
+  <section
+    class="screen"
+    id="channelScreen"
+  >
+
+    <header class="screenHead">
+
+      <button
+        class="backBtn"
+        data-close="channelScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Channel
+      </div>
+
+    </header>
+
+    <div class="screenBody">
+
+      <img
+        id="heroImg"
+        alt=""
+      >
+
+      <div id="heroTitle">
+        —
+      </div>
+
+      <div id="heroMeta">
+        —
+      </div>
+
+      <div class="heroActions">
+
+        <button
+          class="primary"
+          id="followChannel"
+        >
+          Follow
+        </button>
+
+        <button
+          class="secondary"
+          id="playChannel"
+        >
+          ▶ Play
+        </button>
+
+        <button
+          class="secondary"
+          id="deleteChannel"
+        >
+          Remove data
+        </button>
+
+      </div>
+
+      <div id="clipGrid"></div>
+
+    </div>
+
   </section>
 
   <div id="toast"></div>
+
+</main>
+
 </div>
 
 <script>
 (()=>{
+
 'use strict';
 
-/* ---------- configuration ---------- */
-const TRANSCRIPT_API = id => `https://youtube-transcript.ai/transcript/${encodeURIComponent(id)}.txt?lang=ja`;
-const DB_NAME = 'kiku-reels-db';
-const DB_VERSION = 1;
-const STORE = 'channels';
-const MIN_CLIP = 8;
-const TARGET_CLIP = 18;
-const MAX_CLIP = 36;
+/* =========================================================
+   CONFIG
+   ========================================================= */
 
-/* ---------- dom ---------- */
-const $ = s => document.querySelector(s);
-const stage=$('#stage'), empty=$('#empty'), gesture=$('#gesture'), buffer=$('#buffer');
-const captionEl=$('#caption'), channelNameEl=$('#channelName'), avatarEl=$('#avatar'), clipMetaEl=$('#clipMeta');
-const channelButton=$('#channelButton'), soundBtn=$('#soundBtn'), fullBtn=$('#fullBtn'), ytBtn=$('#ytBtn'), shuffleBtn=$('#shuffleBtn');
-const addSheet=$('#addSheet'), channelsSheet=$('#channelsSheet'), channelSheet=$('#channelSheet');
-const urlInput=$('#urlInput'), importBtn=$('#importBtn'), addStatus=$('#addStatus');
-const channelList=$('#channelList'), clipGrid=$('#clipGrid');
-const heroImg=$('#heroImg'), heroTitle=$('#heroTitle'), heroMeta=$('#heroMeta');
-const playChannel=$('#playChannel'), deleteChannel=$('#deleteChannel'), toast=$('#toast');
-const homeNav=$('#homeNav'), channelsNav=$('#channelsNav'), addNav=$('#addNav');
+const TRANSCRIPT_API = id =>
+  `https://youtube-transcript.ai/transcript/${encodeURIComponent(id)}.txt?lang=ja`;
 
-/* ---------- state ---------- */
-let db=null;
-let channels=[];
-let feed=[];
-let feedMode='mixed';
-let feedIndex=0;
-let selectedChannelId=null;
-let ytReady=false;
-let players=[null,null,null];
-let role={prev:0,current:1,next:2};
-let loadedClipKey=[null,null,null];
-let currentCaptionIndex=-1;
-let monitor=null;
-let audioUnlocked=false;
-let touchStart=null;
-let wheelLock=false;
-let currentPlayerReady=false;
+const DB_NAME =
+  'kiku-app-db';
 
-/* ---------- basic helpers ---------- */
-function toastMsg(msg){
-  toast.textContent=msg;
-  toast.classList.add('on');
-  clearTimeout(toastMsg.t);
-  toastMsg.t=setTimeout(()=>toast.classList.remove('on'),1900);
-}
-function escapeHtml(s=''){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function parseVideoId(raw){
-  const t=(raw||'').trim();
-  if(/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
+const DB_VERSION =
+  1;
+
+const CHANNEL_STORE =
+  'channels';
+
+const STATE_KEY =
+  'kiku-app-state-v1';
+
+const MIN_CLIP =
+  8;
+
+const TARGET_CLIP =
+  18;
+
+const MAX_CLIP =
+  36;
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const $ =
+  selector =>
+    document.querySelector(selector);
+
+const phone =
+  $('#phone');
+
+const empty =
+  $('#empty');
+
+const gesture =
+  $('#gesture');
+
+const buffer =
+  $('#buffer');
+
+const forYouTab =
+  $('#forYouTab');
+
+const followingTab =
+  $('#followingTab');
+
+const shuffleBtn =
+  $('#shuffleBtn');
+
+const channelButton =
+  $('#channelButton');
+
+const avatar =
+  $('#avatar');
+
+const channelName =
+  $('#channelName');
+
+const followQuick =
+  $('#followQuick');
+
+const caption =
+  $('#caption');
+
+const clipMeta =
+  $('#clipMeta');
+
+const likeBtn =
+  $('#likeBtn');
+
+const saveBtn =
+  $('#saveBtn');
+
+const soundBtn =
+  $('#soundBtn');
+
+const fullBtn =
+  $('#fullBtn');
+
+const ytBtn =
+  $('#ytBtn');
+
+const homeNav =
+  $('#homeNav');
+
+const channelsNav =
+  $('#channelsNav');
+
+const addNav =
+  $('#addNav');
+
+const addScreen =
+  $('#addScreen');
+
+const channelsScreen =
+  $('#channelsScreen');
+
+const channelScreen =
+  $('#channelScreen');
+
+const urlInput =
+  $('#urlInput');
+
+const importBtn =
+  $('#importBtn');
+
+const addStatus =
+  $('#addStatus');
+
+const channelList =
+  $('#channelList');
+
+const heroImg =
+  $('#heroImg');
+
+const heroTitle =
+  $('#heroTitle');
+
+const heroMeta =
+  $('#heroMeta');
+
+const followChannel =
+  $('#followChannel');
+
+const playChannel =
+  $('#playChannel');
+
+const deleteChannel =
+  $('#deleteChannel');
+
+const clipGrid =
+  $('#clipGrid');
+
+const toast =
+  $('#toast');
+
+/* =========================================================
+   PERSISTENT STATE
+   ========================================================= */
+
+let db =
+  null;
+
+let channels =
+  [];
+
+let state =
+  loadState();
+
+function loadState(){
+
   try{
-    const u=new URL(t), h=u.hostname.replace(/^www\./,'');
-    if(h==='youtu.be'){
-      const id=u.pathname.split('/').filter(Boolean)[0];
-      return /^[A-Za-z0-9_-]{11}$/.test(id||'')?id:null;
-    }
-    if(h.endsWith('youtube.com')){
-      if(u.pathname==='/watch'){
-        const id=u.searchParams.get('v');
-        return /^[A-Za-z0-9_-]{11}$/.test(id||'')?id:null;
-      }
-      const p=u.pathname.split('/').filter(Boolean);
-      if(['shorts','embed','live'].includes(p[0])){
-        return /^[A-Za-z0-9_-]{11}$/.test(p[1]||'')?p[1]:null;
-      }
-    }
-  }catch{}
-  const m=t.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);
-  return m?m[1]:null;
-}
-function thumb(id, quality='hqdefault'){return `https://i.ytimg.com/vi/${id}/${quality}.jpg`}
-function fmt(sec){
-  sec=Math.max(0,Math.floor(sec||0));
-  const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=String(sec%60).padStart(2,'0');
-  return h?`${h}:${String(m).padStart(2,'0')}:${s}`:`${m}:${s}`;
-}
-function timeToSec(text){
-  const p=text.trim().split(':').map(Number);
-  if(p.some(Number.isNaN)) return 0;
-  if(p.length===3) return p[0]*3600+p[1]*60+p[2];
-  if(p.length===2) return p[0]*60+p[1];
-  return p[0]||0;
-}
-function clipKey(c){return c?`${c.channelId}:${c.start}:${c.end}`:null}
-function openSheet(el){el.classList.add('open')}
-function closeSheet(el){el.classList.remove('open')}
-function currentClip(){return feed[feedIndex]||null}
-function channelById(id){return channels.find(c=>c.id===id)||null}
 
-/* ---------- IndexedDB ---------- */
-function openDB(){
-  return new Promise((resolve,reject)=>{
-    const req=indexedDB.open(DB_NAME,DB_VERSION);
-    req.onupgradeneeded=()=>{
-      const d=req.result;
-      if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE,{keyPath:'id'});
+    const saved =
+      JSON.parse(
+        localStorage.getItem(STATE_KEY)
+        || '{}'
+      );
+
+    return {
+
+      followed:
+        saved.followed || {},
+
+      liked:
+        saved.liked || {},
+
+      saved:
+        saved.saved || {},
+
+      seen:
+        saved.seen || {},
+
+      hidden:
+        saved.hidden || {}
+
     };
-    req.onsuccess=()=>resolve(req.result);
-    req.onerror=()=>reject(req.error);
-  });
-}
-function idbAll(){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE,'readonly'), req=tx.objectStore(STORE).getAll();
-    req.onsuccess=()=>resolve(req.result||[]);
-    req.onerror=()=>reject(req.error);
-  });
-}
-function idbPut(v){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE,'readwrite'), req=tx.objectStore(STORE).put(v);
-    req.onsuccess=()=>resolve();
-    req.onerror=()=>reject(req.error);
-  });
-}
-function idbDelete(id){
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(STORE,'readwrite'), req=tx.objectStore(STORE).delete(id);
-    req.onsuccess=()=>resolve();
-    req.onerror=()=>reject(req.error);
-  });
-}
 
-/* ---------- transcript parsing ---------- */
-function parseTranscriptDocument(text, videoId){
-  const title=(text.match(/^#\s*Transcript:\s*(.+)$/m)||[])[1]?.trim() || `YouTube ${videoId}`;
-  const language=(text.match(/^Language:\s*([^\s·]+)/m)||[])[1]?.trim() || 'unknown';
-  const durationText=(text.match(/Duration:\s*([0-9:]+)/m)||[])[1] || '';
-  let duration=timeToSec(durationText);
+  }catch{
 
-  const segments=[];
-  const re=/^\[([0-9:]+)\]\s+(.+)$/gm;
-  let m;
-  while((m=re.exec(text))){
-    const t=timeToSec(m[1]);
-    const body=m[2].trim();
-    if(body) segments.push({start:t,text:body});
-  }
-  segments.sort((a,b)=>a.start-b.start);
+    return {
 
-  if(!segments.length) throw new Error('Transcript không có timestamp.');
+      followed:{},
 
-  if(!duration || duration<=segments[segments.length-1].start){
-    duration=segments[segments.length-1].start+Math.max(8,TARGET_CLIP);
+      liked:{},
+
+      saved:{},
+
+      seen:{},
+
+      hidden:{}
+
+    };
+
   }
 
-  for(let i=0;i<segments.length;i++){
-    segments[i].end = i+1<segments.length ? segments[i+1].start : duration;
-    if(segments[i].end<=segments[i].start) segments[i].end=segments[i].start+1;
-  }
-  return {title,language,duration,segments};
 }
 
-function buildClips(channelId, videoId, segments, duration){
-  const clips=[];
-  let i=0;
-  while(i<segments.length){
-    const first=i;
-    let last=i;
-    let start=segments[first].start;
-    let end=Math.min(duration,segments[last].end);
+function saveState(){
 
-    while(last+1<segments.length){
-      const candidateEnd=Math.min(duration,segments[last+1].end);
-      const now=end-start;
-      const next=candidateEnd-start;
+  localStorage.setItem(
+    STATE_KEY,
+    JSON.stringify(state)
+  );
 
-      if(now < MIN_CLIP){ last++; end=candidateEnd; continue; }
-      if(now >= TARGET_CLIP) break;
-      if(next > MAX_CLIP) break;
+}
+
+/* =========================================================
+   RUNTIME FEED STATE
+   ========================================================= */
+
+let feed =
+  [];
+
+let feedMode =
+  'for-you';
+
+let feedIndex =
+  0;
+
+let selectedChannelId =
+  null;
+
+let ytReady =
+  false;
+
+let players =
+  [
+    null,
+    null,
+    null
+  ];
+
+/*
+  Physical iframe ring.
+
+  Only role.current may PLAY.
+*/
+
+let role = {
+
+  prev:0,
+
+  current:1,
+
+  next:2
+
+};
+
+let loadedKey =
+  [
+    null,
+    null,
+    null
+  ];
+
+let currentCaptionIndex =
+  -1;
+
+let currentSeenMarked =
+  false;
+
+let audioOn =
+  false;
+
+let monitorTimer =
+  null;
+
+let touchStart =
+  null;
+
+let wheelLocked =
+  false;
+
+/* =========================================================
+   UTILS
+   ========================================================= */
+
+function toastMsg(text){
+
+  toast.textContent =
+    text;
+
+  toast.classList.add(
+    'on'
+  );
+
+  clearTimeout(
+    toastMsg.timer
+  );
+
+  toastMsg.timer =
+    setTimeout(()=>{
+
+      toast.classList.remove(
+        'on'
+      );
+
+    },1800);
+
+}
+
+function openScreen(element){
+
+  element.classList.add(
+    'open'
+  );
+
+}
+
+function closeScreen(element){
+
+  element.classList.remove(
+    'open'
+  );
+
+}
+
+function escapeHtml(text=''){
+
+  return String(text).replace(
+    /[&<>"']/g,
+    character => ({
+
+      '&':'&amp;',
+
+      '<':'&lt;',
+
+      '>':'&gt;',
+
+      '"':'&quot;',
+
+      "'":'&#39;'
+
+    }[character])
+  );
+
+}
+
+function parseVideoId(raw){
+
+  const text =
+    (raw || '').trim();
+
+  if(
+    /^[A-Za-z0-9_-]{11}$/.test(text)
+  ){
+
+    return text;
+
+  }
+
+  try{
+
+    const url =
+      new URL(text);
+
+    const host =
+      url.hostname.replace(
+        /^www\./,
+        ''
+      );
+
+    if(
+      host === 'youtu.be'
+    ){
+
+      const id =
+        url.pathname
+          .split('/')
+          .filter(Boolean)[0];
+
+      return /^[A-Za-z0-9_-]{11}$/.test(id || '')
+        ? id
+        : null;
+
+    }
+
+    if(
+      host.endsWith('youtube.com')
+    ){
+
+      if(
+        url.pathname === '/watch'
+      ){
+
+        const id =
+          url.searchParams.get('v');
+
+        return /^[A-Za-z0-9_-]{11}$/.test(id || '')
+          ? id
+          : null;
+
+      }
+
+      const parts =
+        url.pathname
+          .split('/')
+          .filter(Boolean);
+
+      if(
+        [
+          'shorts',
+          'embed',
+          'live'
+        ].includes(parts[0])
+      ){
+
+        const id =
+          parts[1];
+
+        return /^[A-Za-z0-9_-]{11}$/.test(id || '')
+          ? id
+          : null;
+
+      }
+
+    }
+
+  }catch{}
+
+  const match =
+    text.match(
+      /(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/
+    );
+
+  return match
+    ? match[1]
+    : null;
+
+}
+
+function videoUrl(id){
+
+  return `https://www.youtube.com/watch?v=${id}`;
+
+}
+
+function thumb(
+  id,
+  quality='hqdefault'
+){
+
+  return `https://i.ytimg.com/vi/${id}/${quality}.jpg`;
+
+}
+
+function fmt(seconds){
+
+  seconds =
+    Math.max(
+      0,
+      Math.floor(seconds || 0)
+    );
+
+  const hours =
+    Math.floor(
+      seconds / 3600
+    );
+
+  const minutes =
+    Math.floor(
+      (seconds % 3600) / 60
+    );
+
+  const secs =
+    String(
+      seconds % 60
+    ).padStart(
+      2,
+      '0'
+    );
+
+  return hours
+
+    ? `${hours}:${String(minutes).padStart(2,'0')}:${secs}`
+
+    : `${minutes}:${secs}`;
+
+}
+
+function timeToSeconds(text){
+
+  const parts =
+    String(text || '')
+      .trim()
+      .split(':')
+      .map(Number);
+
+  if(
+    parts.some(Number.isNaN)
+  ){
+
+    return 0;
+
+  }
+
+  if(
+    parts.length === 3
+  ){
+
+    return (
+      parts[0] * 3600
+      + parts[1] * 60
+      + parts[2]
+    );
+
+  }
+
+  if(
+    parts.length === 2
+  ){
+
+    return (
+      parts[0] * 60
+      + parts[1]
+    );
+
+  }
+
+  return parts[0] || 0;
+
+}
+
+function hash(text){
+
+  let value =
+    2166136261;
+
+  for(
+    let i=0;
+    i<text.length;
+    i++
+  ){
+
+    value ^=
+      text.charCodeAt(i);
+
+    value =
+      Math.imul(
+        value,
+        16777619
+      );
+
+  }
+
+  return (
+    value >>> 0
+  ).toString(36);
+
+}
+
+function clipKey(clip){
+
+  if(
+    !clip
+  ){
+
+    return null;
+
+  }
+
+  return [
+
+    clip.channelId,
+
+    clip.videoId,
+
+    clip.start,
+
+    clip.end
+
+  ].join(':');
+
+}
+
+function currentClip(){
+
+  return (
+    feed[feedIndex]
+    || null
+  );
+
+}
+
+function channelById(id){
+
+  return (
+    channels.find(
+      channel =>
+        channel.id === id
+    )
+    || null
+  );
+
+}
+
+function isFollowed(channelId){
+
+  return !!state.followed[
+    channelId
+  ];
+
+}
+
+function isLiked(clipId){
+
+  return !!state.liked[
+    clipId
+  ];
+
+}
+
+function isSaved(clipId){
+
+  return !!state.saved[
+    clipId
+  ];
+
+}
+
+/* =========================================================
+   INDEXED DB
+   ========================================================= */
+
+function openDB(){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const request =
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+      request.onupgradeneeded =
+        ()=>{
+
+          const database =
+            request.result;
+
+          if(
+            !database
+              .objectStoreNames
+              .contains(
+                CHANNEL_STORE
+              )
+          ){
+
+            database
+              .createObjectStore(
+                CHANNEL_STORE,
+                {
+                  keyPath:'id'
+                }
+              );
+
+          }
+
+        };
+
+      request.onsuccess =
+        ()=>{
+
+          resolve(
+            request.result
+          );
+
+        };
+
+      request.onerror =
+        ()=>{
+
+          reject(
+            request.error
+          );
+
+        };
+
+    }
+  );
+
+}
+
+function dbAllChannels(){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const transaction =
+        db.transaction(
+          CHANNEL_STORE,
+          'readonly'
+        );
+
+      const request =
+        transaction
+          .objectStore(
+            CHANNEL_STORE
+          )
+          .getAll();
+
+      request.onsuccess =
+        ()=>{
+
+          resolve(
+            request.result
+            || []
+          );
+
+        };
+
+      request.onerror =
+        ()=>{
+
+          reject(
+            request.error
+          );
+
+        };
+
+    }
+  );
+
+}
+
+function dbPutChannel(channel){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const transaction =
+        db.transaction(
+          CHANNEL_STORE,
+          'readwrite'
+        );
+
+      const request =
+        transaction
+          .objectStore(
+            CHANNEL_STORE
+          )
+          .put(
+            channel
+          );
+
+      request.onsuccess =
+        ()=>resolve();
+
+      request.onerror =
+        ()=>reject(
+          request.error
+        );
+
+    }
+  );
+
+}
+
+function dbDeleteChannel(id){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const transaction =
+        db.transaction(
+          CHANNEL_STORE,
+          'readwrite'
+        );
+
+      const request =
+        transaction
+          .objectStore(
+            CHANNEL_STORE
+          )
+          .delete(id);
+
+      request.onsuccess =
+        ()=>resolve();
+
+      request.onerror =
+        ()=>reject(
+          request.error
+        );
+
+    }
+  );
+
+}
+
+/* =========================================================
+   TRANSCRIPT PARSER
+   ========================================================= */
+
+function parseTranscript(
+  text,
+  videoId
+){
+
+  const transcriptTitle =
+    (
+      text.match(
+        /^#\s*Transcript:\s*(.+)$/m
+      )
+      || []
+    )[1]?.trim()
+    || `YouTube ${videoId}`;
+
+  const language =
+    (
+      text.match(
+        /^Language:\s*([^\s·]+)/m
+      )
+      || []
+    )[1]?.trim()
+    || 'unknown';
+
+  const durationText =
+    (
+      text.match(
+        /Duration:\s*([0-9:]+)/m
+      )
+      || []
+    )[1]
+    || '';
+
+  let duration =
+    timeToSeconds(
+      durationText
+    );
+
+  const segments =
+    [];
+
+  const regex =
+    /^\[([0-9:]+)\]\s+(.+)$/gm;
+
+  let match;
+
+  while(
+    (
+      match =
+        regex.exec(text)
+    )
+  ){
+
+    const start =
+      timeToSeconds(
+        match[1]
+      );
+
+    const body =
+      match[2].trim();
+
+    if(
+      body
+    ){
+
+      segments.push({
+        start,
+        text:body
+      });
+
+    }
+
+  }
+
+  segments.sort(
+    (
+      a,
+      b
+    )=>
+      a.start
+      - b.start
+  );
+
+  if(
+    !segments.length
+  ){
+
+    throw new Error(
+      'Transcript không có timestamp.'
+    );
+
+  }
+
+  const last =
+    segments[
+      segments.length - 1
+    ];
+
+  if(
+    !duration
+    || duration <= last.start
+  ){
+
+    duration =
+      last.start
+      + TARGET_CLIP;
+
+  }
+
+  for(
+    let i=0;
+    i<segments.length;
+    i++
+  ){
+
+    segments[i].end =
+
+      i+1 < segments.length
+
+        ? segments[i+1].start
+
+        : duration;
+
+    if(
+      segments[i].end
+      <= segments[i].start
+    ){
+
+      segments[i].end =
+        segments[i].start + 1;
+
+    }
+
+  }
+
+  return {
+
+    transcriptTitle,
+
+    language,
+
+    duration,
+
+    segments
+
+  };
+
+}
+
+/* =========================================================
+   BUILD REEL CLIPS
+   ========================================================= */
+
+/*
+  Clip boundaries always use caption boundaries.
+
+  18 sec is only a TARGET,
+  never a hard split.
+*/
+
+function buildClips(
+  channelId,
+  videoId,
+  segments,
+  duration
+){
+
+  const clips =
+    [];
+
+  let i =
+    0;
+
+  while(
+    i < segments.length
+  ){
+
+    const first =
+      i;
+
+    let last =
+      i;
+
+    let start =
+      segments[i].start;
+
+    let end =
+      Math.min(
+        duration,
+        segments[i].end
+      );
+
+    while(
+      last + 1
+      < segments.length
+    ){
+
+      const candidateEnd =
+        Math.min(
+          duration,
+          segments[last+1].end
+        );
+
+      const currentLength =
+        end - start;
+
+      const nextLength =
+        candidateEnd - start;
+
+      if(
+        currentLength
+        < MIN_CLIP
+      ){
+
+        last++;
+
+        end =
+          candidateEnd;
+
+        continue;
+
+      }
+
+      if(
+        currentLength
+        >= TARGET_CLIP
+      ){
+
+        break;
+
+      }
+
+      if(
+        nextLength
+        > MAX_CLIP
+      ){
+
+        break;
+
+      }
 
       last++;
-      end=candidateEnd;
+
+      end =
+        candidateEnd;
+
     }
 
-    // Keep boundaries on caption timestamps. Never split a caption paragraph.
-    const clipSegments=segments.slice(first,last+1).map(s=>({start:s.start,end:s.end,text:s.text}));
+    const clipSegments =
+      segments
+        .slice(
+          first,
+          last + 1
+        )
+        .map(
+          segment => ({
+            start:segment.start,
+            end:segment.end,
+            text:segment.text
+          })
+        );
+
     clips.push({
-      id:`${channelId}:${first}`,
-      channelId,videoId,start,end,
-      segments:clipSegments,
-      preview:clipSegments.map(s=>s.text).join(' ')
+
+      id:
+        `${videoId}:${first}`,
+
+      channelId,
+
+      videoId,
+
+      start,
+
+      end,
+
+      segments:
+        clipSegments,
+
+      preview:
+        clipSegments
+          .map(
+            segment =>
+              segment.text
+          )
+          .join(' ')
+
     });
-    i=last+1;
+
+    i =
+      last + 1;
+
   }
+
   return clips;
+
 }
 
-/* ---------- feed ---------- */
-function shuffle(arr){
-  const a=[...arr];
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-function mixedClips(){
-  let a=channels.flatMap(c=>c.clips||[]);
-  a=shuffle(a);
+/* =========================================================
+   HTTP
+   ========================================================= */
 
-  // Reduce back-to-back clips from the same fake channel when possible.
-  for(let i=1;i<a.length;i++){
-    if(a[i].channelId!==a[i-1].channelId) continue;
-    const j=a.findIndex((x,k)=>k>i&&x.channelId!==a[i-1].channelId);
-    if(j>i) [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-function rebuildMixedFeed(keepClipId=null){
-  feedMode='mixed';
-  feed=mixedClips();
-  const found=keepClipId?feed.findIndex(c=>c.id===keepClipId):-1;
-  feedIndex=found>=0?found:0;
-  syncAllPlayers(true);
-}
-function setChannelFeed(channelId,startClipId=null){
-  const ch=channelById(channelId);
-  if(!ch)return;
-  feedMode='channel';
-  feed=[...(ch.clips||[])];
-  const found=startClipId?feed.findIndex(c=>c.id===startClipId):-1;
-  feedIndex=found>=0?found:0;
-  closeSheet(channelSheet);
-  closeSheet(channelsSheet);
-  syncAllPlayers(true);
-}
-function nextIndex(){return feed.length?(feedIndex+1)%feed.length:0}
-function prevIndex(){return feed.length?(feedIndex-1+feed.length)%feed.length:0}
+async function fetchJson(
+  url,
+  timeout=12000
+){
 
-/* ---------- YouTube players / preload ring ---------- */
-function playerVars(){
-  const vars={
-    autoplay:0,controls:0,playsinline:1,rel:0,iv_load_policy:3,
-    cc_load_policy:0,modestbranding:1,fs:0
-  };
-  if(location.protocol==='http:'||location.protocol==='https:') vars.origin=location.origin;
-  return vars;
-}
-function createPlayers(){
-  if(!window.YT||!YT.Player)return;
-  [0,1,2].forEach(i=>{
-    players[i]=new YT.Player(`yt${i}`,{
-      width:'100%',height:'100%',
-      playerVars:playerVars(),
-      events:{
-        onReady:()=>{
-          if(players.every(Boolean) && players.filter(p=>{try{return !!p.getIframe()}catch{return false}}).length===3){
-            ytReady=true;
-            syncAllPlayers(true);
-          }
-        },
-        onStateChange:e=>onPlayerState(i,e.data),
-        onError:e=>onPlayerError(i,e.data)
-      }
-    });
-  });
-}
-window.onYouTubeIframeAPIReady=createPlayers;
+  const controller =
+    new AbortController();
 
-function roleClip(which){
-  if(!feed.length)return null;
-  if(which==='current')return feed[feedIndex];
-  if(which==='next')return feed[nextIndex()];
-  if(which==='prev')return feed[prevIndex()];
-  return null;
-}
-function setActiveSlot(){
-  document.querySelectorAll('.playerSlot').forEach((el,i)=>el.classList.toggle('active',i===role.current));
-}
-function loadClipInto(playerIndex,clip,mode){
-  if(!ytReady||!players[playerIndex]||!clip)return;
-  const key=clipKey(clip);
-  if(loadedClipKey[playerIndex]===key){
-    if(mode==='current') activateCurrentPlayer();
-    return;
-  }
-
-  loadedClipKey[playerIndex]=key;
-  const p=players[playerIndex];
+  const timer =
+    setTimeout(
+      ()=>controller.abort(),
+      timeout
+    );
 
   try{
-    p.mute();
-    if(mode==='current'){
-      currentPlayerReady=false;
-      buffer.classList.add('on');
-      p.loadVideoById({videoId:clip.videoId,startSeconds:clip.start});
-    }else{
-      // Actually start hidden media muted, then pause after a short buffer.
-      // This gives the immediately-next reel a head start instead of loading on swipe.
-      p.loadVideoById({videoId:clip.videoId,startSeconds:clip.start});
-      setTimeout(()=>{
-        if(loadedClipKey[playerIndex]!==key)return;
-        try{p.pauseVideo()}catch{}
-      },900);
+
+    const response =
+      await fetch(
+        url,
+        {
+          signal:
+            controller.signal,
+
+          cache:
+            'no-store'
+        }
+      );
+
+    if(
+      !response.ok
+    ){
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
     }
-  }catch{}
-}
-function syncAllPlayers(force=false){
-  renderCurrent();
-  if(!ytReady||!feed.length)return;
-  setActiveSlot();
-  loadClipInto(role.current,roleClip('current'),'current');
-  loadClipInto(role.next,roleClip('next'),'preload');
-  loadClipInto(role.prev,roleClip('prev'),'preload');
-  if(force) setTimeout(activateCurrentPlayer,100);
-}
-function activateCurrentPlayer(){
-  if(!feed.length||!ytReady)return;
-  const p=players[role.current], c=currentClip();
-  if(!p||!c)return;
-  try{
-    p.seekTo(c.start,true);
-    if(audioUnlocked) p.unMute(); else p.mute();
-    p.playVideo();
-  }catch{}
-}
-function onPlayerState(i,state){
-  if(i!==role.current)return;
-  if(state===YT.PlayerState.PLAYING){
-    currentPlayerReady=true;
-    buffer.classList.remove('on');
-    if(audioUnlocked){try{players[i].unMute()}catch{}}
-  }
-}
-function onPlayerError(i,code){
-  if(i!==role.current)return;
-  buffer.classList.remove('on');
-  const msg={2:'Video ID lỗi.',5:'YouTube HTML5 player lỗi.',100:'Video đã xoá/private.',101:'Video chặn embed.',150:'Video chặn embed.',153:'YouTube từ chối embed/referrer.'}[code]||`YouTube error ${code}`;
-  toastMsg(msg);
-}
-function goNext(){
-  if(feed.length<2)return;
-  feedIndex=nextIndex();
-  const oldPrev=role.prev, oldCurrent=role.current, oldNext=role.next;
-  role.prev=oldCurrent;
-  role.current=oldNext;
-  role.next=oldPrev;
-  currentCaptionIndex=-1;
-  renderCurrent();
-  setActiveSlot();
-  activateCurrentPlayer();
-  loadClipInto(role.next,roleClip('next'),'preload');
-}
-function goPrev(){
-  if(feed.length<2)return;
-  feedIndex=prevIndex();
-  const oldPrev=role.prev, oldCurrent=role.current, oldNext=role.next;
-  role.next=oldCurrent;
-  role.current=oldPrev;
-  role.prev=oldNext;
-  currentCaptionIndex=-1;
-  renderCurrent();
-  setActiveSlot();
-  activateCurrentPlayer();
-  loadClipInto(role.prev,roleClip('prev'),'preload');
-}
 
-/* ---------- reel UI ---------- */
-function renderCurrent(){
-  const clip=currentClip();
-  if(!clip){
-    empty.classList.remove('hidden');
-    captionEl.textContent='—';
-    channelNameEl.textContent='—';
-    clipMetaEl.textContent='—';
-    return;
-  }
-  empty.classList.add('hidden');
-  const ch=channelById(clip.channelId);
-  channelNameEl.textContent=ch?.title||'Channel';
-  avatarEl.src=thumb(clip.videoId,'default');
-  captionEl.textContent=clip.segments?.[0]?.text||clip.preview||'';
-  clipMetaEl.textContent=`${fmt(clip.start)}–${fmt(clip.end)} · ${feedMode==='mixed'?'For you':'Channel feed'}`;
-  currentCaptionIndex=0;
-}
-function updateCaptionFromTime(t){
-  const clip=currentClip();
-  if(!clip?.segments?.length)return;
-  let idx=clip.segments.findIndex(s=>t>=s.start&&t<s.end);
-  if(idx<0){
-    if(t>=clip.segments[clip.segments.length-1].start) idx=clip.segments.length-1;
-    else idx=0;
-  }
-  if(idx!==currentCaptionIndex){
-    currentCaptionIndex=idx;
-    captionEl.textContent=clip.segments[idx].text;
-  }
-}
-function startMonitor(){
-  clearInterval(monitor);
-  monitor=setInterval(()=>{
-    if(!ytReady||!feed.length)return;
-    const p=players[role.current], clip=currentClip();
-    if(!p||!clip)return;
-    let t=0,state=-1;
-    try{t=p.getCurrentTime()||0;state=p.getPlayerState()}catch{return}
-    updateCaptionFromTime(t);
+    return await response.json();
 
-    // Reel/Short behavior: loop the same transcript-defined clip until user swipes.
-    if(state===YT.PlayerState.PLAYING && t>=clip.end-.10){
-      try{p.seekTo(clip.start,true);p.playVideo()}catch{}
-      currentCaptionIndex=-1;
-    }
-  },120);
-}
-function toggleSound(){
-  audioUnlocked=!audioUnlocked;
-  soundBtn.textContent=audioUnlocked?'🔊':'🔇';
-  const p=players[role.current];
-  if(!p)return;
-  try{audioUnlocked?p.unMute():p.mute();p.playVideo()}catch{}
-}
-async function fullscreen(){
-  const p=players[role.current];
-  if(!p)return;
-  try{
-    const iframe=p.getIframe();
-    if(iframe.requestFullscreen)await iframe.requestFullscreen();
-    else if(iframe.webkitRequestFullscreen)iframe.webkitRequestFullscreen();
-  }catch{toastMsg('Browser chặn fullscreen.')}
-}
-
-/* ---------- import ---------- */
-async function fetchTextWithTimeout(url,ms=18000){
-  const ac=new AbortController();
-  const t=setTimeout(()=>ac.abort(),ms);
-  try{
-    const r=await fetch(url,{signal:ac.signal,cache:'force-cache'});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.text();
-  }finally{clearTimeout(t)}
-}
-async function importChannel(){
-  const videoId=parseVideoId(urlInput.value);
-  if(!videoId){addStatus.textContent='Link YouTube không hợp lệ.';return}
-  if(channels.some(c=>c.videoId===videoId)){
-    addStatus.textContent='Link này đã có trong library.';
-    return;
-  }
-  importBtn.disabled=true;
-  addStatus.textContent='Đang lấy Japanese transcript + timestamp…';
-
-  try{
-    const text=await fetchTextWithTimeout(TRANSCRIPT_API(videoId));
-    if(!text||text.length<20)throw new Error('Transcript rỗng.');
-    const parsed=parseTranscriptDocument(text,videoId);
-    const id=`ch_${videoId}`;
-    const clips=buildClips(id,videoId,parsed.segments,parsed.duration);
-    if(!clips.length)throw new Error('Không tạo được clip.');
-
-    const channel={
-      id,videoId,title:parsed.title,language:parsed.language,duration:parsed.duration,
-      addedAt:Date.now(),segments:parsed.segments,clips
-    };
-    await idbPut(channel);
-    channels.push(channel);
-    renderChannels();
-
-    addStatus.textContent=`Xong: ${clips.length} clips · ${parsed.language} · ${fmt(parsed.duration)}`;
-    urlInput.value='';
-    rebuildMixedFeed();
-    setTimeout(()=>closeSheet(addSheet),650);
-  }catch(err){
-    const msg=err?.name==='AbortError'?'Transcript timeout.':(err?.message||String(err));
-    addStatus.textContent=`Lỗi: ${msg}`;
   }finally{
-    importBtn.disabled=false;
+
+    clearTimeout(
+      timer
+    );
+
   }
+
 }
 
-/* ---------- channels UI ---------- */
-function renderChannels(){
-  channelList.innerHTML='';
-  if(!channels.length){
-    channelList.innerHTML='<div style="opacity:.55">Chưa có channel.</div>';
-    return;
-  }
-  [...channels].sort((a,b)=>b.addedAt-a.addedAt).forEach(ch=>{
-    const b=document.createElement('button');
-    b.className='channelCard';
-    b.innerHTML=`
-      <img class="channelThumb" src="${thumb(ch.videoId)}" alt="">
-      <div class="channelCardText">
-        <div class="channelCardTitle">${escapeHtml(ch.title)}</div>
-        <div class="channelCardMeta">${ch.clips.length} clips · ${escapeHtml(ch.language)} · ${fmt(ch.duration)}</div>
-      </div>`;
-    b.onclick=()=>showChannel(ch.id);
-    channelList.appendChild(b);
-  });
-}
-function showChannel(id){
-  const ch=channelById(id);if(!ch)return;
-  selectedChannelId=id;
-  heroImg.src=thumb(ch.videoId,'maxresdefault');
-  heroImg.onerror=()=>{heroImg.onerror=null;heroImg.src=thumb(ch.videoId)};
-  heroTitle.textContent=ch.title;
-  heroMeta.textContent=`${ch.clips.length} clips · ${ch.language} · ${fmt(ch.duration)}`;
-  clipGrid.innerHTML='';
+async function fetchText(
+  url,
+  timeout=18000
+){
 
-  ch.clips.forEach((clip,i)=>{
-    const b=document.createElement('button');
-    b.className='clipCard';
-    b.innerHTML=`
-      <img class="clipImg" src="${thumb(ch.videoId,'mqdefault')}" alt="">
-      <div class="clipText">
-        <div class="clipTime">#${i+1} · ${fmt(clip.start)}–${fmt(clip.end)}</div>
-        <div class="clipCaption">${escapeHtml(clip.preview)}</div>
-      </div>`;
-    b.onclick=()=>setChannelFeed(ch.id,clip.id);
-    clipGrid.appendChild(b);
-  });
-  openSheet(channelSheet);
-}
-async function removeSelectedChannel(){
-  const id=selectedChannelId;if(!id)return;
-  const ch=channelById(id);if(!ch)return;
-  if(!confirm(`Delete "${ch.title}"?`))return;
-  await idbDelete(id);
-  channels=channels.filter(x=>x.id!==id);
-  selectedChannelId=null;
-  closeSheet(channelSheet);
-  renderChannels();
-  rebuildMixedFeed();
-}
+  const controller =
+    new AbortController();
 
-/* ---------- gestures ---------- */
-function gestureStart(x,y){touchStart={x,y,t:performance.now()}}
-function gestureEnd(x,y){
-  if(!touchStart)return;
-  const dx=x-touchStart.x,dy=y-touchStart.y,dt=performance.now()-touchStart.t;
-  touchStart=null;
+  const timer =
+    setTimeout(
+      ()=>controller.abort(),
+      timeout
+    );
 
-  if(Math.abs(dy)>58 && Math.abs(dy)>Math.abs(dx)*1.2){
-    dy<0?goNext():goPrev();
-    return;
-  }
-  if(Math.abs(dx)<12&&Math.abs(dy)<12&&dt<380){
-    const p=players[role.current];
-    if(!p)return;
-    if(!audioUnlocked){toggleSound();return}
-    try{
-      const s=p.getPlayerState();
-      s===YT.PlayerState.PLAYING?p.pauseVideo():p.playVideo();
-    }catch{}
-  }
-}
-gesture.addEventListener('pointerdown',e=>gestureStart(e.clientX,e.clientY));
-gesture.addEventListener('pointerup',e=>gestureEnd(e.clientX,e.clientY));
-gesture.addEventListener('pointercancel',()=>touchStart=null);
-stage.addEventListener('wheel',e=>{
-  if(wheelLock||Math.abs(e.deltaY)<24)return;
-  wheelLock=true;e.deltaY>0?goNext():goPrev();setTimeout(()=>wheelLock=false,440)
-},{passive:true});
-document.addEventListener('keydown',e=>{
-  if(document.activeElement===urlInput)return;
-  if(e.key==='ArrowDown'){e.preventDefault();goNext()}
-  else if(e.key==='ArrowUp'){e.preventDefault();goPrev()}
-  else if(e.key.toLowerCase()==='f')fullscreen();
-  else if(e.code==='Space'){
-    e.preventDefault();
-    const p=players[role.current];if(!p)return;
-    try{p.getPlayerState()===YT.PlayerState.PLAYING?p.pauseVideo():p.playVideo()}catch{}
-  }
-});
-
-/* ---------- buttons ---------- */
-$('#emptyAdd').onclick=()=>openSheet(addSheet);
-addNav.onclick=()=>openSheet(addSheet);
-channelsNav.onclick=()=>{renderChannels();openSheet(channelsSheet)};
-homeNav.onclick=()=>{if(feedMode!=='mixed')rebuildMixedFeed(currentClip()?.id)};
-$('#channelsAdd').onclick=()=>openSheet(addSheet);
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeSheet($('#'+b.dataset.close)));
-importBtn.onclick=importChannel;
-urlInput.addEventListener('keydown',e=>{if(e.key==='Enter')importChannel()});
-soundBtn.onclick=toggleSound;
-fullBtn.onclick=fullscreen;
-ytBtn.onclick=()=>{
-  const c=currentClip();if(c)window.open(`https://www.youtube.com/watch?v=${c.videoId}&t=${Math.floor(c.start)}s`,'_blank','noopener')
-};
-channelButton.onclick=()=>{const c=currentClip();if(c)showChannel(c.channelId)};
-shuffleBtn.onclick=()=>{if(feedMode==='mixed'){rebuildMixedFeed();toastMsg('Feed shuffled.')}else{feed=shuffle(feed);feedIndex=0;syncAllPlayers(true)}};
-playChannel.onclick=()=>{if(selectedChannelId)setChannelFeed(selectedChannelId)};
-deleteChannel.onclick=removeSelectedChannel;
-
-/* ---------- bootstrap ---------- */
-async function boot(){
   try{
-    db=await openDB();
-    channels=await idbAll();
-    channels.sort((a,b)=>a.addedAt-b.addedAt);
-  }catch(err){
-    toastMsg('Không mở được local database.');
-    channels=[];
+
+    const response =
+      await fetch(
+        url,
+        {
+          signal:
+            controller.signal,
+
+          cache:
+            'force-cache'
+        }
+      );
+
+    if(
+      !response.ok
+    ){
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+    return await response.text();
+
+  }finally{
+
+    clearTimeout(
+      timer
+    );
+
   }
-  renderChannels();
-  feed=mixedClips();
+
+}
+
+/* =========================================================
+   VIDEO METADATA
+   ========================================================= */
+
+async function getVideoMetadata(
+  videoId
+){
+
+  const url =
+    videoUrl(videoId);
+
+  try{
+
+    const data =
+      await fetchJson(
+        `https://noembed.com/embed?url=${encodeURIComponent(url)}`
+      );
+
+    return {
+
+      title:
+        data.title
+        || `YouTube ${videoId}`,
+
+      channelName:
+        data.author_name
+        || 'Unknown channel',
+
+      channelUrl:
+        data.author_url
+        || '',
+
+      thumbnail:
+        data.thumbnail_url
+        || thumb(videoId)
+
+    };
+
+  }catch{
+
+    return {
+
+      title:
+        `YouTube ${videoId}`,
+
+      channelName:
+        'Unknown channel',
+
+      channelUrl:
+        '',
+
+      thumbnail:
+        thumb(videoId)
+
+    };
+
+  }
+
+}
+
+/* =========================================================
+   IMPORT VIDEO
+   ========================================================= */
+
+async function importVideo(){
+
+  const videoId =
+    parseVideoId(
+      urlInput.value
+    );
+
+  if(
+    !videoId
+  ){
+
+    addStatus.textContent =
+      'Link YouTube không hợp lệ.';
+
+    return;
+
+  }
+
+  const alreadyExists =
+    channels.some(
+      channel =>
+        (
+          channel.videos
+          || []
+        ).some(
+          video =>
+            video.videoId
+            === videoId
+        )
+    );
+
+  if(
+    alreadyExists
+  ){
+
+    addStatus.textContent =
+      'Video này đã có trong app.';
+
+    return;
+
+  }
+
+  importBtn.disabled =
+    true;
+
+  addStatus.textContent =
+    'Đang lấy channel + Japanese transcript…';
+
+  try{
+
+    const [
+      meta,
+      transcriptText
+    ] =
+      await Promise.all([
+
+        getVideoMetadata(
+          videoId
+        ),
+
+        fetchText(
+          TRANSCRIPT_API(
+            videoId
+          )
+        )
+
+      ]);
+
+    if(
+      !transcriptText
+      || transcriptText.length < 20
+    ){
+
+      throw new Error(
+        'Transcript rỗng.'
+      );
+
+    }
+
+    const parsed =
+      parseTranscript(
+        transcriptText,
+        videoId
+      );
+
+    /*
+      Channel thật.
+
+      Ưu tiên author_url.
+
+      Nếu không có,
+      fallback bằng channel name.
+    */
+
+    const channelIdentity =
+
+      meta.channelUrl
+
+      || `name:${
+        meta.channelName
+          .toLowerCase()
+      }`;
+
+    const channelId =
+      `ch_${hash(channelIdentity)}`;
+
+    let channel =
+      channelById(
+        channelId
+      );
+
+    if(
+      !channel
+    ){
+
+      channel = {
+
+        id:
+          channelId,
+
+        identity:
+          channelIdentity,
+
+        title:
+          meta.channelName,
+
+        channelUrl:
+          meta.channelUrl,
+
+        avatar:
+          meta.thumbnail,
+
+        createdAt:
+          Date.now(),
+
+        videos:
+          [],
+
+        clips:
+          []
+
+      };
+
+      channels.push(
+        channel
+      );
+
+    }
+
+    const clips =
+      buildClips(
+        channelId,
+        videoId,
+        parsed.segments,
+        parsed.duration
+      );
+
+    if(
+      !clips.length
+    ){
+
+      throw new Error(
+        'Không tạo được clip.'
+      );
+
+    }
+
+    const video = {
+
+      videoId,
+
+      url:
+        videoUrl(videoId),
+
+      title:
+        meta.title
+        || parsed.transcriptTitle,
+
+      thumbnail:
+        meta.thumbnail
+        || thumb(videoId),
+
+      duration:
+        parsed.duration,
+
+      language:
+        parsed.language,
+
+      addedAt:
+        Date.now(),
+
+      segments:
+        parsed.segments,
+
+      clipIds:
+        clips.map(
+          clip =>
+            clip.id
+        )
+
+    };
+
+    channel.title =
+      meta.channelName
+      || channel.title;
+
+    channel.channelUrl =
+      meta.channelUrl
+      || channel.channelUrl;
+
+    channel.avatar =
+      channel.avatar
+      || meta.thumbnail;
+
+    channel.videos.push(
+      video
+    );
+
+    channel.clips.push(
+      ...clips
+    );
+
+    await dbPutChannel(
+      channel
+    );
+
+    addStatus.textContent =
+      `Xong: ${channel.title} · +${clips.length} clips`;
+
+    urlInput.value =
+      '';
+
+    renderFollowingList();
+
+    rebuildFeed({
+      mode:
+        feedMode === 'following'
+          ? 'following'
+          : 'for-you'
+    });
+
+    setTimeout(
+      ()=>{
+        closeScreen(
+          addScreen
+        );
+      },
+      500
+    );
+
+  }catch(error){
+
+    const message =
+
+      error?.name === 'AbortError'
+
+        ? 'Timeout.'
+
+        : (
+          error?.message
+          || String(error)
+        );
+
+    addStatus.textContent =
+      `Lỗi: ${message}`;
+
+  }finally{
+
+    importBtn.disabled =
+      false;
+
+  }
+
+}
+
+/* =========================================================
+   FEED RANKING
+   ========================================================= */
+
+function shuffle(array){
+
+  const copy =
+    [...array];
+
+  for(
+    let i=copy.length-1;
+    i>0;
+    i--
+  ){
+
+    const j =
+      Math.floor(
+        Math.random()
+        * (i+1)
+      );
+
+    [
+      copy[i],
+      copy[j]
+    ] = [
+      copy[j],
+      copy[i]
+    ];
+
+  }
+
+  return copy;
+
+}
+
+function allClips(){
+
+  return channels
+    .flatMap(
+      channel =>
+        channel.clips
+        || []
+    )
+    .filter(
+      clip =>
+        !state.hidden[
+          clip.id
+        ]
+    );
+
+}
+
+/*
+  For You ranking:
+
+  followed channel = much higher chance
+  unseen           = bonus
+  seen often       = less
+  liked            = small bonus
+*/
+
+function buildForYouFeed(){
+
+  const clips =
+    allClips();
+
+  if(
+    !clips.length
+  ){
+
+    return [];
+
+  }
+
+  let bag =
+    [];
+
+  for(
+    const clip
+    of clips
+  ){
+
+    const followed =
+      isFollowed(
+        clip.channelId
+      );
+
+    const seen =
+      state.seen[
+        clip.id
+      ]
+      || 0;
+
+    const liked =
+      isLiked(
+        clip.id
+      );
+
+    let tickets =
+      followed
+        ? 5
+        : 2;
+
+    if(
+      seen === 0
+    ){
+
+      tickets += 2;
+
+    }else{
+
+      tickets =
+        Math.max(
+          1,
+          tickets
+          - Math.min(
+              3,
+              seen
+            )
+        );
+
+    }
+
+    if(
+      liked
+    ){
+
+      tickets += 1;
+
+    }
+
+    for(
+      let i=0;
+      i<tickets;
+      i++
+    ){
+
+      bag.push(
+        clip
+      );
+
+    }
+
+  }
+
+  bag =
+    shuffle(
+      bag
+    );
+
+  /*
+    Reduce back-to-back
+    identical clip/channel.
+  */
+
+  for(
+    let i=1;
+    i<bag.length;
+    i++
+  ){
+
+    const previous =
+      bag[i-1];
+
+    const current =
+      bag[i];
+
+    if(
+      current.id
+        !== previous.id
+      &&
+      current.channelId
+        !== previous.channelId
+    ){
+
+      continue;
+
+    }
+
+    const swapIndex =
+      bag.findIndex(
+        (
+          candidate,
+          index
+        )=>
+
+          index > i
+
+          &&
+          candidate.id
+            !== previous.id
+
+          &&
+          candidate.channelId
+            !== previous.channelId
+      );
+
+    if(
+      swapIndex > i
+    ){
+
+      [
+        bag[i],
+        bag[swapIndex]
+      ] = [
+        bag[swapIndex],
+        bag[i]
+      ];
+
+    }
+
+  }
+
+  return bag;
+
+}
+
+function buildFollowingFeed(){
+
+  return shuffle(
+
+    allClips().filter(
+
+      clip =>
+        isFollowed(
+          clip.channelId
+        )
+
+    )
+
+  );
+
+}
+
+function rebuildFeed({
+  mode='for-you',
+  keepClipId=null
+}={}){
+
+  feedMode =
+    mode;
+
+  if(
+    mode === 'following'
+  ){
+
+    feed =
+      buildFollowingFeed();
+
+  }else{
+
+    feed =
+      buildForYouFeed();
+
+  }
+
+  const existingIndex =
+
+    keepClipId
+
+      ? feed.findIndex(
+          clip =>
+            clip.id
+            === keepClipId
+        )
+
+      : -1;
+
+  feedIndex =
+
+    existingIndex >= 0
+
+      ? existingIndex
+
+      : 0;
+
+  currentCaptionIndex =
+    -1;
+
+  currentSeenMarked =
+    false;
+
+  updateFeedTabs();
+
+  syncPlayers(
+    true
+  );
+
+}
+
+function updateFeedTabs(){
+
+  forYouTab.classList.toggle(
+    'active',
+    feedMode === 'for-you'
+  );
+
+  followingTab.classList.toggle(
+    'active',
+    feedMode === 'following'
+  );
+
+}
+
+function nextFeedIndex(){
+
+  if(
+    !feed.length
+  ){
+
+    return 0;
+
+  }
+
+  return (
+    feedIndex + 1
+  ) % feed.length;
+
+}
+
+function previousFeedIndex(){
+
+  if(
+    !feed.length
+  ){
+
+    return 0;
+
+  }
+
+  return (
+    feedIndex
+    - 1
+    + feed.length
+  ) % feed.length;
+
+}
+
+/* =========================================================
+   YOUTUBE PLAYER RING
+   ========================================================= */
+
+function playerVars(){
+
+  const vars = {
+
+    autoplay:0,
+
+    controls:0,
+
+    playsinline:1,
+
+    rel:0,
+
+    iv_load_policy:3,
+
+    cc_load_policy:0,
+
+    modestbranding:1,
+
+    fs:0
+
+  };
+
+  if(
+    location.protocol
+      === 'http:'
+    ||
+    location.protocol
+      === 'https:'
+  ){
+
+    vars.origin =
+      location.origin;
+
+  }
+
+  return vars;
+
+}
+
+function createPlayers(){
+
+  if(
+    !window.YT
+    || !YT.Player
+  ){
+
+    return;
+
+  }
+
+  [
+    0,
+    1,
+    2
+  ].forEach(
+    index=>{
+
+      players[index] =
+        new YT.Player(
+          `yt${index}`,
+          {
+
+            width:
+              '100%',
+
+            height:
+              '100%',
+
+            playerVars:
+              playerVars(),
+
+            events:{
+
+              onReady:
+                ()=>{
+
+                  const ready =
+                    players.every(Boolean)
+                    &&
+                    players.every(
+                      player=>{
+
+                        try{
+
+                          return !!player.getIframe();
+
+                        }catch{
+
+                          return false;
+
+                        }
+
+                      }
+                    );
+
+                  if(
+                    ready
+                  ){
+
+                    ytReady =
+                      true;
+
+                    syncPlayers(
+                      true
+                    );
+
+                  }
+
+                },
+
+              onStateChange:
+                event=>{
+
+                  onPlayerState(
+                    index,
+                    event.data
+                  );
+
+                },
+
+              onError:
+                event=>{
+
+                  onPlayerError(
+                    index,
+                    event.data
+                  );
+
+                }
+
+            }
+
+          }
+        );
+
+    }
+  );
+
+}
+
+window.onYouTubeIframeAPIReady =
+  createPlayers;
+
+function clipForRole(which){
+
+  if(
+    !feed.length
+  ){
+
+    return null;
+
+  }
+
+  if(
+    which === 'current'
+  ){
+
+    return feed[
+      feedIndex
+    ];
+
+  }
+
+  if(
+    which === 'next'
+  ){
+
+    return feed[
+      nextFeedIndex()
+    ];
+
+  }
+
+  if(
+    which === 'prev'
+  ){
+
+    return feed[
+      previousFeedIndex()
+    ];
+
+  }
+
+  return null;
+
+}
+
+function activateSlot(){
+
+  document
+    .querySelectorAll(
+      '.playerSlot'
+    )
+    .forEach(
+      (
+        element,
+        index
+      )=>{
+
+        element
+          .classList
+          .toggle(
+            'active',
+            index
+              === role.current
+          );
+
+      }
+    );
+
+}
+
+/* =========================================================
+   PLAYER STOP LOGIC
+   ========================================================= */
+
+/*
+  IMPORTANT FIX:
+
+  Background players are ALWAYS muted.
+
+  If a player is not CURRENT,
+  it is never allowed to remain PLAYING.
+*/
+
+function stopPlayer(
+  index,
+  {
+    hard=false
+  }={}
+){
+
+  const player =
+    players[index];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    player.mute();
+
+  }catch{}
+
+  try{
+
+    if(
+      hard
+    ){
+
+      player.stopVideo();
+
+      /*
+        hard stop invalidates
+        our preload assumption.
+      */
+
+      loadedKey[index] =
+        null;
+
+    }else{
+
+      player.pauseVideo();
+
+    }
+
+  }catch{}
+
+}
+
+function stopBackgroundPlayers(){
+
+  for(
+    let i=0;
+    i<players.length;
+    i++
+  ){
+
+    if(
+      i !== role.current
+    ){
+
+      stopPlayer(i);
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   SAFE PRELOAD
+   ========================================================= */
+
+/*
+  PREV:
+  cue only.
+
+  NEXT:
+  prewarm muted by loading it,
+  then background PLAYING guard
+  pauses it immediately.
+
+  This gives NEXT more chance to
+  already have data when swiped to,
+  without leaving background audio/video running.
+*/
+
+function cuePrevious(
+  index,
+  clip
+){
+
+  if(
+    !ytReady
+    || !players[index]
+    || !clip
+  ){
+
+    return;
+
+  }
+
+  const key =
+    clipKey(
+      clip
+    );
+
+  if(
+    loadedKey[index]
+      === key
+  ){
+
+    return;
+
+  }
+
+  loadedKey[index] =
+    key;
+
+  const player =
+    players[index];
+
+  try{
+
+    player.mute();
+
+    player.cueVideoById({
+
+      videoId:
+        clip.videoId,
+
+      startSeconds:
+        clip.start
+
+    });
+
+  }catch{}
+
+}
+
+function prewarmNext(
+  index,
+  clip
+){
+
+  if(
+    !ytReady
+    || !players[index]
+    || !clip
+  ){
+
+    return;
+
+  }
+
+  const key =
+    clipKey(
+      clip
+    );
+
+  if(
+    loadedKey[index]
+      === key
+  ){
+
+    return;
+
+  }
+
+  loadedKey[index] =
+    key;
+
+  const player =
+    players[index];
+
+  try{
+
+    player.mute();
+
+    player.loadVideoById({
+
+      videoId:
+        clip.videoId,
+
+      startSeconds:
+        clip.start
+
+    });
+
+    /*
+      Extra fallback.
+      onPlayerState also kills background PLAYING.
+    */
+
+    setTimeout(
+      ()=>{
+
+        if(
+          index === role.current
+        ){
+
+          return;
+
+        }
+
+        if(
+          loadedKey[index]
+          !== key
+        ){
+
+          return;
+
+        }
+
+        stopPlayer(
+          index
+        );
+
+      },
+      300
+    );
+
+  }catch{}
+
+}
+
+/* =========================================================
+   PLAY CURRENT CLIP
+   ========================================================= */
+
+function loadCurrentClip(){
+
+  if(
+    !ytReady
+    || !feed.length
+  ){
+
+    return;
+
+  }
+
+  const clip =
+    currentClip();
+
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !clip
+    || !player
+  ){
+
+    return;
+
+  }
+
+  const key =
+    clipKey(
+      clip
+    );
+
+  /*
+    BEFORE playing current,
+    kill every background player.
+  */
+
+  stopBackgroundPlayers();
+
+  buffer.classList.add(
+    'on'
+  );
+
+  try{
+
+    player.mute();
+
+    if(
+      loadedKey[
+        role.current
+      ] === key
+    ){
+
+      player.seekTo(
+        clip.start,
+        true
+      );
+
+    }else{
+
+      loadedKey[
+        role.current
+      ] = key;
+
+      player.loadVideoById({
+
+        videoId:
+          clip.videoId,
+
+        startSeconds:
+          clip.start
+
+      });
+
+    }
+
+    if(
+      audioOn
+    ){
+
+      player.unMute();
+
+    }else{
+
+      player.mute();
+
+    }
+
+    player.playVideo();
+
+  }catch{}
+
+}
+
+/* =========================================================
+   SYNC 3 PLAYERS
+   ========================================================= */
+
+function syncPlayers(
+  force=false
+){
+
   renderCurrent();
+
+  if(
+    !ytReady
+    || !feed.length
+  ){
+
+    return;
+
+  }
+
+  stopBackgroundPlayers();
+
+  activateSlot();
+
+  cuePrevious(
+    role.prev,
+    clipForRole('prev')
+  );
+
+  prewarmNext(
+    role.next,
+    clipForRole('next')
+  );
+
+  if(
+    force
+  ){
+
+    setTimeout(
+      loadCurrentClip,
+      70
+    );
+
+  }else{
+
+    loadCurrentClip();
+
+  }
+
+}
+
+/* =========================================================
+   PLAYER STATE GUARD
+   ========================================================= */
+
+/*
+  Absolute guard:
+
+  if ANY non-current player
+  becomes PLAYING,
+  pause it immediately.
+
+  This fixes the bug:
+  "swipe to another video
+   but previous video is still playing".
+*/
+
+function onPlayerState(
+  index,
+  status
+){
+
+  if(
+    index !== role.current
+  ){
+
+    if(
+      status
+      === YT.PlayerState.PLAYING
+    ){
+
+      stopPlayer(
+        index
+      );
+
+    }
+
+    return;
+
+  }
+
+  if(
+    status
+    === YT.PlayerState.PLAYING
+  ){
+
+    buffer.classList.remove(
+      'on'
+    );
+
+    if(
+      audioOn
+    ){
+
+      try{
+
+        players[index]
+          .unMute();
+
+      }catch{}
+
+    }
+
+  }
+
+}
+
+function onPlayerError(
+  index,
+  code
+){
+
+  if(
+    index !== role.current
+  ){
+
+    return;
+
+  }
+
+  buffer.classList.remove(
+    'on'
+  );
+
+  const messages = {
+
+    2:
+      'Video ID lỗi.',
+
+    5:
+      'YouTube HTML5 player lỗi.',
+
+    100:
+      'Video private/đã xoá.',
+
+    101:
+      'Video chặn embed.',
+
+    150:
+      'Video chặn embed.',
+
+    153:
+      'YouTube từ chối embed/referrer.'
+
+  };
+
+  toastMsg(
+
+    messages[code]
+
+    || `YouTube error ${code}`
+
+  );
+
+}
+
+/* =========================================================
+   NEXT / PREVIOUS REEL
+   ========================================================= */
+
+/*
+  GO NEXT:
+
+  1. STOP current FIRST
+  2. rotate physical iframe roles
+  3. kill background players
+  4. activate new current
+  5. preload following reel
+*/
+
+function goNext(){
+
+  if(
+    feed.length < 2
+  ){
+
+    return;
+
+  }
+
+  const oldCurrent =
+    role.current;
+
+  /*
+    Hard stop BEFORE role changes.
+  */
+
+  stopPlayer(
+    oldCurrent,
+    {
+      hard:true
+    }
+  );
+
+  feedIndex =
+    nextFeedIndex();
+
+  const oldPrev =
+    role.prev;
+
+  const oldNext =
+    role.next;
+
+  role.prev =
+    oldCurrent;
+
+  role.current =
+    oldNext;
+
+  role.next =
+    oldPrev;
+
+  currentCaptionIndex =
+    -1;
+
+  currentSeenMarked =
+    false;
+
+  stopBackgroundPlayers();
+
+  renderCurrent();
+
+  activateSlot();
+
+  loadCurrentClip();
+
+  prewarmNext(
+    role.next,
+    clipForRole('next')
+  );
+
+}
+
+function goPrev(){
+
+  if(
+    feed.length < 2
+  ){
+
+    return;
+
+  }
+
+  const oldCurrent =
+    role.current;
+
+  stopPlayer(
+    oldCurrent,
+    {
+      hard:true
+    }
+  );
+
+  feedIndex =
+    previousFeedIndex();
+
+  const oldPrev =
+    role.prev;
+
+  const oldNext =
+    role.next;
+
+  role.next =
+    oldCurrent;
+
+  role.current =
+    oldPrev;
+
+  role.prev =
+    oldNext;
+
+  currentCaptionIndex =
+    -1;
+
+  currentSeenMarked =
+    false;
+
+  stopBackgroundPlayers();
+
+  renderCurrent();
+
+  activateSlot();
+
+  loadCurrentClip();
+
+  cuePrevious(
+    role.prev,
+    clipForRole('prev')
+  );
+
+}
+
+/* =========================================================
+   RENDER CURRENT REEL
+   ========================================================= */
+
+function renderCurrent(){
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    empty
+      .classList
+      .remove(
+        'hidden'
+      );
+
+    channelName.textContent =
+      '—';
+
+    caption.textContent =
+      '—';
+
+    clipMeta.textContent =
+      '—';
+
+    followQuick
+      .classList
+      .add(
+        'hidden'
+      );
+
+    return;
+
+  }
+
+  empty
+    .classList
+    .add(
+      'hidden'
+    );
+
+  followQuick
+    .classList
+    .remove(
+      'hidden'
+    );
+
+  const channel =
+    channelById(
+      clip.channelId
+    );
+
+  channelName.textContent =
+    channel?.title
+    || 'Channel';
+
+  avatar.src =
+    channel?.avatar
+    || thumb(
+      clip.videoId,
+      'default'
+    );
+
+  caption.textContent =
+    clip.segments?.[0]?.text
+    || clip.preview
+    || '';
+
+  clipMeta.textContent =
+    `${fmt(clip.start)}–${fmt(clip.end)} · ${
+      feedMode === 'following'
+        ? 'Following'
+        : feedMode === 'channel'
+          ? 'Channel'
+          : 'For you'
+    }`;
+
+  currentCaptionIndex =
+    0;
+
+  const following =
+    isFollowed(
+      clip.channelId
+    );
+
+  followQuick.textContent =
+    following
+      ? 'Following'
+      : 'Follow';
+
+  followQuick
+    .classList
+    .toggle(
+      'following',
+      following
+    );
+
+  const liked =
+    isLiked(
+      clip.id
+    );
+
+  likeBtn.textContent =
+    liked
+      ? '♥'
+      : '♡';
+
+  likeBtn
+    .classList
+    .toggle(
+      'active',
+      liked
+    );
+
+  const saved =
+    isSaved(
+      clip.id
+    );
+
+  saveBtn.textContent =
+    saved
+      ? '▰'
+      : '▱';
+
+  saveBtn
+    .classList
+    .toggle(
+      'active',
+      saved
+    );
+
+}
+
+/* =========================================================
+   CAPTION SYNC
+   ========================================================= */
+
+function updateCaptionByTime(
+  time
+){
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+    || !clip.segments?.length
+  ){
+
+    return;
+
+  }
+
+  let index =
+    clip.segments.findIndex(
+      segment =>
+        time >= segment.start
+        &&
+        time < segment.end
+    );
+
+  if(
+    index < 0
+  ){
+
+    index =
+
+      time >=
+        clip.segments[
+          clip.segments.length - 1
+        ].start
+
+        ? clip.segments.length - 1
+
+        : 0;
+
+  }
+
+  if(
+    index !== currentCaptionIndex
+  ){
+
+    currentCaptionIndex =
+      index;
+
+    caption.textContent =
+      clip.segments[
+        index
+      ].text;
+
+  }
+
+}
+
+/* =========================================================
+   WATCH HISTORY
+   ========================================================= */
+
+function markCurrentSeen(){
+
+  if(
+    currentSeenMarked
+  ){
+
+    return;
+
+  }
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  currentSeenMarked =
+    true;
+
+  state.seen[
+    clip.id
+  ] =
+    (
+      state.seen[
+        clip.id
+      ]
+      || 0
+    )
+    + 1;
+
+  saveState();
+
+}
+
+/* =========================================================
+   VIDEO MONITOR
+   ========================================================= */
+
+function startMonitor(){
+
+  clearInterval(
+    monitorTimer
+  );
+
+  monitorTimer =
+    setInterval(
+      ()=>{
+
+        if(
+          !ytReady
+          || !feed.length
+        ){
+
+          return;
+
+        }
+
+        const player =
+          players[
+            role.current
+          ];
+
+        const clip =
+          currentClip();
+
+        if(
+          !player
+          || !clip
+        ){
+
+          return;
+
+        }
+
+        let time =
+          0;
+
+        let status =
+          -1;
+
+        try{
+
+          time =
+            player.getCurrentTime()
+            || 0;
+
+          status =
+            player.getPlayerState();
+
+        }catch{
+
+          return;
+
+        }
+
+        updateCaptionByTime(
+          time
+        );
+
+        /*
+          Watched after 3 seconds.
+        */
+
+        if(
+          status
+            === YT.PlayerState.PLAYING
+          &&
+          time
+            >= clip.start + 3
+        ){
+
+          markCurrentSeen();
+
+        }
+
+        /*
+          Reel loops inside its
+          transcript-defined clip.
+        */
+
+        if(
+          status
+            === YT.PlayerState.PLAYING
+          &&
+          time
+            >= clip.end - .10
+        ){
+
+          try{
+
+            player.seekTo(
+              clip.start,
+              true
+            );
+
+            player.playVideo();
+
+          }catch{}
+
+          currentCaptionIndex =
+            -1;
+
+        }
+
+      },
+      120
+    );
+
+}
+
+/* =========================================================
+   SOUND
+   ========================================================= */
+
+function toggleSound(){
+
+  audioOn =
+    !audioOn;
+
+  soundBtn.textContent =
+    audioOn
+      ? '🔊'
+      : '🔇';
+
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    if(
+      audioOn
+    ){
+
+      player.unMute();
+
+    }else{
+
+      player.mute();
+
+    }
+
+    player.playVideo();
+
+  }catch{}
+
+}
+
+/* =========================================================
+   FOLLOW
+   ========================================================= */
+
+function toggleFollow(
+  channelId
+){
+
+  if(
+    !channelId
+  ){
+
+    return;
+
+  }
+
+  if(
+    isFollowed(
+      channelId
+    )
+  ){
+
+    delete state.followed[
+      channelId
+    ];
+
+  }else{
+
+    state.followed[
+      channelId
+    ] =
+      true;
+
+  }
+
+  saveState();
+
+  renderCurrent();
+
+  renderFollowingList();
+
+  if(
+    selectedChannelId
+      === channelId
+  ){
+
+    renderChannelHeader(
+      channelId
+    );
+
+  }
+
+  /*
+    Following changes feed ranking.
+  */
+
+  const currentId =
+    currentClip()?.id
+    || null;
+
+  if(
+    feedMode !== 'channel'
+  ){
+
+    rebuildFeed({
+
+      mode:
+        feedMode,
+
+      keepClipId:
+        currentId
+
+    });
+
+  }
+
+}
+
+/* =========================================================
+   LIKE / SAVE
+   ========================================================= */
+
+function toggleLike(){
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  if(
+    isLiked(
+      clip.id
+    )
+  ){
+
+    delete state.liked[
+      clip.id
+    ];
+
+  }else{
+
+    state.liked[
+      clip.id
+    ] =
+      true;
+
+  }
+
+  saveState();
+
+  renderCurrent();
+
+}
+
+function toggleSave(){
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  if(
+    isSaved(
+      clip.id
+    )
+  ){
+
+    delete state.saved[
+      clip.id
+    ];
+
+  }else{
+
+    state.saved[
+      clip.id
+    ] =
+      true;
+
+  }
+
+  saveState();
+
+  renderCurrent();
+
+  toastMsg(
+
+    isSaved(
+      clip.id
+    )
+
+      ? 'Saved.'
+
+      : 'Removed from saved.'
+
+  );
+
+}
+
+/* =========================================================
+   FULLSCREEN
+   ========================================================= */
+
+async function fullscreen(){
+
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    const iframe =
+      player.getIframe();
+
+    if(
+      iframe.requestFullscreen
+    ){
+
+      await iframe
+        .requestFullscreen();
+
+    }else if(
+      iframe.webkitRequestFullscreen
+    ){
+
+      iframe
+        .webkitRequestFullscreen();
+
+    }
+
+  }catch{
+
+    toastMsg(
+      'Browser chặn fullscreen.'
+    );
+
+  }
+
+}
+
+/* =========================================================
+   FOLLOWING SCREEN
+   ========================================================= */
+
+function renderFollowingList(){
+
+  channelList.innerHTML =
+    '';
+
+  const followed =
+    channels
+      .filter(
+        channel =>
+          isFollowed(
+            channel.id
+          )
+      )
+      .sort(
+        (
+          a,
+          b
+        )=>
+          (
+            b.createdAt
+            || 0
+          )
+          -
+          (
+            a.createdAt
+            || 0
+          )
+      );
+
+  if(
+    !followed.length
+  ){
+
+    channelList.innerHTML =
+      `
+      <div
+        style="
+          opacity:.55;
+          line-height:1.55
+        "
+      >
+        Chưa follow channel nào.
+        <br>
+        Mở reel rồi bấm
+        <b>Follow</b>.
+      </div>
+      `;
+
+    return;
+
+  }
+
+  for(
+    const channel
+    of followed
+  ){
+
+    const firstVideo =
+      channel.videos?.[0];
+
+    const button =
+      document.createElement(
+        'button'
+      );
+
+    button.className =
+      'channelCard';
+
+    button.innerHTML =
+      `
+      <img
+        class="channelThumb"
+        src="${escapeHtml(
+          firstVideo?.thumbnail
+          || channel.avatar
+          || ''
+        )}"
+        alt=""
+      >
+
+      <div class="channelText">
+
+        <div class="channelTitle">
+          ${escapeHtml(
+            channel.title
+          )}
+        </div>
+
+        <div class="channelMeta">
+          ${
+            channel.videos?.length
+            || 0
+          } videos ·
+          ${
+            channel.clips?.length
+            || 0
+          } clips
+        </div>
+
+      </div>
+      `;
+
+    button.onclick =
+      ()=>{
+
+        showChannel(
+          channel.id
+        );
+
+      };
+
+    channelList
+      .appendChild(
+        button
+      );
+
+  }
+
+}
+
+/* =========================================================
+   CHANNEL DETAIL
+   ========================================================= */
+
+function renderChannelHeader(
+  channelId
+){
+
+  const channel =
+    channelById(
+      channelId
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  const firstVideo =
+    channel.videos?.[0];
+
+  heroImg.src =
+    firstVideo?.thumbnail
+    || channel.avatar
+    || '';
+
+  heroTitle.textContent =
+    channel.title;
+
+  heroMeta.textContent =
+    `${
+      channel.videos?.length
+      || 0
+    } videos · ${
+      channel.clips?.length
+      || 0
+    } clips`;
+
+  const following =
+    isFollowed(
+      channel.id
+    );
+
+  followChannel.textContent =
+    following
+      ? 'Following'
+      : 'Follow';
+
+}
+
+function showChannel(
+  channelId
+){
+
+  const channel =
+    channelById(
+      channelId
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  selectedChannelId =
+    channelId;
+
+  renderChannelHeader(
+    channelId
+  );
+
+  clipGrid.innerHTML =
+    '';
+
+  channel.clips.forEach(
+    (
+      clip,
+      index
+    )=>{
+
+      const video =
+        channel.videos?.find(
+          item =>
+            item.videoId
+            === clip.videoId
+        );
+
+      const button =
+        document.createElement(
+          'button'
+        );
+
+      button.className =
+        'clipCard';
+
+      button.innerHTML =
+        `
+        <img
+          class="clipImg"
+          src="${escapeHtml(
+            video?.thumbnail
+            || thumb(
+                clip.videoId,
+                'mqdefault'
+              )
+          )}"
+          alt=""
+        >
+
+        <div class="clipText">
+
+          <div class="clipTime">
+            #${index+1} ·
+            ${fmt(clip.start)}–${fmt(clip.end)}
+          </div>
+
+          <div class="clipCaption">
+            ${escapeHtml(
+              clip.preview
+            )}
+          </div>
+
+        </div>
+        `;
+
+      button.onclick =
+        ()=>{
+
+          playOnlyChannel(
+            channel.id,
+            clip.id
+          );
+
+        };
+
+      clipGrid.appendChild(
+        button
+      );
+
+    }
+  );
+
+  openScreen(
+    channelScreen
+  );
+
+}
+
+/* =========================================================
+   PLAY ONE CHANNEL
+   ========================================================= */
+
+function playOnlyChannel(
+  channelId,
+  startClipId=null
+){
+
+  const channel =
+    channelById(
+      channelId
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  feedMode =
+    'channel';
+
+  feed =
+    [
+      ...(
+        channel.clips
+        || []
+      )
+    ];
+
+  const index =
+
+    startClipId
+
+      ? feed.findIndex(
+          clip =>
+            clip.id
+            === startClipId
+        )
+
+      : -1;
+
+  feedIndex =
+
+    index >= 0
+
+      ? index
+
+      : 0;
+
+  currentCaptionIndex =
+    -1;
+
+  currentSeenMarked =
+    false;
+
+  closeScreen(
+    channelScreen
+  );
+
+  closeScreen(
+    channelsScreen
+  );
+
+  updateFeedTabs();
+
+  syncPlayers(
+    true
+  );
+
+}
+
+/* =========================================================
+   DELETE IMPORTED CHANNEL DATA
+   ========================================================= */
+
+async function removeSelectedChannel(){
+
+  const channelId =
+    selectedChannelId;
+
+  if(
+    !channelId
+  ){
+
+    return;
+
+  }
+
+  const channel =
+    channelById(
+      channelId
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  if(
+    !confirm(
+      `Remove all imported data for "${channel.title}"?`
+    )
+  ){
+
+    return;
+
+  }
+
+  /*
+    Kill every player first.
+  */
+
+  for(
+    let i=0;
+    i<players.length;
+    i++
+  ){
+
+    stopPlayer(
+      i,
+      {
+        hard:true
+      }
+    );
+
+  }
+
+  await dbDeleteChannel(
+    channelId
+  );
+
+  channels =
+    channels.filter(
+      item =>
+        item.id
+        !== channelId
+    );
+
+  delete state.followed[
+    channelId
+  ];
+
+  saveState();
+
+  selectedChannelId =
+    null;
+
+  closeScreen(
+    channelScreen
+  );
+
+  renderFollowingList();
+
+  rebuildFeed({
+    mode:'for-you'
+  });
+
+}
+
+/* =========================================================
+   GESTURES
+   ========================================================= */
+
+function gestureStart(
+  x,
+  y
+){
+
+  touchStart = {
+
+    x,
+
+    y,
+
+    time:
+      performance.now()
+
+  };
+
+}
+
+function gestureEnd(
+  x,
+  y
+){
+
+  if(
+    !touchStart
+  ){
+
+    return;
+
+  }
+
+  const dx =
+    x - touchStart.x;
+
+  const dy =
+    y - touchStart.y;
+
+  const dt =
+    performance.now()
+    - touchStart.time;
+
+  touchStart =
+    null;
+
+  /*
+    Vertical reel swipe.
+  */
+
+  if(
+    Math.abs(dy) > 58
+    &&
+    Math.abs(dy)
+      > Math.abs(dx) * 1.2
+  ){
+
+    if(
+      dy < 0
+    ){
+
+      goNext();
+
+    }else{
+
+      goPrev();
+
+    }
+
+    return;
+
+  }
+
+  /*
+    Tap:
+    first user tap enables audio
+    because browsers require interaction.
+
+    after audio is enabled,
+    tap = play/pause.
+  */
+
+  if(
+    Math.abs(dx) < 12
+    &&
+    Math.abs(dy) < 12
+    &&
+    dt < 380
+  ){
+
+    const player =
+      players[
+        role.current
+      ];
+
+    if(
+      !player
+    ){
+
+      return;
+
+    }
+
+    if(
+      !audioOn
+    ){
+
+      toggleSound();
+
+      return;
+
+    }
+
+    try{
+
+      const status =
+        player.getPlayerState();
+
+      if(
+        status
+        === YT.PlayerState.PLAYING
+      ){
+
+        player.pauseVideo();
+
+      }else{
+
+        stopBackgroundPlayers();
+
+        player.playVideo();
+
+      }
+
+    }catch{}
+
+  }
+
+}
+
+/* =========================================================
+   POINTER EVENTS
+   ========================================================= */
+
+gesture.addEventListener(
+  'pointerdown',
+  event=>{
+
+    gestureStart(
+      event.clientX,
+      event.clientY
+    );
+
+  }
+);
+
+gesture.addEventListener(
+  'pointerup',
+  event=>{
+
+    gestureEnd(
+      event.clientX,
+      event.clientY
+    );
+
+  }
+);
+
+gesture.addEventListener(
+  'pointercancel',
+  ()=>{
+
+    touchStart =
+      null;
+
+  }
+);
+
+/* =========================================================
+   MOUSE WHEEL
+   ========================================================= */
+
+phone.addEventListener(
+  'wheel',
+  event=>{
+
+    if(
+      wheelLocked
+      ||
+      Math.abs(
+        event.deltaY
+      ) < 24
+    ){
+
+      return;
+
+    }
+
+    wheelLocked =
+      true;
+
+    if(
+      event.deltaY > 0
+    ){
+
+      goNext();
+
+    }else{
+
+      goPrev();
+
+    }
+
+    setTimeout(
+      ()=>{
+
+        wheelLocked =
+          false;
+
+      },
+      430
+    );
+
+  },
+  {
+    passive:true
+  }
+);
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  event=>{
+
+    if(
+      document.activeElement
+      === urlInput
+    ){
+
+      return;
+
+    }
+
+    if(
+      event.key === 'ArrowDown'
+    ){
+
+      event.preventDefault();
+
+      goNext();
+
+    }
+
+    else if(
+      event.key === 'ArrowUp'
+    ){
+
+      event.preventDefault();
+
+      goPrev();
+
+    }
+
+    else if(
+      event.key
+        .toLowerCase()
+        === 'f'
+    ){
+
+      fullscreen();
+
+    }
+
+    else if(
+      event.code === 'Space'
+    ){
+
+      event.preventDefault();
+
+      const player =
+        players[
+          role.current
+        ];
+
+      if(
+        !player
+      ){
+
+        return;
+
+      }
+
+      try{
+
+        if(
+          player.getPlayerState()
+          === YT.PlayerState.PLAYING
+        ){
+
+          player.pauseVideo();
+
+        }else{
+
+          stopBackgroundPlayers();
+
+          player.playVideo();
+
+        }
+
+      }catch{}
+
+    }
+
+  }
+);
+
+/* =========================================================
+   NAV EVENTS
+   ========================================================= */
+
+$('#emptyAdd').onclick =
+  ()=>{
+
+    openScreen(
+      addScreen
+    );
+
+  };
+
+addNav.onclick =
+  ()=>{
+
+    openScreen(
+      addScreen
+    );
+
+  };
+
+channelsNav.onclick =
+  ()=>{
+
+    renderFollowingList();
+
+    openScreen(
+      channelsScreen
+    );
+
+  };
+
+$('#channelsAdd').onclick =
+  ()=>{
+
+    openScreen(
+      addScreen
+    );
+
+  };
+
+/* =========================================================
+   BACK BUTTONS
+   ========================================================= */
+
+document
+  .querySelectorAll(
+    '[data-close]'
+  )
+  .forEach(
+    button=>{
+
+      button.onclick =
+        ()=>{
+
+          closeScreen(
+            $(
+              '#'
+              + button.dataset.close
+            )
+          );
+
+        };
+
+    }
+  );
+
+/* =========================================================
+   IMPORT EVENTS
+   ========================================================= */
+
+importBtn.onclick =
+  importVideo;
+
+urlInput.addEventListener(
+  'keydown',
+  event=>{
+
+    if(
+      event.key === 'Enter'
+    ){
+
+      importVideo();
+
+    }
+
+  }
+);
+
+/* =========================================================
+   FEED TABS
+   ========================================================= */
+
+forYouTab.onclick =
+  ()=>{
+
+    rebuildFeed({
+
+      mode:
+        'for-you',
+
+      keepClipId:
+        currentClip()?.id
+        || null
+
+    });
+
+  };
+
+followingTab.onclick =
+  ()=>{
+
+    const anyFollowed =
+      channels.some(
+        channel =>
+          isFollowed(
+            channel.id
+          )
+      );
+
+    if(
+      !anyFollowed
+    ){
+
+      toastMsg(
+        'Chưa follow channel nào.'
+      );
+
+    }
+
+    rebuildFeed({
+
+      mode:
+        'following'
+
+    });
+
+  };
+
+/* =========================================================
+   HOME
+   ========================================================= */
+
+homeNav.onclick =
+  ()=>{
+
+    closeScreen(
+      addScreen
+    );
+
+    closeScreen(
+      channelsScreen
+    );
+
+    closeScreen(
+      channelScreen
+    );
+
+    if(
+      feedMode === 'channel'
+    ){
+
+      rebuildFeed({
+        mode:'for-you'
+      });
+
+    }
+
+  };
+
+/* =========================================================
+   SHUFFLE
+   ========================================================= */
+
+shuffleBtn.onclick =
+  ()=>{
+
+    rebuildFeed({
+
+      mode:
+
+        feedMode === 'following'
+
+          ? 'following'
+
+          : 'for-you'
+
+    });
+
+    toastMsg(
+      'Feed shuffled.'
+    );
+
+  };
+
+/* =========================================================
+   CHANNEL CLICK
+   ========================================================= */
+
+channelButton.onclick =
+  ()=>{
+
+    const clip =
+      currentClip();
+
+    if(
+      clip
+    ){
+
+      showChannel(
+        clip.channelId
+      );
+
+    }
+
+  };
+
+/* =========================================================
+   FOLLOW QUICK
+   ========================================================= */
+
+followQuick.onclick =
+  event=>{
+
+    event.stopPropagation();
+
+    const clip =
+      currentClip();
+
+    if(
+      clip
+    ){
+
+      toggleFollow(
+        clip.channelId
+      );
+
+    }
+
+  };
+
+/* =========================================================
+   CHANNEL DETAIL BUTTONS
+   ========================================================= */
+
+followChannel.onclick =
+  ()=>{
+
+    if(
+      selectedChannelId
+    ){
+
+      toggleFollow(
+        selectedChannelId
+      );
+
+    }
+
+  };
+
+playChannel.onclick =
+  ()=>{
+
+    if(
+      selectedChannelId
+    ){
+
+      playOnlyChannel(
+        selectedChannelId
+      );
+
+    }
+
+  };
+
+deleteChannel.onclick =
+  removeSelectedChannel;
+
+/* =========================================================
+   REEL ACTIONS
+   ========================================================= */
+
+likeBtn.onclick =
+  toggleLike;
+
+saveBtn.onclick =
+  toggleSave;
+
+soundBtn.onclick =
+  toggleSound;
+
+fullBtn.onclick =
+  fullscreen;
+
+ytBtn.onclick =
+  ()=>{
+
+    const clip =
+      currentClip();
+
+    if(
+      !clip
+    ){
+
+      return;
+
+    }
+
+    window.open(
+
+      `https://www.youtube.com/watch?v=${
+        clip.videoId
+      }&t=${
+        Math.floor(
+          clip.start
+        )
+      }s`,
+
+      '_blank',
+
+      'noopener'
+
+    );
+
+  };
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+
+async function boot(){
+
+  try{
+
+    db =
+      await openDB();
+
+    channels =
+      await dbAllChannels();
+
+    channels.sort(
+      (
+        a,
+        b
+      )=>
+
+        (
+          a.createdAt
+          || 0
+        )
+
+        -
+
+        (
+          b.createdAt
+          || 0
+        )
+    );
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+    channels =
+      [];
+
+    toastMsg(
+      'Không mở được local database.'
+    );
+
+  }
+
+  renderFollowingList();
+
+  feed =
+    buildForYouFeed();
+
+  renderCurrent();
+
+  updateFeedTabs();
+
   startMonitor();
 
-  const api=document.createElement('script');
-  api.src='https://www.youtube.com/iframe_api';
-  document.head.appendChild(api);
+  const script =
+    document.createElement(
+      'script'
+    );
+
+  script.src =
+    'https://www.youtube.com/iframe_api';
+
+  document.head.appendChild(
+    script
+  );
+
 }
+
 boot();
+
 })();
 </script>
+
 </body>
 </html>
