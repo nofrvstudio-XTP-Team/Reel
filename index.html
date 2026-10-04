@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#000000">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Kiku</title>
+<title>XTP jp</title>
 <style>
 :root{
   color-scheme:dark;
@@ -733,55 +733,67 @@ button{cursor:pointer}
 }
 
 /* =========================================================
-   TIKTOK-LIKE FIXED REEL LAYOUT — PATCH
-   Everything stays on one 9:16 canvas.
-   Video remains the background layer; UI is fixed overlay.
+   XTP JP — FIXED REEL LAYOUT
+   One 9:16 reel canvas. YouTube is only the playback engine.
+   All product UI is a fixed overlay above it.
    ========================================================= */
 
+/*
+  YouTube does not expose an API switch that reliably removes
+  the title/channel chrome. Keep the iframe untouched and cover
+  the top chrome with our own opaque/faded product header layer.
+*/
 #ytChromeMask{
   position:absolute;
-  z-index:5;
+  z-index:7;
   top:0;
   left:0;
   right:0;
-  height:102px;
+  height:calc(var(--safe-t) + 92px);
   pointer-events:none;
   background:
     linear-gradient(
       to bottom,
-      rgba(0,0,0,.92) 0,
-      rgba(0,0,0,.72) 38px,
-      rgba(0,0,0,.42) 66px,
-      rgba(0,0,0,.10) 88px,
+      #000 0,
+      #000 calc(var(--safe-t) + 50px),
+      rgba(0,0,0,.96) calc(var(--safe-t) + 60px),
+      rgba(0,0,0,.72) calc(var(--safe-t) + 73px),
+      rgba(0,0,0,.25) calc(var(--safe-t) + 84px),
       transparent 100%
     );
 }
 
-/* Fixed header overlay */
+/* Product header: fixed overlay, never participates in layout flow. */
 #top{
   top:var(--safe-t);
   left:12px;
   right:12px;
   height:42px;
+  z-index:10;
+}
+
+#brand{
+  font-size:15px;
+  letter-spacing:-.35px;
+  opacity:.94;
 }
 
 /*
-  Fixed bottom-left information zone.
-  Its height never changes when the active phrase changes.
+  Bottom-left learning area is fixed. Its coordinates and height
+  never change when a new phrase appears.
 */
 #reelInfo{
-  left:14px;
-  right:72px;
-  bottom:calc(66px + var(--safe-b));
-  height:142px;
+  left:13px;
+  right:68px;
+  bottom:calc(64px + var(--safe-b));
+  height:164px;
   text-shadow:0 2px 12px rgba(0,0,0,.98);
   pointer-events:none;
 }
 
-/* Channel row has its own fixed coordinates. */
 #channelRow{
   position:absolute;
-  left:0;
+  left:1px;
   right:0;
   top:0;
   height:36px;
@@ -792,22 +804,66 @@ button{cursor:pointer}
   pointer-events:auto;
 }
 
-/* Caption area has its own fixed coordinates and fixed height. */
+/*
+  The learning focus card. This is deliberately more prominent
+  than a normal social-media caption so the eye lands on Japanese.
+*/
 #sentenceWrap{
+  --sentence-progress:0;
   position:absolute;
   left:0;
   right:0;
-  top:47px;
-  height:76px;
+  top:45px;
+  height:104px;
   margin:0;
+  padding:27px 12px 12px 14px;
   overflow:hidden;
   pointer-events:auto;
+  border:1px solid rgba(255,255,255,.20);
+  border-left:3px solid rgba(255,255,255,.96);
+  border-radius:15px;
+  background:rgba(8,8,8,.66);
+  -webkit-backdrop-filter:blur(14px) saturate(1.08);
+  backdrop-filter:blur(14px) saturate(1.08);
+  box-shadow:
+    0 10px 28px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.07);
 }
 
-/*
-  One active Japanese phrase only.
-  Fixed two-line box: phrase changes cannot move channel/buttons/nav.
-*/
+#sentenceWrap::before{
+  content:"LISTEN";
+  position:absolute;
+  top:8px;
+  left:13px;
+  font-size:8px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:1.25px;
+  opacity:.62;
+}
+
+#sentenceWrap::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:calc(var(--sentence-progress) * 100%);
+  height:3px;
+  border-radius:0 999px 999px 0;
+  background:rgba(255,255,255,.92);
+  transition:width .08s linear;
+}
+
+#sentenceWrap.attention{
+  animation:xtpCaptionFocus .18s ease-out;
+}
+
+@keyframes xtpCaptionFocus{
+  0%{transform:scale(.985);filter:brightness(1.28)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+
+/* Exactly one active phrase. Fixed box; changing text cannot move UI. */
 #sentence{
   display:flex;
   flex-wrap:wrap;
@@ -815,13 +871,13 @@ button{cursor:pointer}
   align-items:baseline;
   gap:0 3px;
   width:100%;
-  height:58px;
-  max-height:58px;
+  height:62px;
+  max-height:62px;
   overflow:hidden;
-  font-size:clamp(18px,4.5vw,21px);
-  font-weight:900;
-  line-height:1.36;
-  letter-spacing:-.15px;
+  font-size:clamp(20px,4.9vw,23px);
+  font-weight:950;
+  line-height:1.34;
+  letter-spacing:-.18px;
   pointer-events:auto;
 }
 
@@ -829,7 +885,16 @@ button{cursor:pointer}
   display:none!important;
 }
 
-/* Keep channel compact and fixed. */
+.jpWord{
+  border-bottom:1px solid rgba(255,255,255,.18);
+}
+
+.jpWord:active{
+  opacity:.68;
+  border-bottom-color:#fff;
+}
+
+/* Compact channel identity above the focus card. */
 .avatar{
   width:32px;
   height:32px;
@@ -846,10 +911,10 @@ button{cursor:pointer}
   font-size:10px;
 }
 
-/* Fixed TikTok-style right rail. */
+/* Fixed action rail. */
 #rail{
   right:8px;
-  bottom:calc(78px + var(--safe-b));
+  bottom:calc(77px + var(--safe-b));
   gap:7px;
 }
 
@@ -857,22 +922,23 @@ button{cursor:pointer}
   width:42px;
   height:42px;
   font-size:18px;
-  background:rgba(15,15,15,.52);
+  background:rgba(15,15,15,.58);
+  border:1px solid rgba(255,255,255,.08);
 }
 
 .railLabel{
   display:none!important;
 }
 
-/* Bottom nav stays pinned; content never reflows it. */
+/* Bottom nav is an overlay, not a layout row. */
 #nav{
   height:calc(58px + var(--safe-b));
   padding:0 4px var(--safe-b);
   background:
     linear-gradient(
       to top,
-      rgba(0,0,0,.96) 0,
-      rgba(0,0,0,.72) 58%,
+      rgba(0,0,0,.98) 0,
+      rgba(0,0,0,.78) 58%,
       transparent 100%
     );
 }
@@ -881,27 +947,49 @@ button{cursor:pointer}
   height:46px;
 }
 
-/* Spinner belongs to the whole reel canvas, not document flow. */
+/* Spinner belongs to the reel canvas. */
 #buffer{
   position:absolute;
   inset:0;
 }
 
-/* Slightly stronger bottom readability without creating a separate panel. */
+/* Readability fades only. No separate video/caption panels. */
 #shade{
   background:
     linear-gradient(
       to bottom,
-      rgba(0,0,0,.32) 0,
-      transparent 23%
+      rgba(0,0,0,.22) 0,
+      transparent 25%
     ),
     linear-gradient(
       to top,
-      rgba(0,0,0,.90) 0,
-      rgba(0,0,0,.54) 19%,
-      rgba(0,0,0,.16) 39%,
-      transparent 55%
+      rgba(0,0,0,.92) 0,
+      rgba(0,0,0,.50) 22%,
+      rgba(0,0,0,.10) 43%,
+      transparent 57%
     );
+}
+
+/* Full app fullscreen: keep our UI, not YouTube's iframe UI. */
+#phone.appFullscreen,
+#phone:fullscreen,
+#phone:-webkit-full-screen{
+  width:100vw!important;
+  height:100vh!important;
+  height:100dvh!important;
+  max-width:none!important;
+  aspect-ratio:auto!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  inset:0!important;
+}
+
+html.pseudoFullscreen,
+html.pseudoFullscreen body{
+  width:100%!important;
+  height:100%!important;
+  overflow:hidden!important;
+  background:#000!important;
 }
 
 </style>
@@ -936,7 +1024,7 @@ button{cursor:pointer}
   <header id="top">
 
     <div id="brand">
-      Kiku
+      XTP jp
     </div>
 
     <div id="feedTabs">
@@ -1076,7 +1164,7 @@ button{cursor:pointer}
     <div id="emptyCard">
 
       <h1>
-        Kiku
+        XTP jp
       </h1>
 
       <p>
@@ -1513,6 +1601,9 @@ const channelName =
 const followQuick =
   $('#followQuick');
 
+const sentenceWrap =
+  $('#sentenceWrap');
+
 const sentenceEl =
   $('#sentence');
 
@@ -1684,6 +1775,21 @@ let role = {
 };
 
 let loadedKey =
+  [
+    null,
+    null,
+    null
+  ];
+
+/* Real next-reel prewarm state. Only NEXT may buffer, always muted. */
+let prewarming =
+  [
+    false,
+    false,
+    false
+  ];
+
+let prewarmTimers =
   [
     null,
     null,
@@ -4108,6 +4214,8 @@ function playerVars(){
 
     modestbranding:1,
 
+    disablekb:1,
+
     fs:0
 
   };
@@ -4261,6 +4369,105 @@ function activateSlot(){
 
 }
 
+function cancelPrewarm(
+  index,
+  {
+    pause=false
+  }={}
+){
+
+  if(
+    prewarmTimers[index]
+  ){
+
+    clearTimeout(
+      prewarmTimers[index]
+    );
+
+    prewarmTimers[index] =
+      null;
+
+  }
+
+  prewarming[index] =
+    false;
+
+  if(
+    pause
+    &&
+    index !== role.current
+  ){
+
+    try{
+
+      players[index]?.mute();
+      players[index]?.pauseVideo();
+
+    }catch{}
+
+  }
+
+}
+
+function finishPrewarm(
+  index,
+  key
+){
+
+  if(
+    index === role.current
+    ||
+    loadedKey[index] !== key
+  ){
+
+    cancelPrewarm(
+      index
+    );
+
+    return;
+
+  }
+
+  try{
+
+    players[index]?.mute();
+    players[index]?.pauseVideo();
+
+  }catch{}
+
+  cancelPrewarm(
+    index
+  );
+
+}
+
+function schedulePrewarmStop(
+  index,
+  key,
+  delay=650
+){
+
+  if(
+    prewarmTimers[index]
+  ){
+
+    clearTimeout(
+      prewarmTimers[index]
+    );
+
+  }
+
+  prewarmTimers[index] =
+    setTimeout(
+      ()=>finishPrewarm(
+        index,
+        key
+      ),
+      delay
+    );
+
+}
+
 function stopPlayer(
   index,
   {
@@ -4270,6 +4477,10 @@ function stopPlayer(
 
   const player =
     players[index];
+
+  cancelPrewarm(
+    index
+  );
 
   if(
     !player
@@ -4321,14 +4532,33 @@ function stopBackgroundPlayers(){
   ){
 
     if(
-      i !== role.current
+      i === role.current
     ){
 
-      stopPlayer(
-        i
-      );
+      continue;
 
     }
+
+    /* Keep the deliberate muted NEXT preload alive. */
+    if(
+      prewarming[i]
+      &&
+      i === role.next
+    ){
+
+      try{
+
+        players[i]?.mute();
+
+      }catch{}
+
+      continue;
+
+    }
+
+    stopPlayer(
+      i
+    );
 
   }
 
@@ -4375,6 +4605,20 @@ function enforceSingleActivePlayer(){
       player.mute();
 
     }catch{}
+
+    /*
+      NEXT is allowed a very short muted load window so the browser
+      actually buffers media. Every other background player is paused.
+    */
+    if(
+      prewarming[i]
+      &&
+      i === role.next
+    ){
+
+      continue;
+
+    }
 
     try{
 
@@ -4484,6 +4728,8 @@ function prewarmNext(
     !players[index]
     ||
     !clip
+    ||
+    index === role.current
   ){
 
     return;
@@ -4504,29 +4750,62 @@ function prewarmNext(
 
   }
 
+  cancelPrewarm(
+    index
+  );
+
   loadedKey[index] =
     key;
+
+  prewarming[index] =
+    true;
 
   try{
 
     /*
-      cueVideoById prepares the next iframe without
-      starting hidden playback. This prevents the
-      previous/next reel from continuing behind current.
+      cueVideoById alone does not materially buffer the media.
+      loadVideoById does. We load NEXT muted for a short window,
+      then pause it. The hidden slot stays opacity:0 and cannot click.
     */
     players[index].mute();
 
-    players[index].cueVideoById({
+    players[index].loadVideoById({
 
       videoId:
         clip.videoId,
 
       startSeconds:
-        clip.start
+        clip.start,
+
+      endSeconds:
+        clip.end
 
     });
 
-  }catch{}
+    schedulePrewarmStop(
+      index,
+      key,
+      650
+    );
+
+  }catch{
+
+    cancelPrewarm(
+      index
+    );
+
+    /* Safe fallback if autoplay/prewarm is rejected. */
+    try{
+
+      players[index].mute();
+      players[index].cueVideoById({
+        videoId:clip.videoId,
+        startSeconds:clip.start
+      });
+
+    }catch{}
+
+  }
 
 }
 
@@ -4563,6 +4842,10 @@ function playCurrent(){
     return;
 
   }
+
+  cancelPrewarm(
+    role.current
+  );
 
   stopBackgroundPlayers();
 
@@ -4694,42 +4977,62 @@ function onPlayerState(
   status
 ){
 
-  /*
-    Đây là guard quan trọng.
-
-    Bất cứ iframe nào không phải CURRENT
-    mà tự chạy -> pause ngay.
-  */
-
   if(
     index !== role.current
   ){
 
+    try{
+
+      players[index]?.mute();
+
+    }catch{}
+
+    /*
+      The only legal background activity is NEXT while prewarming.
+      Once it reaches PLAYING, give it ~180 ms to fill buffer and pause.
+    */
     if(
-      status
-      === YT.PlayerState.PLAYING
+      prewarming[index]
+      &&
+      index === role.next
+    ){
+
+      if(
+        status === YT.PlayerState.PLAYING
+      ){
+
+        schedulePrewarmStop(
+          index,
+          loadedKey[index],
+          180
+        );
+
+      }
+
+      return;
+
+    }
+
+    if(
+      status === YT.PlayerState.PLAYING
       ||
-      status
-      === YT.PlayerState.BUFFERING
+      status === YT.PlayerState.BUFFERING
     ){
 
       stopPlayer(
         index
       );
 
-    }else{
-
-      try{
-
-        players[index]?.mute();
-
-      }catch{}
-
     }
 
     return;
 
   }
+
+  /* Current role must no longer be governed by a prewarm timer. */
+  cancelPrewarm(
+    index
+  );
 
   if(
     status
@@ -5028,6 +5331,11 @@ function renderSentence(
     sentenceProgress.textContent =
       '—';
 
+    sentenceWrap.style.setProperty(
+      '--sentence-progress',
+      '0'
+    );
+
     renderedSentenceId =
       null;
 
@@ -5049,6 +5357,17 @@ function renderSentence(
 
   renderedSentenceId =
     id;
+
+  sentenceWrap.classList.remove(
+    'attention'
+  );
+
+  /* Force animation restart only when the phrase actually changes. */
+  void sentenceWrap.offsetWidth;
+
+  sentenceWrap.classList.add(
+    'attention'
+  );
 
   sentenceEl.innerHTML =
     '';
@@ -5299,6 +5618,11 @@ function renderCurrent(){
     Monitor sẽ thay bằng câu đúng theo currentTime.
   */
 
+  sentenceWrap.style.setProperty(
+    '--sentence-progress',
+    '0'
+  );
+
   renderSentence(
     buildDisplayPhrases(
       clip.sentences?.[0]
@@ -5435,13 +5759,54 @@ function startMonitor(){
           currentTime -> đúng 1 sentence.
         */
 
-        renderSentence(
+        const activePhrase =
           activeDisplayPhraseAt(
             clip,
             time
-          ),
+          );
+
+        renderSentence(
+          activePhrase,
           clip
         );
+
+        if(
+          activePhrase
+        ){
+
+          const span =
+            Math.max(
+              .08,
+              activePhrase.end
+              - activePhrase.start
+            );
+
+          const progress =
+            Math.max(
+              0,
+              Math.min(
+                1,
+                (
+                  time
+                  - activePhrase.start
+                )
+                / span
+              )
+            );
+
+          sentenceWrap.style.setProperty(
+            '--sentence-progress',
+            String(progress)
+          );
+
+        }else{
+
+          sentenceWrap.style.setProperty(
+            '--sentence-progress',
+            '0'
+          );
+
+        }
 
         if(
           status
@@ -5699,51 +6064,199 @@ function toggleSave(){
    FULLSCREEN
    ========================================================= */
 
+function fullscreenElement(){
+
+  return (
+    document.fullscreenElement
+    ||
+    document.webkitFullscreenElement
+    ||
+    null
+  );
+
+}
+
+function setFullscreenUi(
+  active
+){
+
+  phone.classList.toggle(
+    'appFullscreen',
+    active
+  );
+
+  fullBtn.classList.toggle(
+    'active',
+    active
+  );
+
+  fullBtn.textContent =
+    active
+      ? '×'
+      : '⛶';
+
+}
+
 async function fullscreen(){
 
-  const player =
-    players[
-      role.current
-    ];
-
-  if(
-    !player
-  ){
-
-    return;
-
-  }
+  const active =
+    !!fullscreenElement();
 
   try{
 
-    const iframe =
-      player.getIframe();
-
     if(
-      iframe.requestFullscreen
+      active
     ){
 
-      await iframe
-        .requestFullscreen();
+      if(
+        document.exitFullscreen
+      ){
 
-    }else if(
-      iframe.webkitRequestFullscreen
-    ){
+        await document.exitFullscreen();
 
-      iframe
-        .webkitRequestFullscreen();
+      }else if(
+        document.webkitExitFullscreen
+      ){
+
+        document.webkitExitFullscreen();
+
+      }
+
+      document.documentElement.classList.remove(
+        'pseudoFullscreen'
+      );
+
+      setFullscreenUi(
+        false
+      );
+
+      return;
 
     }
 
-  }catch{
+    if(
+      phone.requestFullscreen
+    ){
+
+      await phone.requestFullscreen();
+
+      setFullscreenUi(
+        true
+      );
+
+      return;
+
+    }
+
+    if(
+      phone.webkitRequestFullscreen
+    ){
+
+      phone.webkitRequestFullscreen();
+
+      setFullscreenUi(
+        true
+      );
+
+      return;
+
+    }
+
+    /*
+      iPhone Safari may not expose element Fullscreen API.
+      Fallback still expands the app to the entire available viewport.
+    */
+    const next =
+      !phone.classList.contains(
+        'appFullscreen'
+      );
+
+    document.documentElement.classList.toggle(
+      'pseudoFullscreen',
+      next
+    );
+
+    setFullscreenUi(
+      next
+    );
+
+    if(
+      next
+    ){
+
+      window.scrollTo(
+        0,
+        1
+      );
+
+    }
+
+  }catch(error){
+
+    console.warn(
+      'Fullscreen failed:',
+      error
+    );
+
+    const next =
+      !phone.classList.contains(
+        'appFullscreen'
+      );
+
+    document.documentElement.classList.toggle(
+      'pseudoFullscreen',
+      next
+    );
+
+    setFullscreenUi(
+      next
+    );
 
     toastMsg(
-      'Browser chặn fullscreen.'
+      'Browser không cho true fullscreen; đã mở full viewport.'
     );
 
   }
 
 }
+
+document.addEventListener(
+  'fullscreenchange',
+  ()=>{
+
+    const active =
+      !!fullscreenElement();
+
+    setFullscreenUi(
+      active
+    );
+
+    if(
+      !active
+    ){
+
+      document.documentElement.classList.remove(
+        'pseudoFullscreen'
+      );
+
+    }
+
+  }
+);
+
+document.addEventListener(
+  'webkitfullscreenchange',
+  ()=>{
+
+    const active =
+      !!fullscreenElement();
+
+    setFullscreenUi(
+      active
+    );
+
+  }
+);
 
 /* =========================================================
    FOLLOWING LIST
