@@ -23,1135 +23,6873 @@ button{cursor:pointer}
 
 #app{position:fixed;inset:0;background:radial-gradient(circle at 50% 12%,#1b1b1b 0,#0a0a0a 38%,#050505 80%);overflow:hidden}
 #phone{position:absolute;inset:0;margin:auto;background:#000;overflow:hidden}
+
 @media(min-width:700px){
   #phone{
     width:min(430px,calc(100vw - 32px),calc((100vh - 24px) * 9 / 16));
-    height:auto;aspect-ratio:9/16;border-radius:22px;
+    height:auto;
+    aspect-ratio:9/16;
+    border-radius:22px;
     box-shadow:0 20px 80px rgba(0,0,0,.78),0 0 0 1px rgba(255,255,255,.08)
   }
 }
-@media(max-width:699px){#phone{width:100%;height:100%;border-radius:0}}
+
+@media(max-width:699px){
+  #phone{
+    width:100%;
+    height:100%;
+    border-radius:0
+  }
+
+  .playerSlot{
+    height:56.25vw!important
+  }
+
+  #buffer{
+    height:56.25vw!important
+  }
+
+  #reelInfo{
+    top:calc(var(--safe-t) + 54px + 56.25vw + 15px)!important
+  }
+
+  #rail{
+    top:calc(var(--safe-t) + 54px + 56.25vw + 64px)!important
+  }
+}
 
 /* player ring */
-#videoViewport{
+
+.playerSlot{
   position:absolute;
-  z-index:1;
-  top:calc(var(--safe-t) + 52px);
   left:0;
   right:0;
-  height:32%;
-  overflow:hidden;
+  top:calc(54px + var(--safe-t));
+  height:31.640625%;
+  opacity:0;
+  pointer-events:none;
   background:#000;
+  overflow:hidden;
+  transition:opacity .08s linear
 }
-.playerSlot{position:absolute;inset:0;opacity:0;pointer-events:none;background:#000;transition:opacity .08s linear}
-.playerSlot.active{opacity:1}
-.playerSlot>div,.playerSlot iframe{width:100%!important;height:100%!important;border:0!important;background:#000}
+
+.playerSlot.active{
+  opacity:1
+}
+
+.playerSlot>div,
+.playerSlot iframe{
+  width:100%!important;
+  height:100%!important;
+  border:0!important;
+  background:#000;
+  display:block
+}
+
 #shade{
-  position:absolute;inset:0;z-index:3;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(0,0,0,.18),transparent 22%,transparent 78%,rgba(0,0,0,.20))
+  position:absolute;
+  z-index:3;
+  top:calc(54px + var(--safe-t));
+  left:0;
+  right:0;
+  height:58px;
+  pointer-events:none;
+  background:linear-gradient(to bottom,#000 0,#000 18px,rgba(0,0,0,.88) 32px,rgba(0,0,0,.18) 51px,transparent 58px)
 }
-#ytTopMask{
-  position:absolute;z-index:5;left:0;right:0;top:0;height:58px;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(0,0,0,.98) 0,rgba(0,0,0,.92) 68%,rgba(0,0,0,0) 100%)
+
+#gesture{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  touch-action:none
 }
-#ytLogoMask{
-  position:absolute;z-index:5;right:0;bottom:0;width:138px;height:36px;pointer-events:none;
-  background:linear-gradient(to left,rgba(0,0,0,.96) 0,rgba(0,0,0,.78) 62%,rgba(0,0,0,0) 100%)
+
+#buffer{
+  position:absolute;
+  top:calc(54px + var(--safe-t));
+  left:0;
+  right:0;
+  height:31.640625%;
+  z-index:6;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+  opacity:0;
+  transition:.12s
 }
-#gesture{position:absolute;inset:0;z-index:4;touch-action:none}
-#buffer{position:absolute;inset:0;z-index:6;display:grid;place-items:center;pointer-events:none;opacity:0;transition:.12s}
-#buffer.on{opacity:1}
-.spinner{width:34px;height:34px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+
+#buffer.on{
+  opacity:1
+}
+
+.spinner{
+  width:34px;
+  height:34px;
+  border:3px solid rgba(255,255,255,.2);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg)
+  }
+}
 
 /* header */
-#top{position:absolute;z-index:10;top:var(--safe-t);left:13px;right:13px;height:44px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;pointer-events:none}
-#brand{justify-self:start;font-size:17px;font-weight:950;letter-spacing:-.6px;text-shadow:0 2px 12px #000}
-#feedTabs{justify-self:center;display:flex;gap:17px;align-items:center;pointer-events:auto}
-.feedTab{border:0;background:transparent;padding:8px 0;font-size:14px;font-weight:850;opacity:.5;text-shadow:0 2px 10px #000}
-.feedTab.active{opacity:1;position:relative}
-.feedTab.active:after{content:"";position:absolute;left:50%;bottom:1px;width:22px;height:2px;border-radius:2px;background:#fff;transform:translateX(-50%)}
-#shuffleBtn{justify-self:end;pointer-events:auto;width:38px;height:38px;border:0;border-radius:50%;background:rgba(12,12,12,.48);backdrop-filter:blur(10px);font-size:18px}
+
+#top{
+  position:absolute;
+  z-index:20;
+  top:0;
+  left:0;
+  right:0;
+  height:calc(54px + var(--safe-t));
+  padding:var(--safe-t) 13px 0;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  pointer-events:none;
+  background:#000
+}
+
+#brand{
+  justify-self:start;
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:-.6px;
+  text-shadow:0 2px 12px #000
+}
+
+#feedTabs{
+  justify-self:center;
+  display:flex;
+  gap:17px;
+  align-items:center;
+  pointer-events:auto
+}
+
+.feedTab{
+  border:0;
+  background:transparent;
+  padding:8px 0;
+  font-size:14px;
+  font-weight:850;
+  opacity:.5;
+  text-shadow:0 2px 10px #000
+}
+
+.feedTab.active{
+  opacity:1;
+  position:relative
+}
+
+.feedTab.active:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:1px;
+  width:22px;
+  height:2px;
+  border-radius:2px;
+  background:#fff;
+  transform:translateX(-50%)
+}
+
+#shuffleBtn{
+  justify-self:end;
+  pointer-events:auto;
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:rgba(12,12,12,.48);
+  backdrop-filter:blur(10px);
+  font-size:18px
+}
 
 /* main sentence */
+
 #reelInfo{
-  position:absolute;z-index:9;
-  top:calc(var(--safe-t) + 39%);
-  left:14px;right:62px;
-  bottom:calc(70px + var(--safe-b));
-  text-shadow:0 2px 12px rgba(0,0,0,.96);
-  overflow:hidden
+  position:absolute;
+  z-index:9;
+  top:calc(var(--safe-t) + 54px + 31.640625% + 15px);
+  left:17px;
+  right:62px;
+  bottom:auto;
+  text-shadow:none
 }
-#channelRow{display:flex;align-items:center;gap:8px;margin-bottom:9px}
-#channelButton{border:0;background:transparent;padding:0;display:flex;align-items:center;gap:8px;min-width:0;text-align:left}
-.avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#222;border:1px solid rgba(255,255,255,.4)}
-#channelName{font-size:14px;font-weight:900;max-width:min(50vw,270px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.followPill{height:29px;border-radius:999px;padding:0 11px;border:1px solid rgba(255,255,255,.34);background:rgba(12,12,12,.48);backdrop-filter:blur(10px);font-size:11px;font-weight:900;white-space:nowrap}
-.followPill.following{background:#fff;color:#000;border-color:#fff}
-#sentenceWrap{
-  margin-top:2px;
-  padding:11px 12px 10px;
-  border-radius:14px;
-  background:rgba(8,8,8,.82);
-  border:1px solid rgba(255,255,255,.08);
-  backdrop-filter:blur(8px)
+
+#channelRow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px
 }
-#sentence{
-  display:flex;flex-wrap:wrap;align-items:baseline;gap:0 4px;
-  max-width:100%;
-  max-height:3.05em;
+
+#channelButton{
+  border:0;
+  background:transparent;
+  padding:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  text-align:left
+}
+
+.avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#222;
+  border:1px solid rgba(255,255,255,.4)
+}
+
+#channelName{
+  font-size:14px;
+  font-weight:900;
+  max-width:min(50vw,270px);
   overflow:hidden;
-  font-size:clamp(18px,4.1vw,21px);
-  font-weight:820;
-  line-height:1.48;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+
+.followPill{
+  height:29px;
+  border-radius:999px;
+  padding:0 11px;
+  border:1px solid rgba(255,255,255,.34);
+  background:rgba(12,12,12,.48);
+  backdrop-filter:blur(10px);
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap
+}
+
+.followPill.following{
+  background:#fff;
+  color:#000;
+  border-color:#fff
+}
+
+#sentenceWrap{
+  margin-top:2px
+}
+
+#sentence{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:0 3px;
+  max-width:100%;
+  max-height:2.9em;
+  overflow:hidden;
+  font-size:clamp(18px,4.4vw,22px);
+  font-weight:850;
+  line-height:1.45;
   letter-spacing:-.12px;
   pointer-events:auto
 }
-.jpWord,.jpPunc{border:0;background:transparent;color:#fff;padding:0;margin:0;font:inherit;line-height:inherit;text-shadow:inherit}
-.jpWord{border-bottom:1px solid transparent}
-.jpWord:active{opacity:.62;border-bottom-color:rgba(255,255,255,.8)}
-#sentenceProgress{display:none}
+
+.jpWord,
+.jpPunc{
+  border:0;
+  background:transparent;
+  color:#fff;
+  padding:0;
+  margin:0;
+  font:inherit;
+  line-height:inherit;
+  text-shadow:inherit
+}
+
+.jpWord{
+  border-bottom:1px solid transparent
+}
+
+.jpWord:active{
+  opacity:.62;
+  border-bottom-color:rgba(255,255,255,.8)
+}
+
+#sentenceProgress{
+  display:none
+}
 
 /* right rail */
+
 #rail{
-  position:absolute;z-index:10;
-  right:8px;top:45%;
-  display:flex;flex-direction:column;align-items:center;gap:6px
+  position:absolute;
+  z-index:10;
+  top:calc(var(--safe-t) + 54px + 31.640625% + 64px);
+  right:8px;
+  bottom:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px
 }
+
 .railBtn{
-  width:40px;height:40px;border:0;border-radius:50%;
-  background:rgba(18,18,18,.72);backdrop-filter:blur(10px);
-  display:grid;place-items:center;font-size:17px
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:#181818;
+  display:grid;
+  place-items:center;
+  font-size:17px
 }
-.railBtn.active{background:#fff;color:#000}
-.railBtn:active{transform:scale(.95)}
-.railLabel{font-size:8px;font-weight:750;margin-top:-4px;text-shadow:0 2px 8px #000;opacity:.75}
+
+.railBtn.active{
+  background:#fff;
+  color:#000
+}
+
+.railBtn:active{
+  transform:scale(.95)
+}
+
+.railLabel{
+  display:none
+}
 
 /* bottom nav */
-#nav{position:absolute;z-index:12;left:0;right:0;bottom:0;height:calc(62px + var(--safe-b));padding:0 5px var(--safe-b);display:grid;grid-template-columns:repeat(4,1fr);align-items:center;background:linear-gradient(to top,rgba(0,0,0,.98),rgba(0,0,0,.66),transparent)}
-.navBtn{height:49px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:.5}
-.navBtn.active{opacity:1}
-.navIcon{font-size:20px;line-height:20px}
-.navText{font-size:9px;font-weight:750}
-#addNav .navIcon{width:35px;height:26px;border-radius:8px;background:#fff;color:#000;display:grid;place-items:center;font-size:22px;font-weight:950}
+
+#nav{
+  position:absolute;
+  z-index:12;
+  left:0;
+  right:0;
+  bottom:0;
+  height:calc(62px + var(--safe-b));
+  padding:0 5px var(--safe-b);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  align-items:center;
+  background:linear-gradient(to top,rgba(0,0,0,.98),rgba(0,0,0,.66),transparent)
+}
+
+.navBtn{
+  height:49px;
+  border:0;
+  background:transparent;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  opacity:.5
+}
+
+.navBtn.active{
+  opacity:1
+}
+
+.navIcon{
+  font-size:20px;
+  line-height:20px
+}
+
+.navText{
+  font-size:9px;
+  font-weight:750
+}
+
+#addNav .navIcon{
+  width:35px;
+  height:26px;
+  border-radius:8px;
+  background:#fff;
+  color:#000;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  font-weight:950
+}
 
 /* empty state */
-#empty{position:absolute;inset:0;z-index:7;display:grid;place-items:center;text-align:center;padding:28px;background:radial-gradient(circle at 50% 38%,#1b1b1b,#090909 50%,#000 82%)}
-#emptyCard{max-width:390px}
-#empty h1{margin:0 0 7px;font-size:48px;letter-spacing:-2px}
-#empty p{margin:0 auto 20px;opacity:.62;line-height:1.5;font-size:14px}
-.primary{height:45px;border:0;border-radius:999px;padding:0 18px;background:#fff;color:#000;font-weight:900}
-.secondary{height:42px;border:0;border-radius:999px;padding:0 14px;background:#242424;color:#fff;font-weight:820}
+
+#empty{
+  position:absolute;
+  inset:0;
+  z-index:7;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:28px;
+  background:radial-gradient(circle at 50% 38%,#1b1b1b,#090909 50%,#000 82%)
+}
+
+#emptyCard{
+  max-width:390px
+}
+
+#empty h1{
+  margin:0 0 7px;
+  font-size:48px;
+  letter-spacing:-2px
+}
+
+#empty p{
+  margin:0 auto 20px;
+  opacity:.62;
+  line-height:1.5;
+  font-size:14px
+}
+
+.primary{
+  height:45px;
+  border:0;
+  border-radius:999px;
+  padding:0 18px;
+  background:#fff;
+  color:#000;
+  font-weight:900
+}
+
+.secondary{
+  height:42px;
+  border:0;
+  border-radius:999px;
+  padding:0 14px;
+  background:#242424;
+  color:#fff;
+  font-weight:820
+}
 
 /* internal screens */
-.screen{position:absolute;z-index:40;inset:0;background:#0b0b0b;transform:translateY(101%);transition:transform .20s cubic-bezier(.2,.75,.2,1);overflow:auto;overscroll-behavior:contain;padding-bottom:calc(22px + var(--safe-b))}
-.screen.open{transform:translateY(0)}
-.screenHead{position:sticky;top:0;z-index:3;height:calc(58px + var(--safe-t));padding:var(--safe-t) 13px 0;display:flex;align-items:center;gap:9px;background:rgba(11,11,11,.91);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
-.backBtn{width:38px;height:38px;border:0;border-radius:50%;background:#1e1e1e;font-size:23px}
-.screenTitle{font-size:18px;font-weight:900;flex:1}
-.screenBody{padding:14px}
+
+.screen{
+  position:absolute;
+  z-index:40;
+  inset:0;
+  background:#0b0b0b;
+  transform:translateY(101%);
+  transition:transform .20s cubic-bezier(.2,.75,.2,1);
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding-bottom:calc(22px + var(--safe-b))
+}
+
+.screen.open{
+  transform:translateY(0)
+}
+
+.screenHead{
+  position:sticky;
+  top:0;
+  z-index:3;
+  height:calc(58px + var(--safe-t));
+  padding:var(--safe-t) 13px 0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  background:rgba(11,11,11,.91);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line)
+}
+
+.backBtn{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:50%;
+  background:#1e1e1e;
+  font-size:23px
+}
+
+.screenTitle{
+  font-size:18px;
+  font-weight:900;
+  flex:1
+}
+
+.screenBody{
+  padding:14px
+}
 
 /* add */
-.addBox{padding:24px 17px}
-.addBox h2{margin:0 0 7px;font-size:30px;letter-spacing:-1px}
-.addBox p{margin:0 0 18px;opacity:.62;line-height:1.5;font-size:13px}
-.urlRow{display:flex;gap:8px}
-#urlInput{flex:1;min-width:0;height:49px;border-radius:14px;border:1px solid var(--line);background:#171717;color:#fff;padding:0 13px;outline:none}
-#urlInput:focus{border-color:rgba(255,255,255,.38)}
-#importBtn{height:49px}
-#addStatus{min-height:22px;margin-top:13px;font-size:12px;opacity:.75;white-space:pre-wrap}
-.note{font-size:11px;line-height:1.55;opacity:.36;margin-top:16px}
+
+.addBox{
+  padding:24px 17px
+}
+
+.addBox h2{
+  margin:0 0 7px;
+  font-size:30px;
+  letter-spacing:-1px
+}
+
+.addBox p{
+  margin:0 0 18px;
+  opacity:.62;
+  line-height:1.5;
+  font-size:13px
+}
+
+.urlRow{
+  display:flex;
+  gap:8px
+}
+
+#urlInput{
+  flex:1;
+  min-width:0;
+  height:49px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#171717;
+  color:#fff;
+  padding:0 13px;
+  outline:none
+}
+
+#urlInput:focus{
+  border-color:rgba(255,255,255,.38)
+}
+
+#importBtn{
+  height:49px
+}
+
+#addStatus{
+  min-height:22px;
+  margin-top:13px;
+  font-size:12px;
+  opacity:.75;
+  white-space:pre-wrap
+}
+
+.note{
+  font-size:11px;
+  line-height:1.55;
+  opacity:.36;
+  margin-top:16px
+}
 
 /* cards */
-.list{display:grid;grid-template-columns:1fr;gap:9px}
-.channelCard,.clipCard{border:1px solid rgba(255,255,255,.05);border-radius:14px;background:#151515;overflow:hidden;display:grid;grid-template-columns:108px 1fr;min-height:90px;padding:0;text-align:left}
-.cardImg{width:108px;height:100%;object-fit:cover;background:#222}
-.cardText{padding:10px;min-width:0}
-.cardTitle{font-size:14px;font-weight:880;line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cardMeta{font-size:10px;opacity:.5;margin-top:6px}
-.cardSentence{font-size:12px;line-height:1.4;opacity:.8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:5px}
-.emptyList{opacity:.55;line-height:1.55;font-size:13px;padding:8px 2px}
+
+.list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px
+}
+
+.channelCard,
+.clipCard{
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:14px;
+  background:#151515;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:108px 1fr;
+  min-height:90px;
+  padding:0;
+  text-align:left
+}
+
+.cardImg{
+  width:108px;
+  height:100%;
+  object-fit:cover;
+  background:#222
+}
+
+.cardText{
+  padding:10px;
+  min-width:0
+}
+
+.cardTitle{
+  font-size:14px;
+  font-weight:880;
+  line-height:1.32;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden
+}
+
+.cardMeta{
+  font-size:10px;
+  opacity:.5;
+  margin-top:6px
+}
+
+.cardSentence{
+  font-size:12px;
+  line-height:1.4;
+  opacity:.8;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  margin-top:5px
+}
+
+.emptyList{
+  opacity:.55;
+  line-height:1.55;
+  font-size:13px;
+  padding:8px 2px
+}
 
 /* channel detail */
-#heroImg{width:100%;aspect-ratio:16/7;object-fit:cover;border-radius:16px;background:#222}
-#heroTitle{font-size:25px;font-weight:950;letter-spacing:-.6px;margin:13px 0 4px}
-#heroMeta{font-size:11px;opacity:.52}
-.heroActions{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 18px}
-.sectionTitle{font-size:13px;font-weight:900;margin:17px 0 9px;opacity:.82}
+
+#heroImg{
+  width:100%;
+  aspect-ratio:16/7;
+  object-fit:cover;
+  border-radius:16px;
+  background:#222
+}
+
+#heroTitle{
+  font-size:25px;
+  font-weight:950;
+  letter-spacing:-.6px;
+  margin:13px 0 4px
+}
+
+#heroMeta{
+  font-size:11px;
+  opacity:.52
+}
+
+.heroActions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:14px 0 18px
+}
+
+.sectionTitle{
+  font-size:13px;
+  font-weight:900;
+  margin:17px 0 9px;
+  opacity:.82
+}
 
 /* library */
-.libraryTabs{display:flex;gap:7px;margin-bottom:12px}
-.libraryTab{height:34px;border:0;border-radius:999px;padding:0 13px;background:#1d1d1d;font-size:12px;font-weight:850;opacity:.6}
-.libraryTab.active{background:#fff;color:#000;opacity:1}
+
+.libraryTabs{
+  display:flex;
+  gap:7px;
+  margin-bottom:12px
+}
+
+.libraryTab{
+  height:34px;
+  border:0;
+  border-radius:999px;
+  padding:0 13px;
+  background:#1d1d1d;
+  font-size:12px;
+  font-weight:850;
+  opacity:.6
+}
+
+.libraryTab.active{
+  background:#fff;
+  color:#000;
+  opacity:1
+}
 
 /* word sheet */
-#wordScreen{z-index:60;background:rgba(9,9,9,.98)}
-.wordBox{padding:24px 18px}
-#wordToken{font-size:38px;font-weight:950;letter-spacing:-1px;margin:6px 0 10px}
-#wordContext{font-size:17px;line-height:1.55;opacity:.72;margin-bottom:18px}
-.wordActions{display:flex;gap:8px;flex-wrap:wrap}
+
+#wordScreen{
+  z-index:60;
+  background:rgba(9,9,9,.98)
+}
+
+.wordBox{
+  padding:24px 18px
+}
+
+#wordToken{
+  font-size:38px;
+  font-weight:950;
+  letter-spacing:-1px;
+  margin:6px 0 10px
+}
+
+#wordContext{
+  font-size:17px;
+  line-height:1.55;
+  opacity:.72;
+  margin-bottom:18px
+}
+
+.wordActions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
 
 /* toast */
-#toast{position:absolute;z-index:100;left:50%;top:calc(62px + var(--safe-t));transform:translateX(-50%);max-width:calc(100% - 28px);padding:9px 13px;border-radius:999px;background:rgba(24,24,24,.96);border:1px solid var(--line);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;pointer-events:none;transition:.14s}
-#toast.on{opacity:1}
+
+#toast{
+  position:absolute;
+  z-index:100;
+  left:50%;
+  top:calc(62px + var(--safe-t));
+  transform:translateX(-50%);
+  max-width:calc(100% - 28px);
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(24,24,24,.96);
+  border:1px solid var(--line);
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:0;
+  pointer-events:none;
+  transition:.14s
+}
+
+#toast.on{
+  opacity:1
+}
 </style>
 </head>
+
 <body>
+
 <div id="app">
+
 <main id="phone">
-  <section id="videoViewport">
-    <div class="playerSlot" id="slot0"><div id="yt0"></div></div>
-    <div class="playerSlot" id="slot1"><div id="yt1"></div></div>
-    <div class="playerSlot" id="slot2"><div id="yt2"></div></div>
 
-    <div id="ytTopMask"></div>
-    <div id="ytLogoMask"></div>
-    <div id="shade"></div>
-    <div id="buffer"><div class="spinner"></div></div>
-  </section>
+  <div class="playerSlot" id="slot0">
+    <div id="yt0"></div>
+  </div>
 
+  <div class="playerSlot" id="slot1">
+    <div id="yt1"></div>
+  </div>
+
+  <div class="playerSlot" id="slot2">
+    <div id="yt2"></div>
+  </div>
+
+  <div id="shade"></div>
   <div id="gesture"></div>
 
+  <div id="buffer">
+    <div class="spinner"></div>
+  </div>
+
   <header id="top">
-    <div id="brand">Kiku</div>
-    <div id="feedTabs">
-      <button class="feedTab active" id="forYouTab">For you</button>
-      <button class="feedTab" id="followingTab">Following</button>
+
+    <div id="brand">
+      Kiku
     </div>
-    <button id="shuffleBtn" title="Shuffle">⤨</button>
+
+    <div id="feedTabs">
+
+      <button
+        class="feedTab active"
+        id="forYouTab"
+      >
+        For you
+      </button>
+
+      <button
+        class="feedTab"
+        id="followingTab"
+      >
+        Following
+      </button>
+
+    </div>
+
+    <button
+      id="shuffleBtn"
+      title="Shuffle"
+    >
+      ⤨
+    </button>
+
   </header>
 
   <section id="reelInfo">
+
     <div id="channelRow">
+
       <button id="channelButton">
-        <img class="avatar" id="avatar" alt="">
-        <span id="channelName">—</span>
+
+        <img
+          class="avatar"
+          id="avatar"
+          alt=""
+        >
+
+        <span id="channelName">
+          —
+        </span>
+
       </button>
-      <button id="followQuick" class="followPill">Follow</button>
+
+      <button
+        id="followQuick"
+        class="followPill"
+      >
+        Follow
+      </button>
+
     </div>
 
     <div id="sentenceWrap">
-      <div id="sentence">—</div>
-      <div id="sentenceProgress">—</div>
+
+      <div id="sentence">
+        —
+      </div>
+
+      <div id="sentenceProgress">
+        —
+      </div>
+
     </div>
+
   </section>
 
   <aside id="rail">
-    <button class="railBtn" id="likeBtn" title="Like">♡</button><span class="railLabel">like</span>
-    <button class="railBtn" id="saveBtn" title="Save">▱</button><span class="railLabel">save</span>
-    <button class="railBtn" id="soundBtn" title="Sound">🔇</button><span class="railLabel">sound</span>
-    <button class="railBtn" id="fullBtn" title="Fullscreen">⛶</button><span class="railLabel">full</span>
-    <button class="railBtn" id="ytBtn" title="YouTube">↗</button><span class="railLabel">YouTube</span>
+
+    <button
+      class="railBtn"
+      id="likeBtn"
+      title="Like"
+    >
+      ♡
+    </button>
+
+    <span class="railLabel">
+      like
+    </span>
+
+    <button
+      class="railBtn"
+      id="saveBtn"
+      title="Save"
+    >
+      ▱
+    </button>
+
+    <span class="railLabel">
+      save
+    </span>
+
+    <button
+      class="railBtn"
+      id="soundBtn"
+      title="Sound"
+    >
+      🔇
+    </button>
+
+    <span class="railLabel">
+      sound
+    </span>
+
+    <button
+      class="railBtn"
+      id="fullBtn"
+      title="Fullscreen"
+    >
+      ⛶
+    </button>
+
+    <span class="railLabel">
+      full
+    </span>
+
+    <button
+      class="railBtn"
+      id="ytBtn"
+      title="YouTube"
+    >
+      ↗
+    </button>
+
+    <span class="railLabel">
+      YouTube
+    </span>
+
   </aside>
 
   <section id="empty">
+
     <div id="emptyCard">
-      <h1>Kiku</h1>
-      <p>Paste video YouTube. App lấy transcript theo timestamp, tạo reel và chỉ hiện đúng câu đang được nói.</p>
-      <button class="primary" id="emptyAdd">Add video</button>
+
+      <h1>
+        Kiku
+      </h1>
+
+      <p>
+        Paste video YouTube.
+        App lấy transcript theo timestamp,
+        tạo reel và chỉ hiện đúng câu đang được nói.
+      </p>
+
+      <button
+        class="primary"
+        id="emptyAdd"
+      >
+        Add video
+      </button>
+
     </div>
+
   </section>
 
   <nav id="nav">
-    <button class="navBtn active" id="homeNav"><span class="navIcon">⌂</span><span class="navText">Home</span></button>
-    <button class="navBtn" id="channelsNav"><span class="navIcon">▦</span><span class="navText">Following</span></button>
-    <button class="navBtn" id="libraryNav"><span class="navIcon">▱</span><span class="navText">Library</span></button>
-    <button class="navBtn" id="addNav"><span class="navIcon">＋</span><span class="navText">Add</span></button>
+
+    <button
+      class="navBtn active"
+      id="homeNav"
+    >
+      <span class="navIcon">
+        ⌂
+      </span>
+
+      <span class="navText">
+        Home
+      </span>
+    </button>
+
+    <button
+      class="navBtn"
+      id="channelsNav"
+    >
+      <span class="navIcon">
+        ▦
+      </span>
+
+      <span class="navText">
+        Following
+      </span>
+    </button>
+
+    <button
+      class="navBtn"
+      id="libraryNav"
+    >
+      <span class="navIcon">
+        ▱
+      </span>
+
+      <span class="navText">
+        Library
+      </span>
+    </button>
+
+    <button
+      class="navBtn"
+      id="addNav"
+    >
+      <span class="navIcon">
+        ＋
+      </span>
+
+      <span class="navText">
+        Add
+      </span>
+    </button>
+
   </nav>
 
-  <section class="screen" id="addScreen">
+  <section
+    class="screen"
+    id="addScreen"
+  >
+
     <header class="screenHead">
-      <button class="backBtn" data-close="addScreen">‹</button>
-      <div class="screenTitle">Add video</div>
+
+      <button
+        class="backBtn"
+        data-close="addScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Add video
+      </div>
+
     </header>
+
     <div class="addBox">
-      <h2>Paste YouTube video</h2>
-      <p>Link chỉ là source. App tự nhận channel thật, lấy transcript tiếng Nhật, tạo sentence timeline rồi chia reel.</p>
+
+      <h2>
+        Paste YouTube video
+      </h2>
+
+      <p>
+        Link chỉ là source.
+        App tự nhận channel thật,
+        lấy transcript tiếng Nhật,
+        tạo sentence timeline rồi chia reel.
+      </p>
+
       <div class="urlRow">
-        <input id="urlInput" autocomplete="off" spellcheck="false" placeholder="https://youtube.com/watch?v=…">
-        <button class="primary" id="importBtn">Import</button>
+
+        <input
+          id="urlInput"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="https://youtube.com/watch?v=…"
+        >
+
+        <button
+          class="primary"
+          id="importBtn"
+        >
+          Import
+        </button>
+
       </div>
+
       <div id="addStatus"></div>
-      <div class="note">Dữ liệu được lưu local bằng IndexedDB/localStorage. Static HTML cần chạy trên HTTPS như GitHub Pages.</div>
+
+      <div class="note">
+        Dữ liệu được lưu local bằng IndexedDB/localStorage.
+        Static HTML cần chạy trên HTTPS như GitHub Pages.
+      </div>
+
     </div>
+
   </section>
 
-  <section class="screen" id="channelsScreen">
-    <header class="screenHead">
-      <button class="backBtn" data-close="channelsScreen">‹</button>
-      <div class="screenTitle">Following</div>
-      <button class="secondary" id="channelsAdd">＋ Add</button>
-    </header>
-    <div class="screenBody"><div id="channelList" class="list"></div></div>
-  </section>
+  <section
+    class="screen"
+    id="channelsScreen"
+  >
 
-  <section class="screen" id="channelScreen">
     <header class="screenHead">
-      <button class="backBtn" data-close="channelScreen">‹</button>
-      <div class="screenTitle">Channel</div>
+
+      <button
+        class="backBtn"
+        data-close="channelsScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Following
+      </div>
+
+      <button
+        class="secondary"
+        id="channelsAdd"
+      >
+        ＋ Add
+      </button>
+
     </header>
+
     <div class="screenBody">
-      <img id="heroImg" alt="">
-      <div id="heroTitle">—</div>
-      <div id="heroMeta">—</div>
+
+      <div
+        id="channelList"
+        class="list"
+      ></div>
+
+    </div>
+
+  </section>
+
+  <section
+    class="screen"
+    id="channelScreen"
+  >
+
+    <header class="screenHead">
+
+      <button
+        class="backBtn"
+        data-close="channelScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Channel
+      </div>
+
+    </header>
+
+    <div class="screenBody">
+
+      <img
+        id="heroImg"
+        alt=""
+      >
+
+      <div id="heroTitle">
+        —
+      </div>
+
+      <div id="heroMeta">
+        —
+      </div>
+
       <div class="heroActions">
-        <button class="primary" id="followChannel">Follow</button>
-        <button class="secondary" id="playChannel">▶ Play</button>
-        <button class="secondary" id="deleteChannel">Remove data</button>
+
+        <button
+          class="primary"
+          id="followChannel"
+        >
+          Follow
+        </button>
+
+        <button
+          class="secondary"
+          id="playChannel"
+        >
+          ▶ Play
+        </button>
+
+        <button
+          class="secondary"
+          id="deleteChannel"
+        >
+          Remove data
+        </button>
+
       </div>
-      <div class="sectionTitle">Clips</div>
-      <div id="clipGrid" class="list"></div>
+
+      <div class="sectionTitle">
+        Clips
+      </div>
+
+      <div
+        id="clipGrid"
+        class="list"
+      ></div>
+
     </div>
+
   </section>
 
-  <section class="screen" id="libraryScreen">
+  <section
+    class="screen"
+    id="libraryScreen"
+  >
+
     <header class="screenHead">
-      <button class="backBtn" data-close="libraryScreen">‹</button>
-      <div class="screenTitle">Library</div>
+
+      <button
+        class="backBtn"
+        data-close="libraryScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Library
+      </div>
+
     </header>
+
     <div class="screenBody">
+
       <div class="libraryTabs">
-        <button class="libraryTab active" id="savedTab">Saved</button>
-        <button class="libraryTab" id="historyTab">History</button>
+
+        <button
+          class="libraryTab active"
+          id="savedTab"
+        >
+          Saved
+        </button>
+
+        <button
+          class="libraryTab"
+          id="historyTab"
+        >
+          History
+        </button>
+
       </div>
-      <div id="libraryList" class="list"></div>
+
+      <div
+        id="libraryList"
+        class="list"
+      ></div>
+
     </div>
+
   </section>
 
-  <section class="screen" id="wordScreen">
+  <section
+    class="screen"
+    id="wordScreen"
+  >
+
     <header class="screenHead">
-      <button class="backBtn" data-close="wordScreen">‹</button>
-      <div class="screenTitle">Word</div>
-    </header>
-    <div class="wordBox">
-      <div id="wordToken">—</div>
-      <div id="wordContext">—</div>
-      <div class="wordActions">
-        <button class="primary" id="jishoBtn">Jisho</button>
-        <button class="secondary" id="copyWordBtn">Copy</button>
+
+      <button
+        class="backBtn"
+        data-close="wordScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Word
       </div>
+
+    </header>
+
+    <div class="wordBox">
+
+      <div id="wordToken">
+        —
+      </div>
+
+      <div id="wordContext">
+        —
+      </div>
+
+      <div class="wordActions">
+
+        <button
+          class="primary"
+          id="jishoBtn"
+        >
+          Jisho
+        </button>
+
+        <button
+          class="secondary"
+          id="copyWordBtn"
+        >
+          Copy
+        </button>
+
+      </div>
+
     </div>
+
   </section>
 
   <div id="toast"></div>
+
 </main>
+
 </div>
 
 <script>
 (()=>{
+
 'use strict';
 
-/* ---------- config ---------- */
-const TRANSCRIPT_API = id => `https://youtube-transcript.ai/transcript/${encodeURIComponent(id)}.txt?lang=ja`;
-const DB_NAME = 'kiku-app-db-v2';
-const DB_VERSION = 1;
-const STORE = 'channels';
-const STATE_KEY = 'kiku-app-state-v2';
-const MIN_CLIP = 8;
-const TARGET_CLIP = 20;
-const MAX_CLIP = 38;
-const MAX_SENTENCE_CHARS = 22;
-const MAX_SENTENCE_SECONDS = 5.0;
+/* =========================================================
+   CONFIG
+   ========================================================= */
 
-/* ---------- DOM ---------- */
-const $ = s => document.querySelector(s);
-const phone=$('#phone'), empty=$('#empty'), gesture=$('#gesture'), buffer=$('#buffer');
-const forYouTab=$('#forYouTab'), followingTab=$('#followingTab'), shuffleBtn=$('#shuffleBtn');
-const channelButton=$('#channelButton'), avatar=$('#avatar'), channelName=$('#channelName'), followQuick=$('#followQuick');
-const sentenceEl=$('#sentence'), sentenceProgress=$('#sentenceProgress');
-const likeBtn=$('#likeBtn'), saveBtn=$('#saveBtn'), soundBtn=$('#soundBtn'), fullBtn=$('#fullBtn'), ytBtn=$('#ytBtn');
-const homeNav=$('#homeNav'), channelsNav=$('#channelsNav'), libraryNav=$('#libraryNav'), addNav=$('#addNav');
-const addScreen=$('#addScreen'), channelsScreen=$('#channelsScreen'), channelScreen=$('#channelScreen'), libraryScreen=$('#libraryScreen'), wordScreen=$('#wordScreen');
-const urlInput=$('#urlInput'), importBtn=$('#importBtn'), addStatus=$('#addStatus');
-const channelList=$('#channelList'), clipGrid=$('#clipGrid'), libraryList=$('#libraryList');
-const heroImg=$('#heroImg'), heroTitle=$('#heroTitle'), heroMeta=$('#heroMeta');
-const followChannel=$('#followChannel'), playChannel=$('#playChannel'), deleteChannel=$('#deleteChannel');
-const savedTab=$('#savedTab'), historyTab=$('#historyTab');
-const wordToken=$('#wordToken'), wordContext=$('#wordContext'), jishoBtn=$('#jishoBtn'), copyWordBtn=$('#copyWordBtn');
-const toast=$('#toast');
+const TRANSCRIPT_API =
+  id =>
+    `https://youtube-transcript.ai/transcript/${encodeURIComponent(id)}.txt?lang=ja`;
 
-/* ---------- app state ---------- */
-let db=null;
-let channels=[];
-let feed=[];
-let feedMode='for-you';
-let feedIndex=0;
-let selectedChannelId=null;
-let libraryMode='saved';
-let selectedWord='';
-let selectedWordContext='';
-let resumeAfterWord=false;
-let renderedSentenceId=null;
-let audioOn=false;
-let currentSeenMarked=false;
-let touchStart=null;
-let wheelLocked=false;
+const DB_NAME =
+  'kiku-app-db-v2';
 
-let ytReady=false;
-let players=[null,null,null];
-let role={prev:0,current:1,next:2};
-let loadedKey=[null,null,null];
-let monitorTimer=null;
+const DB_VERSION =
+  1;
 
-let state=loadState();
+const STORE =
+  'channels';
+
+const STATE_KEY =
+  'kiku-app-state-v2';
+
+const MIN_CLIP =
+  8;
+
+const TARGET_CLIP =
+  20;
+
+const MAX_CLIP =
+  38;
+
+const MAX_SENTENCE_CHARS =
+  22;
+
+const MAX_SENTENCE_SECONDS =
+  5.5;
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const $ =
+  selector =>
+    document.querySelector(selector);
+
+const phone =
+  $('#phone');
+
+const empty =
+  $('#empty');
+
+const gesture =
+  $('#gesture');
+
+const buffer =
+  $('#buffer');
+
+const forYouTab =
+  $('#forYouTab');
+
+const followingTab =
+  $('#followingTab');
+
+const shuffleBtn =
+  $('#shuffleBtn');
+
+const channelButton =
+  $('#channelButton');
+
+const avatar =
+  $('#avatar');
+
+const channelName =
+  $('#channelName');
+
+const followQuick =
+  $('#followQuick');
+
+const sentenceEl =
+  $('#sentence');
+
+const sentenceProgress =
+  $('#sentenceProgress');
+
+const likeBtn =
+  $('#likeBtn');
+
+const saveBtn =
+  $('#saveBtn');
+
+const soundBtn =
+  $('#soundBtn');
+
+const fullBtn =
+  $('#fullBtn');
+
+const ytBtn =
+  $('#ytBtn');
+
+const homeNav =
+  $('#homeNav');
+
+const channelsNav =
+  $('#channelsNav');
+
+const libraryNav =
+  $('#libraryNav');
+
+const addNav =
+  $('#addNav');
+
+const addScreen =
+  $('#addScreen');
+
+const channelsScreen =
+  $('#channelsScreen');
+
+const channelScreen =
+  $('#channelScreen');
+
+const libraryScreen =
+  $('#libraryScreen');
+
+const wordScreen =
+  $('#wordScreen');
+
+const urlInput =
+  $('#urlInput');
+
+const importBtn =
+  $('#importBtn');
+
+const addStatus =
+  $('#addStatus');
+
+const channelList =
+  $('#channelList');
+
+const clipGrid =
+  $('#clipGrid');
+
+const libraryList =
+  $('#libraryList');
+
+const heroImg =
+  $('#heroImg');
+
+const heroTitle =
+  $('#heroTitle');
+
+const heroMeta =
+  $('#heroMeta');
+
+const followChannel =
+  $('#followChannel');
+
+const playChannel =
+  $('#playChannel');
+
+const deleteChannel =
+  $('#deleteChannel');
+
+const savedTab =
+  $('#savedTab');
+
+const historyTab =
+  $('#historyTab');
+
+const wordToken =
+  $('#wordToken');
+
+const wordContext =
+  $('#wordContext');
+
+const jishoBtn =
+  $('#jishoBtn');
+
+const copyWordBtn =
+  $('#copyWordBtn');
+
+const toast =
+  $('#toast');
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+let db =
+  null;
+
+let channels =
+  [];
+
+let feed =
+  [];
+
+let feedMode =
+  'for-you';
+
+let feedIndex =
+  0;
+
+let selectedChannelId =
+  null;
+
+let libraryMode =
+  'saved';
+
+let selectedWord =
+  '';
+
+let selectedWordContext =
+  '';
+
+let resumeAfterWord =
+  false;
+
+let renderedSentenceId =
+  null;
+
+let audioOn =
+  false;
+
+let currentSeenMarked =
+  false;
+
+let touchStart =
+  null;
+
+let wheelLocked =
+  false;
+
+let ytReady =
+  false;
+
+let players =
+  [
+    null,
+    null,
+    null
+  ];
+
+let role = {
+  prev:0,
+  current:1,
+  next:2
+};
+
+let loadedKey =
+  [
+    null,
+    null,
+    null
+  ];
+
+let monitorTimer =
+  null;
+
+let state =
+  loadState();
+
+/* =========================================================
+   PERSISTENCE
+   ========================================================= */
 
 function loadState(){
+
   try{
-    const x=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');
+
+    const data =
+      JSON.parse(
+        localStorage.getItem(
+          STATE_KEY
+        )
+        || '{}'
+      );
+
     return {
-      followed:x.followed||{}, liked:x.liked||{}, saved:x.saved||{}, seen:x.seen||{},
-      history:Array.isArray(x.history)?x.history:[], hidden:x.hidden||{}
+      followed:
+        data.followed || {},
+
+      liked:
+        data.liked || {},
+
+      saved:
+        data.saved || {},
+
+      seen:
+        data.seen || {},
+
+      history:
+        Array.isArray(
+          data.history
+        )
+          ? data.history
+          : [],
+
+      hidden:
+        data.hidden || {}
     };
+
   }catch{
-    return {followed:{},liked:{},saved:{},seen:{},history:[],hidden:{}};
-  }
-}
-function saveState(){localStorage.setItem(STATE_KEY,JSON.stringify(state))}
 
-/* ---------- utils ---------- */
-function toastMsg(text){
-  toast.textContent=text;toast.classList.add('on');clearTimeout(toastMsg.t);
-  toastMsg.t=setTimeout(()=>toast.classList.remove('on'),1800);
-}
-function openScreen(el){el.classList.add('open')}
-function closeScreen(el){el.classList.remove('open')}
-function escapeHtml(text=''){
-  return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function parseVideoId(raw){
-  const text=(raw||'').trim();
-  if(/^[A-Za-z0-9_-]{11}$/.test(text)) return text;
-  try{
-    const u=new URL(text), host=u.hostname.replace(/^www\./,'');
-    if(host==='youtu.be'){
-      const id=u.pathname.split('/').filter(Boolean)[0];
-      return /^[A-Za-z0-9_-]{11}$/.test(id||'')?id:null;
-    }
-    if(host.endsWith('youtube.com')){
-      if(u.pathname==='/watch'){
-        const id=u.searchParams.get('v');
-        return /^[A-Za-z0-9_-]{11}$/.test(id||'')?id:null;
-      }
-      const parts=u.pathname.split('/').filter(Boolean);
-      if(['shorts','embed','live'].includes(parts[0])){
-        const id=parts[1];
-        return /^[A-Za-z0-9_-]{11}$/.test(id||'')?id:null;
-      }
-    }
-  }catch{}
-  const m=text.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);
-  return m?m[1]:null;
-}
-function videoUrl(id){return `https://www.youtube.com/watch?v=${id}`}
-function thumb(id,q='hqdefault'){return `https://i.ytimg.com/vi/${id}/${q}.jpg`}
-function fmt(sec){
-  sec=Math.max(0,Math.floor(sec||0));
-  const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=String(sec%60).padStart(2,'0');
-  return h?`${h}:${String(m).padStart(2,'0')}:${s}`:`${m}:${s}`;
-}
-function timeToSeconds(text){
-  const p=String(text||'').trim().split(':').map(Number);
-  if(p.some(Number.isNaN)) return 0;
-  if(p.length===3) return p[0]*3600+p[1]*60+p[2];
-  if(p.length===2) return p[0]*60+p[1];
-  return p[0]||0;
-}
-function hash(text){
-  let h=2166136261;
-  for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619)}
-  return (h>>>0).toString(36);
-}
-function normalizeText(text){return String(text||'').replace(/\s+/g,' ').trim()}
-function currentClip(){return feed[feedIndex]||null}
-function channelById(id){return channels.find(x=>x.id===id)||null}
-function clipById(id){
-  for(const ch of channels){const c=(ch.clips||[]).find(x=>x.id===id);if(c)return c}
-  return null;
-}
-function isFollowed(id){return !!state.followed[id]}
-function isLiked(id){return !!state.liked[id]}
-function isSaved(id){return !!state.saved[id]}
-function clipKey(clip){return clip?`${clip.channelId}:${clip.videoId}:${clip.start}:${clip.end}`:null}
-function shuffle(array){
-  const a=[...array];
-  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
-  return a;
-}
-
-/* ---------- indexedDB ---------- */
-function openDB(){
-  return new Promise((resolve,reject)=>{
-    const req=indexedDB.open(DB_NAME,DB_VERSION);
-    req.onupgradeneeded=()=>{
-      const d=req.result;
-      if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE,{keyPath:'id'});
+    return {
+      followed:{},
+      liked:{},
+      saved:{},
+      seen:{},
+      history:[],
+      hidden:{}
     };
-    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
-  });
-}
-function dbAll(){
-  return new Promise((resolve,reject)=>{
-    const req=db.transaction(STORE,'readonly').objectStore(STORE).getAll();
-    req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>reject(req.error);
-  });
-}
-function dbPut(value){
-  return new Promise((resolve,reject)=>{
-    const req=db.transaction(STORE,'readwrite').objectStore(STORE).put(value);
-    req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error);
-  });
-}
-function dbDelete(id){
-  return new Promise((resolve,reject)=>{
-    const req=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);
-    req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error);
-  });
-}
 
-/* ---------- transcript -> caption blocks ---------- */
-function parseTranscript(text,videoId){
-  const title=(text.match(/^#\s*Transcript:\s*(.+)$/m)||[])[1]?.trim()||`YouTube ${videoId}`;
-  const language=(text.match(/^Language:\s*([^\s·]+)/m)||[])[1]?.trim()||'unknown';
-  const durationText=(text.match(/Duration:\s*([0-9:]+)/m)||[])[1]||'';
-  let duration=timeToSeconds(durationText);
-  const blocks=[];
-  const re=/^\[([0-9:]+)\]\s+(.+)$/gm;
-  let m;
-  while((m=re.exec(text))){
-    const body=normalizeText(m[2]);
-    if(body) blocks.push({start:timeToSeconds(m[1]),text:body});
   }
-  blocks.sort((a,b)=>a.start-b.start);
-  if(!blocks.length) throw new Error('Transcript không có timestamp.');
-  if(!duration||duration<=blocks[blocks.length-1].start) duration=blocks[blocks.length-1].start+TARGET_CLIP;
-  for(let i=0;i<blocks.length;i++){
-    blocks[i].end=i+1<blocks.length?blocks[i+1].start:duration;
-    if(blocks[i].end<=blocks[i].start) blocks[i].end=blocks[i].start+1;
+
+}
+
+function saveState(){
+
+  localStorage.setItem(
+    STATE_KEY,
+    JSON.stringify(state)
+  );
+
+}
+
+/* =========================================================
+   UTILS
+   ========================================================= */
+
+function toastMsg(text){
+
+  toast.textContent =
+    text;
+
+  toast.classList.add(
+    'on'
+  );
+
+  clearTimeout(
+    toastMsg.timer
+  );
+
+  toastMsg.timer =
+    setTimeout(
+      ()=>{
+        toast.classList.remove(
+          'on'
+        );
+      },
+      1800
+    );
+
+}
+
+function openScreen(element){
+
+  element.classList.add(
+    'open'
+  );
+
+}
+
+function closeScreen(element){
+
+  element.classList.remove(
+    'open'
+  );
+
+}
+
+function escapeHtml(text=''){
+
+  return String(text).replace(
+    /[&<>"']/g,
+    character => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+    }[character])
+  );
+
+}
+
+function parseVideoId(raw){
+
+  const text =
+    (raw || '').trim();
+
+  if(
+    /^[A-Za-z0-9_-]{11}$/.test(text)
+  ){
+
+    return text;
+
   }
-  return {title,language,duration,blocks};
-}
 
-/* ---------- sentence engine ---------- */
-function splitByJapanesePunctuation(text){
-  const cleaned=normalizeText(text);
-  if(!cleaned) return [];
-  return cleaned.match(/[^。！？!?、，,]+[。！？!?、，,]+|[^。！？!?、，,]+$/g)?.map(normalizeText).filter(Boolean)||[];
-}
+  try{
 
-function softSplitLong(text,maxChars=MAX_SENTENCE_CHARS){
-  const t=normalizeText(text);
-  if(t.length<=maxChars) return [t];
-  const out=[];
-  let rest=t;
-  while(rest.length>maxChars){
-    let cut=-1;
-    const windowText=rest.slice(0,maxChars+1);
-    for(const mark of ['、','，',',','・',' ']){
-      const i=windowText.lastIndexOf(mark);
-      if(i>Math.floor(maxChars*.55)){cut=i+1;break}
+    const url =
+      new URL(text);
+
+    const host =
+      url.hostname.replace(
+        /^www\./,
+        ''
+      );
+
+    if(
+      host === 'youtu.be'
+    ){
+
+      const id =
+        url.pathname
+          .split('/')
+          .filter(Boolean)[0];
+
+      return /^[A-Za-z0-9_-]{11}$/.test(id || '')
+        ? id
+        : null;
+
     }
-    if(cut<0) cut=maxChars;
-    out.push(normalizeText(rest.slice(0,cut)));
-    rest=normalizeText(rest.slice(cut));
-  }
-  if(rest) out.push(rest);
-  return out;
+
+    if(
+      host.endsWith(
+        'youtube.com'
+      )
+    ){
+
+      if(
+        url.pathname
+          === '/watch'
+      ){
+
+        const id =
+          url.searchParams.get(
+            'v'
+          );
+
+        return /^[A-Za-z0-9_-]{11}$/.test(id || '')
+          ? id
+          : null;
+
+      }
+
+      const parts =
+        url.pathname
+          .split('/')
+          .filter(Boolean);
+
+      if(
+        [
+          'shorts',
+          'embed',
+          'live'
+        ].includes(
+          parts[0]
+        )
+      ){
+
+        const id =
+          parts[1];
+
+        return /^[A-Za-z0-9_-]{11}$/.test(id || '')
+          ? id
+          : null;
+
+      }
+
+    }
+
+  }catch{}
+
+  const match =
+    text.match(
+      /(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/
+    );
+
+  return match
+    ? match[1]
+    : null;
+
 }
 
-function splitBlockIntoTimedPieces(block){
-  let parts=splitByJapanesePunctuation(block.text).flatMap(x=>softSplitLong(x));
-  if(!parts.length) parts=[block.text];
-  const weights=parts.map(x=>Math.max(1,x.replace(/\s/g,'').length));
-  const total=weights.reduce((a,b)=>a+b,0);
-  const duration=Math.max(.25,block.end-block.start);
-  let cursor=block.start;
-  return parts.map((text,i)=>{
-    const slice=duration*(weights[i]/total);
-    const start=cursor;
-    const end=i===parts.length-1?block.end:Math.min(block.end,cursor+slice);
-    cursor=end;
-    return {start,end,text};
-  });
+function videoUrl(id){
+
+  return `https://www.youtube.com/watch?v=${id}`;
+
+}
+
+function thumb(
+  id,
+  quality='hqdefault'
+){
+
+  return `https://i.ytimg.com/vi/${id}/${quality}.jpg`;
+
+}
+
+function fmt(seconds){
+
+  seconds =
+    Math.max(
+      0,
+      Math.floor(
+        seconds || 0
+      )
+    );
+
+  const hours =
+    Math.floor(
+      seconds / 3600
+    );
+
+  const minutes =
+    Math.floor(
+      (seconds % 3600) / 60
+    );
+
+  const secs =
+    String(
+      seconds % 60
+    ).padStart(
+      2,
+      '0'
+    );
+
+  return hours
+    ? `${hours}:${String(minutes).padStart(2,'0')}:${secs}`
+    : `${minutes}:${secs}`;
+
+}
+
+function timeToSeconds(text){
+
+  const parts =
+    String(
+      text || ''
+    )
+      .trim()
+      .split(':')
+      .map(Number);
+
+  if(
+    parts.some(
+      Number.isNaN
+    )
+  ){
+
+    return 0;
+
+  }
+
+  if(
+    parts.length === 3
+  ){
+
+    return (
+      parts[0] * 3600
+      + parts[1] * 60
+      + parts[2]
+    );
+
+  }
+
+  if(
+    parts.length === 2
+  ){
+
+    return (
+      parts[0] * 60
+      + parts[1]
+    );
+
+  }
+
+  return parts[0] || 0;
+
+}
+
+function hash(text){
+
+  let value =
+    2166136261;
+
+  for(
+    let i=0;
+    i<text.length;
+    i++
+  ){
+
+    value ^=
+      text.charCodeAt(i);
+
+    value =
+      Math.imul(
+        value,
+        16777619
+      );
+
+  }
+
+  return (
+    value >>> 0
+  ).toString(36);
+
+}
+
+function normalizeText(text){
+
+  return String(
+    text || ''
+  )
+    .replace(
+      /\s+/g,
+      ' '
+    )
+    .trim();
+
+}
+
+function currentClip(){
+
+  return (
+    feed[feedIndex]
+    || null
+  );
+
+}
+
+function channelById(id){
+
+  return (
+    channels.find(
+      item =>
+        item.id === id
+    )
+    || null
+  );
+
+}
+
+function clipById(id){
+
+  for(
+    const channel
+    of channels
+  ){
+
+    const clip =
+      (
+        channel.clips
+        || []
+      ).find(
+        item =>
+          item.id === id
+      );
+
+    if(
+      clip
+    ){
+
+      return clip;
+
+    }
+
+  }
+
+  return null;
+
+}
+
+function isFollowed(id){
+
+  return !!state.followed[id];
+
+}
+
+function isLiked(id){
+
+  return !!state.liked[id];
+
+}
+
+function isSaved(id){
+
+  return !!state.saved[id];
+
+}
+
+function clipKey(clip){
+
+  return clip
+    ? `${clip.channelId}:${clip.videoId}:${clip.start}:${clip.end}`
+    : null;
+
+}
+
+function shuffle(array){
+
+  const copy =
+    [...array];
+
+  for(
+    let i=copy.length-1;
+    i>0;
+    i--
+  ){
+
+    const j =
+      Math.floor(
+        Math.random()
+        * (i+1)
+      );
+
+    [
+      copy[i],
+      copy[j]
+    ] = [
+      copy[j],
+      copy[i]
+    ];
+
+  }
+
+  return copy;
+
+}
+
+/* =========================================================
+   INDEXED DB
+   ========================================================= */
+
+function openDB(){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const request =
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION
+        );
+
+      request.onupgradeneeded =
+        ()=>{
+
+          const database =
+            request.result;
+
+          if(
+            !database
+              .objectStoreNames
+              .contains(
+                STORE
+              )
+          ){
+
+            database.createObjectStore(
+              STORE,
+              {
+                keyPath:'id'
+              }
+            );
+
+          }
+
+        };
+
+      request.onsuccess =
+        ()=>{
+
+          resolve(
+            request.result
+          );
+
+        };
+
+      request.onerror =
+        ()=>{
+
+          reject(
+            request.error
+          );
+
+        };
+
+    }
+  );
+
+}
+
+function dbAll(){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const request =
+        db.transaction(
+          STORE,
+          'readonly'
+        )
+        .objectStore(
+          STORE
+        )
+        .getAll();
+
+      request.onsuccess =
+        ()=>{
+
+          resolve(
+            request.result
+            || []
+          );
+
+        };
+
+      request.onerror =
+        ()=>{
+
+          reject(
+            request.error
+          );
+
+        };
+
+    }
+  );
+
+}
+
+function dbPut(value){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const request =
+        db.transaction(
+          STORE,
+          'readwrite'
+        )
+        .objectStore(
+          STORE
+        )
+        .put(
+          value
+        );
+
+      request.onsuccess =
+        ()=>resolve();
+
+      request.onerror =
+        ()=>reject(
+          request.error
+        );
+
+    }
+  );
+
+}
+
+function dbDelete(id){
+
+  return new Promise(
+    (
+      resolve,
+      reject
+    )=>{
+
+      const request =
+        db.transaction(
+          STORE,
+          'readwrite'
+        )
+        .objectStore(
+          STORE
+        )
+        .delete(
+          id
+        );
+
+      request.onsuccess =
+        ()=>resolve();
+
+      request.onerror =
+        ()=>reject(
+          request.error
+        );
+
+    }
+  );
+
+}
+
+/* =========================================================
+   TRANSCRIPT
+   ========================================================= */
+
+function parseTranscript(
+  text,
+  videoId
+){
+
+  const title =
+    (
+      text.match(
+        /^#\s*Transcript:\s*(.+)$/m
+      )
+      || []
+    )[1]?.trim()
+    || `YouTube ${videoId}`;
+
+  const language =
+    (
+      text.match(
+        /^Language:\s*([^\s·]+)/m
+      )
+      || []
+    )[1]?.trim()
+    || 'unknown';
+
+  const durationText =
+    (
+      text.match(
+        /Duration:\s*([0-9:]+)/m
+      )
+      || []
+    )[1]
+    || '';
+
+  let duration =
+    timeToSeconds(
+      durationText
+    );
+
+  const blocks =
+    [];
+
+  const regex =
+    /^\[([0-9:]+)\]\s+(.+)$/gm;
+
+  let match;
+
+  while(
+    (
+      match =
+        regex.exec(text)
+    )
+  ){
+
+    const body =
+      normalizeText(
+        match[2]
+      );
+
+    if(
+      body
+    ){
+
+      blocks.push({
+        start:
+          timeToSeconds(
+            match[1]
+          ),
+
+        text:
+          body
+      });
+
+    }
+
+  }
+
+  blocks.sort(
+    (
+      a,
+      b
+    )=>
+      a.start - b.start
+  );
+
+  if(
+    !blocks.length
+  ){
+
+    throw new Error(
+      'Transcript không có timestamp.'
+    );
+
+  }
+
+  if(
+    !duration
+    ||
+    duration <=
+      blocks[
+        blocks.length - 1
+      ].start
+  ){
+
+    duration =
+      blocks[
+        blocks.length - 1
+      ].start
+      + TARGET_CLIP;
+
+  }
+
+  for(
+    let i=0;
+    i<blocks.length;
+    i++
+  ){
+
+    blocks[i].end =
+      i+1 < blocks.length
+        ? blocks[i+1].start
+        : duration;
+
+    if(
+      blocks[i].end
+      <= blocks[i].start
+    ){
+
+      blocks[i].end =
+        blocks[i].start + 1;
+
+    }
+
+  }
+
+  return {
+    title,
+    language,
+    duration,
+    blocks
+  };
+
+}
+
+/* =========================================================
+   SENTENCE ENGINE
+   ========================================================= */
+
+function splitByJapanesePunctuation(text){
+
+  const cleaned =
+    normalizeText(text);
+
+  if(
+    !cleaned
+  ){
+
+    return [];
+
+  }
+
+  const raw =
+    (
+      cleaned.match(
+        /[^。！？!?、，,]+[。！？!?、，,]+|[^。！？!?、，,]+$/g
+      )
+      || []
+    )
+    .map(
+      normalizeText
+    )
+    .filter(Boolean);
+
+  const parts =
+    [];
+
+  for(
+    let i=0;
+    i<raw.length;
+    i++
+  ){
+
+    const part =
+      raw[i];
+
+    const coreLength =
+      part
+        .replace(
+          /[。！？!?、，,\s]/g,
+          ''
+        )
+        .length;
+
+    /*
+      A tiny connector such as "でも、" should stay with
+      what follows instead of becoming a useless flash phrase.
+    */
+
+    if(
+      coreLength <= 2
+      &&
+      i+1 < raw.length
+    ){
+
+      raw[i+1] =
+        normalizeText(
+          part + raw[i+1]
+        );
+
+      continue;
+
+    }
+
+    parts.push(
+      part
+    );
+
+  }
+
+  return parts;
+
+}
+
+function softSplitLong(
+  text,
+  maxChars=MAX_SENTENCE_CHARS
+){
+
+  const value =
+    normalizeText(text);
+
+  if(
+    value.length
+    <= maxChars
+  ){
+
+    return [
+      value
+    ];
+
+  }
+
+  const output =
+    [];
+
+  let remaining =
+    value;
+
+  while(
+    remaining.length
+    > maxChars
+  ){
+
+    let cut =
+      -1;
+
+    const windowText =
+      remaining.slice(
+        0,
+        maxChars + 1
+      );
+
+    for(
+      const mark
+      of [
+        '、',
+        '，',
+        ',',
+        '・',
+        ' '
+      ]
+    ){
+
+      const index =
+        windowText.lastIndexOf(
+          mark
+        );
+
+      if(
+        index
+        > Math.floor(
+            maxChars * .55
+          )
+      ){
+
+        cut =
+          index + 1;
+
+        break;
+
+      }
+
+    }
+
+    if(
+      cut < 0
+    ){
+
+      cut =
+        maxChars;
+
+    }
+
+    output.push(
+      normalizeText(
+        remaining.slice(
+          0,
+          cut
+        )
+      )
+    );
+
+    remaining =
+      normalizeText(
+        remaining.slice(
+          cut
+        )
+      );
+
+  }
+
+  if(
+    remaining
+  ){
+
+    output.push(
+      remaining
+    );
+
+  }
+
+  return output;
+
+}
+
+function splitBlockIntoTimedPieces(
+  block
+){
+
+  let parts =
+    splitByJapanesePunctuation(
+      block.text
+    )
+    .flatMap(
+      part =>
+        softSplitLong(
+          part
+        )
+    );
+
+  if(
+    !parts.length
+  ){
+
+    parts =
+      [
+        block.text
+      ];
+
+  }
+
+  const weights =
+    parts.map(
+      part =>
+        Math.max(
+          1,
+          part
+            .replace(
+              /\s/g,
+              ''
+            )
+            .length
+        )
+    );
+
+  const total =
+    weights.reduce(
+      (
+        sum,
+        value
+      )=>
+        sum + value,
+      0
+    );
+
+  const duration =
+    Math.max(
+      .25,
+      block.end
+      - block.start
+    );
+
+  let cursor =
+    block.start;
+
+  return parts.map(
+    (
+      text,
+      index
+    )=>{
+
+      const slice =
+        duration
+        * (
+          weights[index]
+          / total
+        );
+
+      const start =
+        cursor;
+
+      const end =
+        index === parts.length-1
+          ? block.end
+          : Math.min(
+              block.end,
+              cursor + slice
+            );
+
+      cursor =
+        end;
+
+      return {
+        start,
+        end,
+        text
+      };
+
+    }
+  );
+
 }
 
 function buildSentences(blocks){
-  const atoms=blocks.flatMap(splitBlockIntoTimedPieces);
-  const sentences=[];
-  let current=null;
 
-  const flush=()=>{
-    if(!current) return;
-    current.text=normalizeText(current.text);
-    if(current.text){
-      current.id=`s${sentences.length}`;
-      sentences.push(current);
-    }
-    current=null;
-  };
+  const atoms =
+    blocks.flatMap(
+      splitBlockIntoTimedPieces
+    );
 
-  for(const atom of atoms){
-    const atomText=normalizeText(atom.text);
-    if(!atomText) continue;
-    if(!current){
-      current={start:atom.start,end:atom.end,text:atomText};
-    }else{
-      const gap=atom.start-current.end;
-      const nextText=normalizeText(current.text+atomText);
-      const nextDuration=atom.end-current.start;
-      if(gap>1.1 || nextText.length>MAX_SENTENCE_CHARS || nextDuration>MAX_SENTENCE_SECONDS){
-        flush();
-        current={start:atom.start,end:atom.end,text:atomText};
-      }else{
-        current.text=nextText;
-        current.end=atom.end;
+  const sentences =
+    [];
+
+  let current =
+    null;
+
+  const flush =
+    ()=>{
+
+      if(
+        !current
+      ){
+
+        return;
+
       }
+
+      current.text =
+        normalizeText(
+          current.text
+        );
+
+      if(
+        current.text
+      ){
+
+        current.id =
+          `s${sentences.length}`;
+
+        sentences.push(
+          current
+        );
+
+      }
+
+      current =
+        null;
+
+    };
+
+  for(
+    const atom
+    of atoms
+  ){
+
+    const atomText =
+      normalizeText(
+        atom.text
+      );
+
+    if(
+      !atomText
+    ){
+
+      continue;
+
     }
 
-    if(/[。！？!?、，,]$/.test(atomText)) flush();
+    if(
+      !current
+    ){
+
+      current = {
+        start:
+          atom.start,
+
+        end:
+          atom.end,
+
+        text:
+          atomText
+      };
+
+    }else{
+
+      const gap =
+        atom.start
+        - current.end;
+
+      const nextText =
+        normalizeText(
+          current.text
+          + atomText
+        );
+
+      const nextDuration =
+        atom.end
+        - current.start;
+
+      if(
+        gap > 1.1
+        ||
+        nextText.length
+          > MAX_SENTENCE_CHARS
+        ||
+        nextDuration
+          > MAX_SENTENCE_SECONDS
+      ){
+
+        flush();
+
+        current = {
+          start:
+            atom.start,
+
+          end:
+            atom.end,
+
+          text:
+            atomText
+        };
+
+      }else{
+
+        current.text =
+          nextText;
+
+        current.end =
+          atom.end;
+
+      }
+
+    }
+
+    if(
+      /[。！？!?、，,]$/.test(
+        atomText
+      )
+    ){
+
+      flush();
+
+    }
+
   }
+
   flush();
 
-  /* guarantee monotonic, non-zero ranges */
-  for(let i=0;i<sentences.length;i++){
-    if(i+1<sentences.length && sentences[i].end>sentences[i+1].start) sentences[i].end=sentences[i+1].start;
-    if(sentences[i].end<=sentences[i].start) sentences[i].end=sentences[i].start+.25;
+  for(
+    let i=0;
+    i<sentences.length;
+    i++
+  ){
+
+    if(
+      i+1 < sentences.length
+      &&
+      sentences[i].end
+      >
+      sentences[i+1].start
+    ){
+
+      sentences[i].end =
+        sentences[i+1].start;
+
+    }
+
+    if(
+      sentences[i].end
+      <= sentences[i].start
+    ){
+
+      sentences[i].end =
+        sentences[i].start
+        + .25;
+
+    }
+
   }
+
   return sentences;
+
 }
 
-/* ---------- sentences -> reel clips ---------- */
-function buildClips(channelId,videoId,sentences,duration){
-  const clips=[];
-  let i=0;
-  while(i<sentences.length){
-    const first=i;
-    let last=i;
-    const start=sentences[i].start;
-    let end=Math.min(duration,sentences[i].end);
-    while(last+1<sentences.length){
-      const candidateEnd=Math.min(duration,sentences[last+1].end);
-      const now=end-start;
-      const next=candidateEnd-start;
-      if(now<MIN_CLIP){last++;end=candidateEnd;continue}
-      if(now>=TARGET_CLIP||next>MAX_CLIP) break;
-      last++;end=candidateEnd;
-    }
-    const clipSentences=sentences.slice(first,last+1).map((s,n)=>({
-      id:`${videoId}:${first+n}`,start:s.start,end:s.end,text:s.text
-    }));
-    clips.push({
-      id:`${videoId}:clip:${first}`,
-      channelId,videoId,start,end,sentences:clipSentences,
-      preview:clipSentences[0]?.text||''
-    });
-    i=last+1;
-  }
-  return clips;
-}
+/* =========================================================
+   BUILD REELS
+   ========================================================= */
 
-/* ---------- HTTP ---------- */
-async function fetchJson(url,timeout=12000){
-  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),timeout);
-  try{
-    const r=await fetch(url,{signal:ac.signal,cache:'no-store'});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.json();
-  }finally{clearTimeout(timer)}
-}
-async function fetchText(url,timeout=18000){
-  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),timeout);
-  try{
-    const r=await fetch(url,{signal:ac.signal,cache:'force-cache'});
-    if(!r.ok) throw new Error(`HTTP ${r.status}`);
-    return await r.text();
-  }finally{clearTimeout(timer)}
-}
-async function getVideoMetadata(videoId){
-  const url=videoUrl(videoId);
-  try{
-    const data=await fetchJson(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
-    return {
-      title:data.title||`YouTube ${videoId}`,
-      channelName:data.author_name||'Unknown channel',
-      channelUrl:data.author_url||'',
-      thumbnail:data.thumbnail_url||thumb(videoId)
-    };
-  }catch{
-    return {title:`YouTube ${videoId}`,channelName:'Unknown channel',channelUrl:'',thumbnail:thumb(videoId)};
-  }
-}
+function buildClips(
+  channelId,
+  videoId,
+  sentences,
+  duration
+){
 
-/* ---------- import ---------- */
-async function importVideo(){
-  const videoId=parseVideoId(urlInput.value);
-  if(!videoId){addStatus.textContent='Link YouTube không hợp lệ.';return}
-  if(channels.some(ch=>(ch.videos||[]).some(v=>v.videoId===videoId))){addStatus.textContent='Video này đã có trong app.';return}
+  const clips =
+    [];
 
-  importBtn.disabled=true;
-  addStatus.textContent='Đang lấy channel + transcript…';
-  try{
-    const [meta,text]=await Promise.all([getVideoMetadata(videoId),fetchText(TRANSCRIPT_API(videoId))]);
-    const parsed=parseTranscript(text,videoId);
-    const sentences=buildSentences(parsed.blocks);
-    if(!sentences.length) throw new Error('Không tạo được sentence timeline.');
+  let i =
+    0;
 
-    const identity=meta.channelUrl||`name:${meta.channelName.toLowerCase()}`;
-    const channelId=`ch_${hash(identity)}`;
-    let channel=channelById(channelId);
-    if(!channel){
-      channel={id:channelId,identity,title:meta.channelName,channelUrl:meta.channelUrl,avatar:meta.thumbnail,createdAt:Date.now(),videos:[],clips:[]};
-      channels.push(channel);
-    }
+  while(
+    i < sentences.length
+  ){
 
-    const clips=buildClips(channelId,videoId,sentences,parsed.duration);
-    const video={
-      videoId,url:videoUrl(videoId),title:meta.title||parsed.title,thumbnail:meta.thumbnail||thumb(videoId),
-      duration:parsed.duration,language:parsed.language,addedAt:Date.now(),sentences,clipIds:clips.map(x=>x.id)
-    };
+    const first =
+      i;
 
-    channel.title=meta.channelName||channel.title;
-    channel.channelUrl=meta.channelUrl||channel.channelUrl;
-    channel.avatar=channel.avatar||meta.thumbnail;
-    channel.videos.push(video);
-    channel.clips.push(...clips);
-    await dbPut(channel);
+    let last =
+      i;
 
-    urlInput.value='';
-    addStatus.textContent=`Xong: ${channel.title}\n${sentences.length} câu · ${clips.length} reels`;
-    renderFollowingList();
-    rebuildFeed({mode:feedMode==='following'?'following':'for-you'});
-    setTimeout(()=>closeScreen(addScreen),550);
-  }catch(err){
-    addStatus.textContent=`Lỗi: ${err?.name==='AbortError'?'timeout':(err?.message||String(err))}`;
-  }finally{importBtn.disabled=false}
-}
+    const start =
+      sentences[i].start;
 
-/* ---------- feed ---------- */
-function allClips(){return channels.flatMap(ch=>ch.clips||[]).filter(c=>!state.hidden[c.id])}
-function buildWeightedFeed(mode='for-you',count=160){
-  const base=allClips().filter(c=>mode!=='following'||isFollowed(c.channelId));
-  if(!base.length) return [];
-  const out=[];
-  let lastChannel=null;
-  let lastClipIds=[];
+    let end =
+      Math.min(
+        duration,
+        sentences[i].end
+      );
 
-  for(let step=0;step<count;step++){
-    let candidates=base.filter(c=>!lastClipIds.includes(c.id));
-    if(!candidates.length)candidates=base;
-    const hasOtherChannel=candidates.some(c=>c.channelId!==lastChannel);
-    if(hasOtherChannel)candidates=candidates.filter(c=>c.channelId!==lastChannel);
+    while(
+      last + 1
+      < sentences.length
+    ){
 
-    const weighted=candidates.map(c=>{
-      const seen=state.seen[c.id]||0;
-      let w=mode==='following'?3:(isFollowed(c.channelId)?5:2);
-      if(seen===0)w+=2;
-      else w=Math.max(.7,w-Math.min(3,seen*.65));
-      if(isLiked(c.id))w+=1;
-      return {c,w:Math.max(.2,w)};
-    });
-    const total=weighted.reduce((s,x)=>s+x.w,0);
-    let r=Math.random()*total,pick=weighted[weighted.length-1].c;
-    for(const item of weighted){r-=item.w;if(r<=0){pick=item.c;break}}
-    out.push(pick);
-    lastChannel=pick.channelId;
-    lastClipIds=[pick.id,...lastClipIds].slice(0,5);
-  }
-  return out;
-}
-function rebuildFeed({mode='for-you',keepClipId=null}={}){
-  feedMode=mode;
-  feed=buildWeightedFeed(mode);
-  const idx=keepClipId?feed.findIndex(c=>c.id===keepClipId):-1;
-  feedIndex=idx>=0?idx:0;
-  currentSeenMarked=false;renderedSentenceId=null;
-  updateFeedTabs();syncPlayers(true);
-}
-function nextFeedIndex(){return feed.length?(feedIndex+1)%feed.length:0}
-function prevFeedIndex(){return feed.length?(feedIndex-1+feed.length)%feed.length:0}
-function clipForRole(which){
-  if(!feed.length)return null;
-  if(which==='current')return feed[feedIndex];
-  if(which==='next')return feed[nextFeedIndex()];
-  return feed[prevFeedIndex()];
-}
-function updateFeedTabs(){
-  forYouTab.classList.toggle('active',feedMode==='for-you'||feedMode==='channel');
-  followingTab.classList.toggle('active',feedMode==='following');
-}
+      const candidateEnd =
+        Math.min(
+          duration,
+          sentences[last+1].end
+        );
 
-/* ---------- YouTube ring ---------- */
-function playerVars(){
-  const vars={autoplay:0,controls:0,playsinline:1,rel:0,iv_load_policy:3,cc_load_policy:0,modestbranding:1,fs:0};
-  if(location.protocol==='http:'||location.protocol==='https:')vars.origin=location.origin;
-  return vars;
-}
-function createPlayers(){
-  if(!window.YT||!YT.Player)return;
-  [0,1,2].forEach(index=>{
-    players[index]=new YT.Player(`yt${index}`,{
-      width:'100%',height:'100%',playerVars:playerVars(),
-      events:{
-        onReady:()=>{
-          const ready=players.every(Boolean)&&players.every(p=>{try{return !!p.getIframe()}catch{return false}});
-          if(ready&&!ytReady){ytReady=true;syncPlayers(true)}
-        },
-        onStateChange:e=>onPlayerState(index,e.data),
-        onError:e=>onPlayerError(index,e.data)
+      const now =
+        end - start;
+
+      const next =
+        candidateEnd - start;
+
+      if(
+        now < MIN_CLIP
+      ){
+
+        last++;
+
+        end =
+          candidateEnd;
+
+        continue;
+
       }
+
+      if(
+        now >= TARGET_CLIP
+        ||
+        next > MAX_CLIP
+      ){
+
+        break;
+
+      }
+
+      last++;
+
+      end =
+        candidateEnd;
+
+    }
+
+    const clipSentences =
+      sentences
+        .slice(
+          first,
+          last + 1
+        )
+        .map(
+          (
+            sentence,
+            offset
+          )=>({
+
+            id:
+              `${videoId}:${first+offset}`,
+
+            start:
+              sentence.start,
+
+            end:
+              sentence.end,
+
+            text:
+              sentence.text
+
+          })
+        );
+
+    clips.push({
+
+      id:
+        `${videoId}:clip:${first}`,
+
+      channelId,
+
+      videoId,
+
+      start,
+
+      end,
+
+      sentences:
+        clipSentences,
+
+      preview:
+        clipSentences[0]?.text
+        || ''
+
     });
-  });
-}
-window.onYouTubeIframeAPIReady=createPlayers;
 
-function activateSlot(){document.querySelectorAll('.playerSlot').forEach((el,i)=>el.classList.toggle('active',i===role.current))}
-function stopPlayer(index,{hard=false}={}){
-  const p=players[index];if(!p)return;
-  try{p.mute()}catch{}
-  try{hard?p.stopVideo():p.pauseVideo()}catch{}
-  if(hard)loadedKey[index]=null;
-}
-function stopBackgroundPlayers(){for(let i=0;i<players.length;i++)if(i!==role.current)stopPlayer(i)}
+    i =
+      last + 1;
 
-function cuePrev(index,clip){
-  if(!ytReady||!players[index]||!clip)return;
-  const key=clipKey(clip);if(loadedKey[index]===key)return;
-  loadedKey[index]=key;
-  try{players[index].mute();players[index].cueVideoById({videoId:clip.videoId,startSeconds:clip.start})}catch{}
+  }
+
+  return clips;
+
 }
 
-function prewarmNext(index,clip){
-  if(!ytReady||!players[index]||!clip)return;
-  const key=clipKey(clip);if(loadedKey[index]===key)return;
-  loadedKey[index]=key;
+/* =========================================================
+   HTTP
+   ========================================================= */
+
+async function fetchJson(
+  url,
+  timeout=12000
+){
+
+  const controller =
+    new AbortController();
+
+  const timer =
+    setTimeout(
+      ()=>controller.abort(),
+      timeout
+    );
+
   try{
-    players[index].mute();
-    players[index].loadVideoById({videoId:clip.videoId,startSeconds:clip.start});
-    setTimeout(()=>{
-      if(index!==role.current&&loadedKey[index]===key)stopPlayer(index);
-    },300);
-  }catch{}
+
+    const response =
+      await fetch(
+        url,
+        {
+          signal:
+            controller.signal,
+
+          cache:
+            'no-store'
+        }
+      );
+
+    if(
+      !response.ok
+    ){
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+    return await response.json();
+
+  }finally{
+
+    clearTimeout(
+      timer
+    );
+
+  }
+
 }
+
+async function fetchText(
+  url,
+  timeout=18000
+){
+
+  const controller =
+    new AbortController();
+
+  const timer =
+    setTimeout(
+      ()=>controller.abort(),
+      timeout
+    );
+
+  try{
+
+    const response =
+      await fetch(
+        url,
+        {
+          signal:
+            controller.signal,
+
+          cache:
+            'force-cache'
+        }
+      );
+
+    if(
+      !response.ok
+    ){
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+    return await response.text();
+
+  }finally{
+
+    clearTimeout(
+      timer
+    );
+
+  }
+
+}
+
+async function getVideoMetadata(
+  videoId
+){
+
+  const url =
+    videoUrl(
+      videoId
+    );
+
+  try{
+
+    const data =
+      await fetchJson(
+        `https://noembed.com/embed?url=${encodeURIComponent(url)}`
+      );
+
+    return {
+
+      title:
+        data.title
+        || `YouTube ${videoId}`,
+
+      channelName:
+        data.author_name
+        || 'Unknown channel',
+
+      channelUrl:
+        data.author_url
+        || '',
+
+      thumbnail:
+        data.thumbnail_url
+        || thumb(videoId)
+
+    };
+
+  }catch{
+
+    return {
+
+      title:
+        `YouTube ${videoId}`,
+
+      channelName:
+        'Unknown channel',
+
+      channelUrl:
+        '',
+
+      thumbnail:
+        thumb(videoId)
+
+    };
+
+  }
+
+}
+
+/* =========================================================
+   IMPORT
+   ========================================================= */
+
+async function importVideo(){
+
+  const videoId =
+    parseVideoId(
+      urlInput.value
+    );
+
+  if(
+    !videoId
+  ){
+
+    addStatus.textContent =
+      'Link YouTube không hợp lệ.';
+
+    return;
+
+  }
+
+  const alreadyExists =
+    channels.some(
+      channel =>
+        (
+          channel.videos
+          || []
+        ).some(
+          video =>
+            video.videoId
+            === videoId
+        )
+    );
+
+  if(
+    alreadyExists
+  ){
+
+    addStatus.textContent =
+      'Video này đã có trong app.';
+
+    return;
+
+  }
+
+  importBtn.disabled =
+    true;
+
+  addStatus.textContent =
+    'Đang lấy channel + transcript…';
+
+  try{
+
+    const [
+      metadata,
+      transcriptText
+    ] =
+      await Promise.all([
+
+        getVideoMetadata(
+          videoId
+        ),
+
+        fetchText(
+          TRANSCRIPT_API(
+            videoId
+          )
+        )
+
+      ]);
+
+    const parsed =
+      parseTranscript(
+        transcriptText,
+        videoId
+      );
+
+    const sentences =
+      buildSentences(
+        parsed.blocks
+      );
+
+    if(
+      !sentences.length
+    ){
+
+      throw new Error(
+        'Không tạo được sentence timeline.'
+      );
+
+    }
+
+    const identity =
+      metadata.channelUrl
+      ||
+      `name:${
+        metadata.channelName
+          .toLowerCase()
+      }`;
+
+    const channelId =
+      `ch_${hash(identity)}`;
+
+    let channel =
+      channelById(
+        channelId
+      );
+
+    if(
+      !channel
+    ){
+
+      channel = {
+
+        id:
+          channelId,
+
+        identity,
+
+        title:
+          metadata.channelName,
+
+        channelUrl:
+          metadata.channelUrl,
+
+        avatar:
+          metadata.thumbnail,
+
+        createdAt:
+          Date.now(),
+
+        videos:
+          [],
+
+        clips:
+          []
+
+      };
+
+      channels.push(
+        channel
+      );
+
+    }
+
+    const clips =
+      buildClips(
+        channelId,
+        videoId,
+        sentences,
+        parsed.duration
+      );
+
+    const video = {
+
+      videoId,
+
+      url:
+        videoUrl(
+          videoId
+        ),
+
+      title:
+        metadata.title
+        || parsed.title,
+
+      thumbnail:
+        metadata.thumbnail
+        || thumb(videoId),
+
+      duration:
+        parsed.duration,
+
+      language:
+        parsed.language,
+
+      addedAt:
+        Date.now(),
+
+      sentences,
+
+      clipIds:
+        clips.map(
+          clip =>
+            clip.id
+        )
+
+    };
+
+    channel.title =
+      metadata.channelName
+      || channel.title;
+
+    channel.channelUrl =
+      metadata.channelUrl
+      || channel.channelUrl;
+
+    channel.avatar =
+      channel.avatar
+      || metadata.thumbnail;
+
+    channel.videos.push(
+      video
+    );
+
+    channel.clips.push(
+      ...clips
+    );
+
+    await dbPut(
+      channel
+    );
+
+    urlInput.value =
+      '';
+
+    addStatus.textContent =
+      `Xong: ${channel.title}\n${sentences.length} câu · ${clips.length} reels`;
+
+    renderFollowingList();
+
+    rebuildFeed({
+      mode:
+        feedMode === 'following'
+          ? 'following'
+          : 'for-you'
+    });
+
+    setTimeout(
+      ()=>{
+        closeScreen(
+          addScreen
+        );
+      },
+      550
+    );
+
+  }catch(error){
+
+    addStatus.textContent =
+      `Lỗi: ${
+        error?.name === 'AbortError'
+          ? 'timeout'
+          : (
+              error?.message
+              || String(error)
+            )
+      }`;
+
+  }finally{
+
+    importBtn.disabled =
+      false;
+
+  }
+
+}
+
+/* =========================================================
+   STORED SENTENCE MIGRATION
+   ========================================================= */
+
+function splitStoredSentence(sentence){
+
+  if(
+    !sentence
+    ||
+    !sentence.text
+  ){
+
+    return [];
+
+  }
+
+  return splitBlockIntoTimedPieces({
+    start:
+      Number(sentence.start) || 0,
+
+    end:
+      Number(sentence.end) || (Number(sentence.start) || 0) + .5,
+
+    text:
+      sentence.text
+  });
+
+}
+
+async function migrateStoredSentences(){
+
+  let changedAny =
+    false;
+
+  for(
+    const channel
+    of channels
+  ){
+
+    let changedChannel =
+      false;
+
+    for(
+      const clip
+      of (channel.clips || [])
+    ){
+
+      if(
+        !Array.isArray(clip.sentences)
+        ||
+        !clip.sentences.length
+      ){
+
+        continue;
+
+      }
+
+      const rebuilt =
+        [];
+
+      for(
+        const sentence
+        of clip.sentences
+      ){
+
+        const pieces =
+          splitStoredSentence(
+            sentence
+          );
+
+        pieces.forEach(
+          (
+            piece,
+            index
+          )=>{
+
+            rebuilt.push({
+              id:
+                `${sentence.id || 's'}:p${index}`,
+
+              start:
+                piece.start,
+
+              end:
+                piece.end,
+
+              text:
+                piece.text
+            });
+
+          }
+        );
+
+      }
+
+      const before =
+        clip.sentences
+          .map(
+            item => item.text
+          )
+          .join('|');
+
+      const after =
+        rebuilt
+          .map(
+            item => item.text
+          )
+          .join('|');
+
+      if(
+        rebuilt.length
+        &&
+        before !== after
+      ){
+
+        clip.sentences =
+          rebuilt;
+
+        clip.preview =
+          rebuilt[0]?.text
+          || clip.preview
+          || '';
+
+        changedChannel =
+          true;
+
+      }
+
+    }
+
+    if(
+      changedChannel
+    ){
+
+      changedAny =
+        true;
+
+      await dbPut(
+        channel
+      );
+
+    }
+
+  }
+
+  return changedAny;
+
+}
+
+/* =========================================================
+   FEED
+   ========================================================= */
+
+function allClips(){
+
+  return channels
+    .flatMap(
+      channel =>
+        channel.clips
+        || []
+    )
+    .filter(
+      clip =>
+        !state.hidden[
+          clip.id
+        ]
+    );
+
+}
+
+function buildWeightedFeed(
+  mode='for-you',
+  count=160
+){
+
+  const base =
+    allClips().filter(
+      clip =>
+        mode !== 'following'
+        ||
+        isFollowed(
+          clip.channelId
+        )
+    );
+
+  if(
+    !base.length
+  ){
+
+    return [];
+
+  }
+
+  const output =
+    [];
+
+  let lastChannel =
+    null;
+
+  let lastClipIds =
+    [];
+
+  for(
+    let step=0;
+    step<count;
+    step++
+  ){
+
+    let candidates =
+      base.filter(
+        clip =>
+          !lastClipIds.includes(
+            clip.id
+          )
+      );
+
+    if(
+      !candidates.length
+    ){
+
+      candidates =
+        base;
+
+    }
+
+    const hasOtherChannel =
+      candidates.some(
+        clip =>
+          clip.channelId
+          !== lastChannel
+      );
+
+    if(
+      hasOtherChannel
+    ){
+
+      candidates =
+        candidates.filter(
+          clip =>
+            clip.channelId
+            !== lastChannel
+        );
+
+    }
+
+    const weighted =
+      candidates.map(
+        clip =>{
+
+          const seen =
+            state.seen[
+              clip.id
+            ]
+            || 0;
+
+          let weight =
+            mode === 'following'
+              ? 3
+              : (
+                  isFollowed(
+                    clip.channelId
+                  )
+                    ? 5
+                    : 2
+                );
+
+          if(
+            seen === 0
+          ){
+
+            weight +=
+              2;
+
+          }else{
+
+            weight =
+              Math.max(
+                .7,
+                weight
+                -
+                Math.min(
+                  3,
+                  seen * .65
+                )
+              );
+
+          }
+
+          if(
+            isLiked(
+              clip.id
+            )
+          ){
+
+            weight +=
+              1;
+
+          }
+
+          return {
+            clip,
+            weight:
+              Math.max(
+                .2,
+                weight
+              )
+          };
+
+        }
+      );
+
+    const total =
+      weighted.reduce(
+        (
+          sum,
+          item
+        )=>
+          sum + item.weight,
+        0
+      );
+
+    let random =
+      Math.random()
+      * total;
+
+    let selected =
+      weighted[
+        weighted.length - 1
+      ].clip;
+
+    for(
+      const item
+      of weighted
+    ){
+
+      random -=
+        item.weight;
+
+      if(
+        random <= 0
+      ){
+
+        selected =
+          item.clip;
+
+        break;
+
+      }
+
+    }
+
+    output.push(
+      selected
+    );
+
+    lastChannel =
+      selected.channelId;
+
+    lastClipIds =
+      [
+        selected.id,
+        ...lastClipIds
+      ].slice(
+        0,
+        5
+      );
+
+  }
+
+  return output;
+
+}
+
+function rebuildFeed({
+  mode='for-you',
+  keepClipId=null
+}={}){
+
+  feedMode =
+    mode;
+
+  feed =
+    buildWeightedFeed(
+      mode
+    );
+
+  const existingIndex =
+    keepClipId
+      ? feed.findIndex(
+          clip =>
+            clip.id
+            === keepClipId
+        )
+      : -1;
+
+  feedIndex =
+    existingIndex >= 0
+      ? existingIndex
+      : 0;
+
+  currentSeenMarked =
+    false;
+
+  renderedSentenceId =
+    null;
+
+  updateFeedTabs();
+
+  syncPlayers(
+    true
+  );
+
+}
+
+function nextFeedIndex(){
+
+  return feed.length
+    ? (
+        feedIndex + 1
+      ) % feed.length
+    : 0;
+
+}
+
+function prevFeedIndex(){
+
+  return feed.length
+    ? (
+        feedIndex
+        - 1
+        + feed.length
+      ) % feed.length
+    : 0;
+
+}
+
+function clipForRole(which){
+
+  if(
+    !feed.length
+  ){
+
+    return null;
+
+  }
+
+  if(
+    which === 'current'
+  ){
+
+    return feed[
+      feedIndex
+    ];
+
+  }
+
+  if(
+    which === 'next'
+  ){
+
+    return feed[
+      nextFeedIndex()
+    ];
+
+  }
+
+  return feed[
+    prevFeedIndex()
+  ];
+
+}
+
+function updateFeedTabs(){
+
+  forYouTab.classList.toggle(
+    'active',
+    feedMode === 'for-you'
+    ||
+    feedMode === 'channel'
+  );
+
+  followingTab.classList.toggle(
+    'active',
+    feedMode === 'following'
+  );
+
+}
+
+/* =========================================================
+   YOUTUBE PLAYER RING
+   ========================================================= */
+
+function playerVars(){
+
+  const vars = {
+
+    autoplay:0,
+
+    controls:0,
+
+    playsinline:1,
+
+    rel:0,
+
+    iv_load_policy:3,
+
+    cc_load_policy:0,
+
+    modestbranding:1,
+
+    fs:0
+
+  };
+
+  if(
+    location.protocol === 'http:'
+    ||
+    location.protocol === 'https:'
+  ){
+
+    vars.origin =
+      location.origin;
+
+  }
+
+  return vars;
+
+}
+
+function createPlayers(){
+
+  if(
+    !window.YT
+    ||
+    !YT.Player
+  ){
+
+    return;
+
+  }
+
+  [
+    0,
+    1,
+    2
+  ].forEach(
+    index=>{
+
+      players[index] =
+        new YT.Player(
+          `yt${index}`,
+          {
+
+            width:
+              '100%',
+
+            height:
+              '100%',
+
+            playerVars:
+              playerVars(),
+
+            events:{
+
+              onReady:
+                ()=>{
+
+                  const ready =
+                    players.every(Boolean)
+                    &&
+                    players.every(
+                      player=>{
+
+                        try{
+
+                          return !!player
+                            .getIframe();
+
+                        }catch{
+
+                          return false;
+
+                        }
+
+                      }
+                    );
+
+                  if(
+                    ready
+                    &&
+                    !ytReady
+                  ){
+
+                    ytReady =
+                      true;
+
+                    syncPlayers(
+                      true
+                    );
+
+                  }
+
+                },
+
+              onStateChange:
+                event=>{
+
+                  onPlayerState(
+                    index,
+                    event.data
+                  );
+
+                },
+
+              onError:
+                event=>{
+
+                  onPlayerError(
+                    index,
+                    event.data
+                  );
+
+                }
+
+            }
+
+          }
+        );
+
+    }
+  );
+
+}
+
+window.onYouTubeIframeAPIReady =
+  createPlayers;
+
+/* =========================================================
+   PLAYER LIFECYCLE
+   ========================================================= */
+
+function activateSlot(){
+
+  document
+    .querySelectorAll(
+      '.playerSlot'
+    )
+    .forEach(
+      (
+        element,
+        index
+      )=>{
+
+        element.classList.toggle(
+          'active',
+          index === role.current
+        );
+
+      }
+    );
+
+}
+
+function stopPlayer(
+  index,
+  {
+    hard=false
+  }={}
+){
+
+  const player =
+    players[index];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    player.mute();
+
+  }catch{}
+
+  try{
+
+    player.pauseVideo();
+
+    if(
+      hard
+    ){
+
+      player.stopVideo();
+
+    }
+
+  }catch{}
+
+  if(
+    hard
+  ){
+
+    loadedKey[index] =
+      null;
+
+  }
+
+}
+
+function stopBackgroundPlayers(){
+
+  for(
+    let i=0;
+    i<players.length;
+    i++
+  ){
+
+    if(
+      i !== role.current
+    ){
+
+      stopPlayer(
+        i
+      );
+
+    }
+
+  }
+
+}
+
+function enforceSinglePlayer(){
+
+  for(
+    let i=0;
+    i<players.length;
+    i++
+  ){
+
+    if(
+      i === role.current
+      ||
+      !players[i]
+    ){
+
+      continue;
+
+    }
+
+    try{
+
+      players[i].mute();
+
+      if(
+        players[i].getPlayerState()
+        === YT.PlayerState.PLAYING
+      ){
+
+        players[i].pauseVideo();
+
+      }
+
+    }catch{}
+
+  }
+
+}
+
+/* =========================================================
+   PRELOAD
+   ========================================================= */
+
+function cuePrev(
+  index,
+  clip
+){
+
+  if(
+    !ytReady
+    ||
+    !players[index]
+    ||
+    !clip
+  ){
+
+    return;
+
+  }
+
+  const key =
+    clipKey(
+      clip
+    );
+
+  if(
+    loadedKey[index]
+    === key
+  ){
+
+    return;
+
+  }
+
+  loadedKey[index] =
+    key;
+
+  try{
+
+    players[index].mute();
+
+    players[index].cueVideoById({
+
+      videoId:
+        clip.videoId,
+
+      startSeconds:
+        clip.start
+
+    });
+
+  }catch{}
+
+}
+
+function prewarmNext(
+  index,
+  clip
+){
+
+  if(
+    !ytReady
+    ||
+    !players[index]
+    ||
+    !clip
+  ){
+
+    return;
+
+  }
+
+  const key =
+    clipKey(
+      clip
+    );
+
+  if(
+    loadedKey[index]
+    === key
+  ){
+
+    return;
+
+  }
+
+  loadedKey[index] =
+    key;
+
+  try{
+
+    players[index].mute();
+
+    /*
+      Keep the iframe/player warm, but NEVER start background
+      playback. This trades a little buffer depth for correct
+      single-video playback.
+    */
+
+    players[index].cueVideoById({
+
+      videoId:
+        clip.videoId,
+
+      startSeconds:
+        clip.start
+
+    });
+
+  }catch{}
+
+}
+
+/* =========================================================
+   CURRENT PLAYER
+   ========================================================= */
 
 function playCurrent(){
-  if(!ytReady||!feed.length)return;
-  const clip=currentClip(),p=players[role.current];if(!clip||!p)return;
-  stopBackgroundPlayers();buffer.classList.add('on');
-  const key=clipKey(clip);
-  try{
-    p.mute();
-    if(loadedKey[role.current]===key)p.seekTo(clip.start,true);
-    else{
-      loadedKey[role.current]=key;
-      p.loadVideoById({videoId:clip.videoId,startSeconds:clip.start});
-    }
-    if(audioOn)p.unMute();else p.mute();
-    p.playVideo();
-  }catch{}
-}
 
-function syncPlayers(force=false){
-  renderCurrent();
-  if(!ytReady||!feed.length)return;
-  stopBackgroundPlayers();activateSlot();
-  if(feed.length>1){cuePrev(role.prev,clipForRole('prev'));prewarmNext(role.next,clipForRole('next'))}
-  if(force)setTimeout(playCurrent,70);else playCurrent();
-}
+  if(
+    !ytReady
+    ||
+    !feed.length
+  ){
 
-function onPlayerState(index,status){
-  if(index!==role.current){
-    if(status===YT.PlayerState.PLAYING)stopPlayer(index);
     return;
+
   }
-  if(status===YT.PlayerState.PLAYING){
-    buffer.classList.remove('on');
-    if(audioOn){try{players[index].unMute()}catch{}}
+
+  const clip =
+    currentClip();
+
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !clip
+    ||
+    !player
+  ){
+
+    return;
+
   }
+
+  stopBackgroundPlayers();
+
+  buffer.classList.add(
+    'on'
+  );
+
+  const key =
+    clipKey(
+      clip
+    );
+
+  try{
+
+    player.mute();
+
+    if(
+      loadedKey[
+        role.current
+      ] === key
+    ){
+
+      player.seekTo(
+        clip.start,
+        true
+      );
+
+    }else{
+
+      loadedKey[
+        role.current
+      ] = key;
+
+      player.loadVideoById({
+
+        videoId:
+          clip.videoId,
+
+        startSeconds:
+          clip.start
+
+      });
+
+    }
+
+    if(
+      audioOn
+    ){
+
+      player.unMute();
+
+    }else{
+
+      player.mute();
+
+    }
+
+    player.playVideo();
+
+    setTimeout(
+      enforceSinglePlayer,
+      0
+    );
+
+    setTimeout(
+      enforceSinglePlayer,
+      120
+    );
+
+    setTimeout(
+      enforceSinglePlayer,
+      350
+    );
+
+  }catch{}
+
 }
-function onPlayerError(index,code){
-  if(index!==role.current)return;
-  buffer.classList.remove('on');
-  const msg={2:'Video ID lỗi.',5:'YouTube HTML5 lỗi.',100:'Video private/đã xoá.',101:'Video chặn embed.',150:'Video chặn embed.',153:'YouTube từ chối embed/referrer.'}[code]||`YouTube error ${code}`;
-  toastMsg(msg);
+
+function syncPlayers(
+  force=false
+){
+
+  renderCurrent();
+
+  if(
+    !ytReady
+    ||
+    !feed.length
+  ){
+
+    return;
+
+  }
+
+  stopBackgroundPlayers();
+
+  activateSlot();
+
+  if(
+    feed.length > 1
+  ){
+
+    cuePrev(
+      role.prev,
+      clipForRole(
+        'prev'
+      )
+    );
+
+    prewarmNext(
+      role.next,
+      clipForRole(
+        'next'
+      )
+    );
+
+  }
+
+  if(
+    force
+  ){
+
+    setTimeout(
+      playCurrent,
+      70
+    );
+
+  }else{
+
+    playCurrent();
+
+  }
+
 }
+
+/* =========================================================
+   ABSOLUTE BACKGROUND PLAYER GUARD
+   ========================================================= */
+
+function onPlayerState(
+  index,
+  status
+){
+
+  /*
+    Đây là guard quan trọng.
+
+    Bất cứ iframe nào không phải CURRENT
+    mà tự chạy -> pause ngay.
+  */
+
+  if(
+    index !== role.current
+  ){
+
+    if(
+      status
+      === YT.PlayerState.PLAYING
+    ){
+
+      stopPlayer(
+        index
+      );
+
+    }
+
+    return;
+
+  }
+
+  if(
+    status
+    === YT.PlayerState.PLAYING
+  ){
+
+    buffer.classList.remove(
+      'on'
+    );
+
+    if(
+      audioOn
+    ){
+
+      try{
+
+        players[index]
+          .unMute();
+
+      }catch{}
+
+    }
+
+  }
+
+}
+
+function onPlayerError(
+  index,
+  code
+){
+
+  if(
+    index !== role.current
+  ){
+
+    return;
+
+  }
+
+  buffer.classList.remove(
+    'on'
+  );
+
+  const messages = {
+
+    2:
+      'Video ID lỗi.',
+
+    5:
+      'YouTube HTML5 lỗi.',
+
+    100:
+      'Video private/đã xoá.',
+
+    101:
+      'Video chặn embed.',
+
+    150:
+      'Video chặn embed.',
+
+    153:
+      'YouTube từ chối embed/referrer.'
+
+  };
+
+  toastMsg(
+    messages[code]
+    ||
+    `YouTube error ${code}`
+  );
+
+}
+
+/* =========================================================
+   SWIPE
+   ========================================================= */
 
 function goNext(){
-  if(feed.length<2)return;
-  const oldCurrent=role.current;
-  stopPlayer(oldCurrent,{hard:true});
-  feedIndex=nextFeedIndex();
-  const oldPrev=role.prev,oldNext=role.next;
-  role.prev=oldCurrent;role.current=oldNext;role.next=oldPrev;
-  currentSeenMarked=false;renderedSentenceId=null;
-  stopBackgroundPlayers();renderCurrent();activateSlot();playCurrent();
-  prewarmNext(role.next,clipForRole('next'));
-}
-function goPrev(){
-  if(feed.length<2)return;
-  const oldCurrent=role.current;
-  stopPlayer(oldCurrent,{hard:true});
-  feedIndex=prevFeedIndex();
-  const oldPrev=role.prev,oldNext=role.next;
-  role.next=oldCurrent;role.current=oldPrev;role.prev=oldNext;
-  currentSeenMarked=false;renderedSentenceId=null;
-  stopBackgroundPlayers();renderCurrent();activateSlot();playCurrent();
-  cuePrev(role.prev,clipForRole('prev'));
-}
 
-/* ---------- sentence render ---------- */
-const wordSegmenter=typeof Intl!=='undefined'&&Intl.Segmenter?new Intl.Segmenter('ja',{granularity:'word'}):null;
+  if(
+    feed.length < 2
+  ){
 
-function openWord(token,context){
-  selectedWord=token;selectedWordContext=context;
-  const p=players[role.current];
-  resumeAfterWord=false;
-  if(p){
-    try{resumeAfterWord=p.getPlayerState()===YT.PlayerState.PLAYING;if(resumeAfterWord)p.pauseVideo()}catch{}
+    return;
+
   }
-  wordToken.textContent=token;wordContext.textContent=context;
-  openScreen(wordScreen);
-}
 
-function renderSentence(sentence,clip){
-  if(!sentence){sentenceEl.textContent='—';sentenceProgress.textContent='—';renderedSentenceId=null;return}
-  const id=`${clip.id}:${sentence.id}`;
-  if(renderedSentenceId===id)return;
-  renderedSentenceId=id;
-  sentenceEl.innerHTML='';
+  /*
+    STOP video cũ trước khi đổi role.
+  */
 
-  if(wordSegmenter){
-    for(const part of wordSegmenter.segment(sentence.text)){
-      const text=part.segment;
-      if(!text)continue;
-      if(part.isWordLike){
-        const b=document.createElement('button');b.className='jpWord';b.textContent=text;
-        b.addEventListener('click',e=>{e.stopPropagation();openWord(text,sentence.text)});
-        sentenceEl.appendChild(b);
-      }else{
-        const span=document.createElement('span');span.className='jpPunc';span.textContent=text;sentenceEl.appendChild(span);
-      }
+  const oldCurrent =
+    role.current;
+
+  stopPlayer(
+    oldCurrent,
+    {
+      hard:true
     }
-  }else sentenceEl.textContent=sentence.text;
+  );
 
-  const index=clip.sentences.findIndex(s=>s.id===sentence.id);
-  sentenceProgress.textContent=`${index+1}/${clip.sentences.length} · ${fmt(sentence.start)}–${fmt(sentence.end)}`;
+  feedIndex =
+    nextFeedIndex();
+
+  const oldPrev =
+    role.prev;
+
+  const oldNext =
+    role.next;
+
+  role.prev =
+    oldCurrent;
+
+  role.current =
+    oldNext;
+
+  role.next =
+    oldPrev;
+
+  currentSeenMarked =
+    false;
+
+  renderedSentenceId =
+    null;
+
+  stopBackgroundPlayers();
+
+  renderCurrent();
+
+  activateSlot();
+
+  playCurrent();
+
+  prewarmNext(
+    role.next,
+    clipForRole(
+      'next'
+    )
+  );
+
 }
 
-function activeSentenceAt(clip,time){
-  if(!clip?.sentences?.length)return null;
-  let found=clip.sentences.find(s=>time>=s.start&&time<s.end);
-  if(found)return found;
-  for(let i=clip.sentences.length-1;i>=0;i--)if(time>=clip.sentences[i].start)return clip.sentences[i];
+function goPrev(){
+
+  if(
+    feed.length < 2
+  ){
+
+    return;
+
+  }
+
+  const oldCurrent =
+    role.current;
+
+  stopPlayer(
+    oldCurrent,
+    {
+      hard:true
+    }
+  );
+
+  feedIndex =
+    prevFeedIndex();
+
+  const oldPrev =
+    role.prev;
+
+  const oldNext =
+    role.next;
+
+  role.next =
+    oldCurrent;
+
+  role.current =
+    oldPrev;
+
+  role.prev =
+    oldNext;
+
+  currentSeenMarked =
+    false;
+
+  renderedSentenceId =
+    null;
+
+  stopBackgroundPlayers();
+
+  renderCurrent();
+
+  activateSlot();
+
+  playCurrent();
+
+  cuePrev(
+    role.prev,
+    clipForRole(
+      'prev'
+    )
+  );
+
+}
+
+/* =========================================================
+   WORD SEGMENTATION
+   ========================================================= */
+
+const wordSegmenter =
+  typeof Intl !== 'undefined'
+  &&
+  Intl.Segmenter
+
+    ? new Intl.Segmenter(
+        'ja',
+        {
+          granularity:'word'
+        }
+      )
+
+    : null;
+
+function openWord(
+  token,
+  context
+){
+
+  selectedWord =
+    token;
+
+  selectedWordContext =
+    context;
+
+  const player =
+    players[
+      role.current
+    ];
+
+  resumeAfterWord =
+    false;
+
+  if(
+    player
+  ){
+
+    try{
+
+      resumeAfterWord =
+        player.getPlayerState()
+        === YT.PlayerState.PLAYING;
+
+      if(
+        resumeAfterWord
+      ){
+
+        player.pauseVideo();
+
+      }
+
+    }catch{}
+
+  }
+
+  wordToken.textContent =
+    token;
+
+  wordContext.textContent =
+    context;
+
+  openScreen(
+    wordScreen
+  );
+
+}
+
+/* =========================================================
+   RENDER EXACT ACTIVE SENTENCE
+   ========================================================= */
+
+function renderSentence(
+  sentence,
+  clip
+){
+
+  if(
+    !sentence
+  ){
+
+    sentenceEl.textContent =
+      '—';
+
+    sentenceProgress.textContent =
+      '—';
+
+    renderedSentenceId =
+      null;
+
+    return;
+
+  }
+
+  const id =
+    `${clip.id}:${sentence.id}`;
+
+  if(
+    renderedSentenceId
+    === id
+  ){
+
+    return;
+
+  }
+
+  renderedSentenceId =
+    id;
+
+  sentenceEl.innerHTML =
+    '';
+
+  if(
+    wordSegmenter
+  ){
+
+    for(
+      const part
+      of wordSegmenter.segment(
+        sentence.text
+      )
+    ){
+
+      const text =
+        part.segment;
+
+      if(
+        !text
+      ){
+
+        continue;
+
+      }
+
+      if(
+        part.isWordLike
+      ){
+
+        const button =
+          document.createElement(
+            'button'
+          );
+
+        button.className =
+          'jpWord';
+
+        button.textContent =
+          text;
+
+        button.addEventListener(
+          'click',
+          event=>{
+
+            event.stopPropagation();
+
+            openWord(
+              text,
+              sentence.text
+            );
+
+          }
+        );
+
+        sentenceEl.appendChild(
+          button
+        );
+
+      }else{
+
+        const span =
+          document.createElement(
+            'span'
+          );
+
+        span.className =
+          'jpPunc';
+
+        span.textContent =
+          text;
+
+        sentenceEl.appendChild(
+          span
+        );
+
+      }
+
+    }
+
+  }else{
+
+    sentenceEl.textContent =
+      sentence.text;
+
+  }
+
+  const index =
+    clip.sentences.findIndex(
+      item =>
+        item.id === sentence.id
+    );
+
+  sentenceProgress.textContent =
+    `${index+1}/${clip.sentences.length} · ${fmt(sentence.start)}–${fmt(sentence.end)}`;
+
+}
+
+function activeSentenceAt(
+  clip,
+  time
+){
+
+  if(
+    !clip?.sentences?.length
+  ){
+
+    return null;
+
+  }
+
+  const exact =
+    clip.sentences.find(
+      sentence =>
+        time >= sentence.start
+        &&
+        time < sentence.end
+    );
+
+  if(
+    exact
+  ){
+
+    return exact;
+
+  }
+
+  for(
+    let i=clip.sentences.length-1;
+    i>=0;
+    i--
+  ){
+
+    if(
+      time
+      >= clip.sentences[i].start
+    ){
+
+      return clip.sentences[i];
+
+    }
+
+  }
+
   return clip.sentences[0];
+
 }
+
+/* =========================================================
+   CURRENT REEL UI
+   ========================================================= */
 
 function renderCurrent(){
-  const clip=currentClip();
-  if(!clip){
-    empty.classList.remove('hidden');channelName.textContent='—';sentenceEl.textContent='—';sentenceProgress.textContent='—';followQuick.classList.add('hidden');return;
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    empty.classList.remove(
+      'hidden'
+    );
+
+    channelName.textContent =
+      '—';
+
+    sentenceEl.textContent =
+      '—';
+
+    sentenceProgress.textContent =
+      '—';
+
+    followQuick.classList.add(
+      'hidden'
+    );
+
+    return;
+
   }
-  empty.classList.add('hidden');followQuick.classList.remove('hidden');
-  const ch=channelById(clip.channelId);
-  channelName.textContent=ch?.title||'Channel';avatar.src=ch?.avatar||thumb(clip.videoId,'default');
-  const following=isFollowed(clip.channelId);followQuick.textContent=following?'Following':'Follow';followQuick.classList.toggle('following',following);
-  likeBtn.textContent=isLiked(clip.id)?'♥':'♡';likeBtn.classList.toggle('active',isLiked(clip.id));
-  saveBtn.textContent=isSaved(clip.id)?'▰':'▱';saveBtn.classList.toggle('active',isSaved(clip.id));
-  renderSentence(clip.sentences?.[0]||null,clip);
+
+  empty.classList.add(
+    'hidden'
+  );
+
+  followQuick.classList.remove(
+    'hidden'
+  );
+
+  const channel =
+    channelById(
+      clip.channelId
+    );
+
+  channelName.textContent =
+    channel?.title
+    || 'Channel';
+
+  avatar.src =
+    channel?.avatar
+    ||
+    thumb(
+      clip.videoId,
+      'default'
+    );
+
+  const following =
+    isFollowed(
+      clip.channelId
+    );
+
+  followQuick.textContent =
+    following
+      ? 'Following'
+      : 'Follow';
+
+  followQuick.classList.toggle(
+    'following',
+    following
+  );
+
+  likeBtn.textContent =
+    isLiked(
+      clip.id
+    )
+      ? '♥'
+      : '♡';
+
+  likeBtn.classList.toggle(
+    'active',
+    isLiked(
+      clip.id
+    )
+  );
+
+  saveBtn.textContent =
+    isSaved(
+      clip.id
+    )
+      ? '▰'
+      : '▱';
+
+  saveBtn.classList.toggle(
+    'active',
+    isSaved(
+      clip.id
+    )
+  );
+
+  /*
+    Khi reel mới vừa xuất hiện:
+    chỉ hiện câu đầu tiên.
+    Monitor sẽ thay bằng câu đúng theo currentTime.
+  */
+
+  renderSentence(
+    clip.sentences?.[0]
+    || null,
+    clip
+  );
+
 }
+
+/* =========================================================
+   WATCH HISTORY
+   ========================================================= */
 
 function markCurrentSeen(){
-  if(currentSeenMarked)return;
-  const clip=currentClip();if(!clip)return;
-  currentSeenMarked=true;state.seen[clip.id]=(state.seen[clip.id]||0)+1;
-  state.history=[clip.id,...state.history.filter(id=>id!==clip.id)].slice(0,100);
+
+  if(
+    currentSeenMarked
+  ){
+
+    return;
+
+  }
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  currentSeenMarked =
+    true;
+
+  state.seen[
+    clip.id
+  ] =
+    (
+      state.seen[
+        clip.id
+      ]
+      || 0
+    )
+    + 1;
+
+  state.history =
+    [
+      clip.id,
+      ...state.history.filter(
+        id =>
+          id !== clip.id
+      )
+    ].slice(
+      0,
+      100
+    );
+
   saveState();
+
 }
+
+/* =========================================================
+   PLAYER MONITOR
+   ========================================================= */
 
 function startMonitor(){
-  clearInterval(monitorTimer);
-  monitorTimer=setInterval(()=>{
-    if(!ytReady||!feed.length)return;
-    const p=players[role.current],clip=currentClip();if(!p||!clip)return;
-    let time=0,status=-1;
-    try{time=p.getCurrentTime()||0;status=p.getPlayerState()}catch{return}
-    renderSentence(activeSentenceAt(clip,time),clip);
-    if(status===YT.PlayerState.PLAYING&&time>=clip.start+3)markCurrentSeen();
-    if(status===YT.PlayerState.PLAYING&&time>=clip.end-.08){
-      try{p.seekTo(clip.start,true);p.playVideo()}catch{}
-      renderedSentenceId=null;
-    }
-  },100);
+
+  clearInterval(
+    monitorTimer
+  );
+
+  monitorTimer =
+    setInterval(
+      ()=>{
+
+        if(
+          !ytReady
+          ||
+          !feed.length
+        ){
+
+          return;
+
+        }
+
+        enforceSinglePlayer();
+
+        const player =
+          players[
+            role.current
+          ];
+
+        const clip =
+          currentClip();
+
+        if(
+          !player
+          ||
+          !clip
+        ){
+
+          return;
+
+        }
+
+        let time =
+          0;
+
+        let status =
+          -1;
+
+        try{
+
+          time =
+            player.getCurrentTime()
+            || 0;
+
+          status =
+            player.getPlayerState();
+
+        }catch{
+
+          return;
+
+        }
+
+        /*
+          Đây là phần chính:
+          currentTime -> đúng 1 sentence.
+        */
+
+        renderSentence(
+          activeSentenceAt(
+            clip,
+            time
+          ),
+          clip
+        );
+
+        if(
+          status
+          === YT.PlayerState.PLAYING
+          &&
+          time
+          >= clip.start + 3
+        ){
+
+          markCurrentSeen();
+
+        }
+
+        /*
+          Loop đúng range của reel.
+        */
+
+        if(
+          status
+          === YT.PlayerState.PLAYING
+          &&
+          time
+          >= clip.end - .08
+        ){
+
+          try{
+
+            player.seekTo(
+              clip.start,
+              true
+            );
+
+            player.playVideo();
+
+          }catch{}
+
+          renderedSentenceId =
+            null;
+
+        }
+
+      },
+      100
+    );
+
 }
 
-/* ---------- actions ---------- */
+/* =========================================================
+   SOUND
+   ========================================================= */
+
 function toggleSound(){
-  audioOn=!audioOn;soundBtn.textContent=audioOn?'🔊':'🔇';
-  const p=players[role.current];if(!p)return;
-  try{audioOn?p.unMute():p.mute();p.playVideo()}catch{}
+
+  audioOn =
+    !audioOn;
+
+  soundBtn.textContent =
+    audioOn
+      ? '🔊'
+      : '🔇';
+
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    if(
+      audioOn
+    ){
+
+      player.unMute();
+
+    }else{
+
+      player.mute();
+
+    }
+
+    player.playVideo();
+
+  }catch{}
+
 }
-function toggleFollow(channelId){
-  if(!channelId)return;
-  if(isFollowed(channelId))delete state.followed[channelId];else state.followed[channelId]=true;
-  saveState();renderFollowingList();renderCurrent();if(selectedChannelId===channelId)renderChannelHeader(channelId);
-  if(feedMode!=='channel')rebuildFeed({mode:feedMode,keepClipId:currentClip()?.id||null});
+
+/* =========================================================
+   FOLLOW
+   ========================================================= */
+
+function toggleFollow(
+  channelId
+){
+
+  if(
+    !channelId
+  ){
+
+    return;
+
+  }
+
+  if(
+    isFollowed(
+      channelId
+    )
+  ){
+
+    delete state.followed[
+      channelId
+    ];
+
+  }else{
+
+    state.followed[
+      channelId
+    ] =
+      true;
+
+  }
+
+  saveState();
+
+  renderFollowingList();
+
+  renderCurrent();
+
+  if(
+    selectedChannelId
+    === channelId
+  ){
+
+    renderChannelHeader(
+      channelId
+    );
+
+  }
+
+  if(
+    feedMode !== 'channel'
+  ){
+
+    rebuildFeed({
+
+      mode:
+        feedMode,
+
+      keepClipId:
+        currentClip()?.id
+        || null
+
+    });
+
+  }
+
 }
+
+/* =========================================================
+   LIKE / SAVE
+   ========================================================= */
+
 function toggleLike(){
-  const clip=currentClip();if(!clip)return;
-  if(isLiked(clip.id))delete state.liked[clip.id];else state.liked[clip.id]=true;
-  saveState();renderCurrent();
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  if(
+    isLiked(
+      clip.id
+    )
+  ){
+
+    delete state.liked[
+      clip.id
+    ];
+
+  }else{
+
+    state.liked[
+      clip.id
+    ] =
+      true;
+
+  }
+
+  saveState();
+
+  renderCurrent();
+
 }
+
 function toggleSave(){
-  const clip=currentClip();if(!clip)return;
-  if(isSaved(clip.id))delete state.saved[clip.id];else state.saved[clip.id]=true;
-  saveState();renderCurrent();toastMsg(isSaved(clip.id)?'Saved.':'Removed from saved.');
+
+  const clip =
+    currentClip();
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  if(
+    isSaved(
+      clip.id
+    )
+  ){
+
+    delete state.saved[
+      clip.id
+    ];
+
+  }else{
+
+    state.saved[
+      clip.id
+    ] =
+      true;
+
+  }
+
+  saveState();
+
+  renderCurrent();
+
+  toastMsg(
+    isSaved(
+      clip.id
+    )
+      ? 'Saved.'
+      : 'Removed from saved.'
+  );
+
 }
+
+/* =========================================================
+   FULLSCREEN
+   ========================================================= */
+
 async function fullscreen(){
-  const p=players[role.current];if(!p)return;
-  try{const iframe=p.getIframe();if(iframe.requestFullscreen)await iframe.requestFullscreen();else if(iframe.webkitRequestFullscreen)iframe.webkitRequestFullscreen()}catch{toastMsg('Browser chặn fullscreen.')}
+
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
+
+  try{
+
+    const iframe =
+      player.getIframe();
+
+    if(
+      iframe.requestFullscreen
+    ){
+
+      await iframe
+        .requestFullscreen();
+
+    }else if(
+      iframe.webkitRequestFullscreen
+    ){
+
+      iframe
+        .webkitRequestFullscreen();
+
+    }
+
+  }catch{
+
+    toastMsg(
+      'Browser chặn fullscreen.'
+    );
+
+  }
+
 }
 
-/* ---------- following ---------- */
+/* =========================================================
+   FOLLOWING LIST
+   ========================================================= */
+
 function renderFollowingList(){
-  channelList.innerHTML='';
-  const followed=channels.filter(ch=>isFollowed(ch.id)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  if(!followed.length){channelList.innerHTML='<div class="emptyList">Chưa follow channel nào.<br>Mở reel rồi bấm <b>Follow</b>.</div>';return}
-  for(const ch of followed){
-    const first=ch.videos?.[0];const b=document.createElement('button');b.className='channelCard';
-    b.innerHTML=`<img class="cardImg" src="${escapeHtml(first?.thumbnail||ch.avatar||'')}" alt=""><div class="cardText"><div class="cardTitle">${escapeHtml(ch.title)}</div><div class="cardMeta">${ch.videos?.length||0} videos · ${ch.clips?.length||0} reels</div></div>`;
-    b.onclick=()=>showChannel(ch.id);channelList.appendChild(b);
+
+  channelList.innerHTML =
+    '';
+
+  const followed =
+    channels
+      .filter(
+        channel =>
+          isFollowed(
+            channel.id
+          )
+      )
+      .sort(
+        (
+          a,
+          b
+        )=>
+          (
+            b.createdAt
+            || 0
+          )
+          -
+          (
+            a.createdAt
+            || 0
+          )
+      );
+
+  if(
+    !followed.length
+  ){
+
+    channelList.innerHTML =
+      `
+      <div class="emptyList">
+        Chưa follow channel nào.
+        <br>
+        Mở reel rồi bấm
+        <b>Follow</b>.
+      </div>
+      `;
+
+    return;
+
   }
+
+  for(
+    const channel
+    of followed
+  ){
+
+    const firstVideo =
+      channel.videos?.[0];
+
+    const button =
+      document.createElement(
+        'button'
+      );
+
+    button.className =
+      'channelCard';
+
+    button.innerHTML =
+      `
+      <img
+        class="cardImg"
+        src="${escapeHtml(
+          firstVideo?.thumbnail
+          || channel.avatar
+          || ''
+        )}"
+        alt=""
+      >
+
+      <div class="cardText">
+
+        <div class="cardTitle">
+          ${escapeHtml(
+            channel.title
+          )}
+        </div>
+
+        <div class="cardMeta">
+          ${
+            channel.videos?.length
+            || 0
+          } videos ·
+          ${
+            channel.clips?.length
+            || 0
+          } reels
+        </div>
+
+      </div>
+      `;
+
+    button.onclick =
+      ()=>{
+
+        showChannel(
+          channel.id
+        );
+
+      };
+
+    channelList.appendChild(
+      button
+    );
+
+  }
+
 }
 
-/* ---------- channel detail ---------- */
-function renderChannelHeader(id){
-  const ch=channelById(id);if(!ch)return;const first=ch.videos?.[0];
-  heroImg.src=first?.thumbnail||ch.avatar||'';heroTitle.textContent=ch.title;heroMeta.textContent=`${ch.videos?.length||0} videos · ${ch.clips?.length||0} reels`;
-  followChannel.textContent=isFollowed(id)?'Following':'Follow';followChannel.classList.toggle('following',isFollowed(id));
+/* =========================================================
+   CHANNEL
+   ========================================================= */
+
+function renderChannelHeader(
+  id
+){
+
+  const channel =
+    channelById(
+      id
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  const firstVideo =
+    channel.videos?.[0];
+
+  heroImg.src =
+    firstVideo?.thumbnail
+    || channel.avatar
+    || '';
+
+  heroTitle.textContent =
+    channel.title;
+
+  heroMeta.textContent =
+    `${
+      channel.videos?.length
+      || 0
+    } videos · ${
+      channel.clips?.length
+      || 0
+    } reels`;
+
+  const following =
+    isFollowed(
+      id
+    );
+
+  followChannel.textContent =
+    following
+      ? 'Following'
+      : 'Follow';
+
+  followChannel.classList.toggle(
+    'following',
+    following
+  );
+
 }
+
 function showChannel(id){
-  const ch=channelById(id);if(!ch)return;selectedChannelId=id;renderChannelHeader(id);clipGrid.innerHTML='';
-  ch.clips.forEach((clip,i)=>{
-    const video=ch.videos?.find(v=>v.videoId===clip.videoId);const b=document.createElement('button');b.className='clipCard';
-    b.innerHTML=`<img class="cardImg" src="${escapeHtml(video?.thumbnail||thumb(clip.videoId,'mqdefault'))}" alt=""><div class="cardText"><div class="cardTitle">Reel ${i+1}</div><div class="cardMeta">${fmt(clip.start)}–${fmt(clip.end)} · ${clip.sentences?.length||0} câu</div><div class="cardSentence">${escapeHtml(clip.preview||'')}</div></div>`;
-    b.onclick=()=>playOnlyChannel(ch.id,clip.id);clipGrid.appendChild(b);
-  });
-  openScreen(channelScreen);
+
+  const channel =
+    channelById(
+      id
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  selectedChannelId =
+    id;
+
+  renderChannelHeader(
+    id
+  );
+
+  clipGrid.innerHTML =
+    '';
+
+  channel.clips.forEach(
+    (
+      clip,
+      index
+    )=>{
+
+      const video =
+        channel.videos?.find(
+          item =>
+            item.videoId
+            === clip.videoId
+        );
+
+      const button =
+        document.createElement(
+          'button'
+        );
+
+      button.className =
+        'clipCard';
+
+      button.innerHTML =
+        `
+        <img
+          class="cardImg"
+          src="${escapeHtml(
+            video?.thumbnail
+            || thumb(
+                clip.videoId,
+                'mqdefault'
+              )
+          )}"
+          alt=""
+        >
+
+        <div class="cardText">
+
+          <div class="cardTitle">
+            Reel ${index+1}
+          </div>
+
+          <div class="cardMeta">
+            ${fmt(clip.start)}–${fmt(clip.end)}
+            ·
+            ${clip.sentences?.length || 0} câu
+          </div>
+
+          <div class="cardSentence">
+            ${escapeHtml(
+              clip.preview
+              || ''
+            )}
+          </div>
+
+        </div>
+        `;
+
+      button.onclick =
+        ()=>{
+
+          playOnlyChannel(
+            channel.id,
+            clip.id
+          );
+
+        };
+
+      clipGrid.appendChild(
+        button
+      );
+
+    }
+  );
+
+  openScreen(
+    channelScreen
+  );
+
 }
-function playOnlyChannel(channelId,startClipId=null){
-  const ch=channelById(channelId);if(!ch)return;
-  feedMode='channel';feed=[...(ch.clips||[])];
-  const idx=startClipId?feed.findIndex(c=>c.id===startClipId):-1;feedIndex=idx>=0?idx:0;
-  currentSeenMarked=false;renderedSentenceId=null;closeScreen(channelScreen);closeScreen(channelsScreen);updateFeedTabs();syncPlayers(true);
+
+function playOnlyChannel(
+  channelId,
+  startClipId=null
+){
+
+  const channel =
+    channelById(
+      channelId
+    );
+
+  if(
+    !channel
+  ){
+
+    return;
+
+  }
+
+  feedMode =
+    'channel';
+
+  feed =
+    [
+      ...(
+        channel.clips
+        || []
+      )
+    ];
+
+  const index =
+    startClipId
+      ? feed.findIndex(
+          clip =>
+            clip.id
+            === startClipId
+        )
+      : -1;
+
+  feedIndex =
+    index >= 0
+      ? index
+      : 0;
+
+  currentSeenMarked =
+    false;
+
+  renderedSentenceId =
+    null;
+
+  closeScreen(
+    channelScreen
+  );
+
+  closeScreen(
+    channelsScreen
+  );
+
+  updateFeedTabs();
+
+  syncPlayers(
+    true
+  );
+
 }
+
 async function removeSelectedChannel(){
-  const id=selectedChannelId,ch=channelById(id);if(!id||!ch)return;
-  if(!confirm(`Remove all imported data for "${ch.title}"?`))return;
-  for(let i=0;i<players.length;i++)stopPlayer(i,{hard:true});
-  await dbDelete(id);channels=channels.filter(x=>x.id!==id);delete state.followed[id];saveState();selectedChannelId=null;
-  closeScreen(channelScreen);renderFollowingList();rebuildFeed({mode:'for-you'});
+
+  const id =
+    selectedChannelId;
+
+  const channel =
+    channelById(
+      id
+    );
+
+  if(
+    !id
+    ||
+    !channel
+  ){
+
+    return;
+
+  }
+
+  if(
+    !confirm(
+      `Remove all imported data for "${channel.title}"?`
+    )
+  ){
+
+    return;
+
+  }
+
+  for(
+    let i=0;
+    i<players.length;
+    i++
+  ){
+
+    stopPlayer(
+      i,
+      {
+        hard:true
+      }
+    );
+
+  }
+
+  await dbDelete(
+    id
+  );
+
+  channels =
+    channels.filter(
+      item =>
+        item.id !== id
+    );
+
+  delete state.followed[
+    id
+  ];
+
+  saveState();
+
+  selectedChannelId =
+    null;
+
+  closeScreen(
+    channelScreen
+  );
+
+  renderFollowingList();
+
+  rebuildFeed({
+    mode:'for-you'
+  });
+
 }
 
-/* ---------- library ---------- */
+/* =========================================================
+   LIBRARY
+   ========================================================= */
+
 function renderLibrary(){
-  savedTab.classList.toggle('active',libraryMode==='saved');historyTab.classList.toggle('active',libraryMode==='history');libraryList.innerHTML='';
-  const ids=libraryMode==='saved'?Object.keys(state.saved).filter(id=>state.saved[id]):state.history;
-  const clips=ids.map(clipById).filter(Boolean);
-  if(!clips.length){libraryList.innerHTML=`<div class="emptyList">${libraryMode==='saved'?'Chưa save reel nào.':'Chưa có history.'}</div>`;return}
-  for(const clip of clips){
-    const ch=channelById(clip.channelId);const video=ch?.videos?.find(v=>v.videoId===clip.videoId);const b=document.createElement('button');b.className='clipCard';
-    b.innerHTML=`<img class="cardImg" src="${escapeHtml(video?.thumbnail||thumb(clip.videoId,'mqdefault'))}" alt=""><div class="cardText"><div class="cardTitle">${escapeHtml(ch?.title||'Channel')}</div><div class="cardMeta">${fmt(clip.start)}–${fmt(clip.end)}</div><div class="cardSentence">${escapeHtml(clip.preview||'')}</div></div>`;
-    b.onclick=()=>playClipFromLibrary(clip.id);libraryList.appendChild(b);
+
+  savedTab.classList.toggle(
+    'active',
+    libraryMode === 'saved'
+  );
+
+  historyTab.classList.toggle(
+    'active',
+    libraryMode === 'history'
+  );
+
+  libraryList.innerHTML =
+    '';
+
+  const ids =
+    libraryMode === 'saved'
+
+      ? Object.keys(
+          state.saved
+        ).filter(
+          id =>
+            state.saved[id]
+        )
+
+      : state.history;
+
+  const clips =
+    ids
+      .map(
+        clipById
+      )
+      .filter(Boolean);
+
+  if(
+    !clips.length
+  ){
+
+    libraryList.innerHTML =
+      `
+      <div class="emptyList">
+        ${
+          libraryMode === 'saved'
+            ? 'Chưa save reel nào.'
+            : 'Chưa có history.'
+        }
+      </div>
+      `;
+
+    return;
+
   }
+
+  for(
+    const clip
+    of clips
+  ){
+
+    const channel =
+      channelById(
+        clip.channelId
+      );
+
+    const video =
+      channel?.videos?.find(
+        item =>
+          item.videoId
+          === clip.videoId
+      );
+
+    const button =
+      document.createElement(
+        'button'
+      );
+
+    button.className =
+      'clipCard';
+
+    button.innerHTML =
+      `
+      <img
+        class="cardImg"
+        src="${escapeHtml(
+          video?.thumbnail
+          || thumb(
+              clip.videoId,
+              'mqdefault'
+            )
+        )}"
+        alt=""
+      >
+
+      <div class="cardText">
+
+        <div class="cardTitle">
+          ${escapeHtml(
+            channel?.title
+            || 'Channel'
+          )}
+        </div>
+
+        <div class="cardMeta">
+          ${fmt(clip.start)}–${fmt(clip.end)}
+        </div>
+
+        <div class="cardSentence">
+          ${escapeHtml(
+            clip.preview
+            || ''
+          )}
+        </div>
+
+      </div>
+      `;
+
+    button.onclick =
+      ()=>{
+
+        playClipFromLibrary(
+          clip.id
+        );
+
+      };
+
+    libraryList.appendChild(
+      button
+    );
+
+  }
+
 }
+
 function playClipFromLibrary(id){
-  const clip=clipById(id);if(!clip)return;
-  feedMode='for-you';feed=buildWeightedFeed('for-you');
-  const idx=feed.findIndex(c=>c.id===id);if(idx<0)feed.unshift(clip);feedIndex=idx>=0?idx:0;
-  closeScreen(libraryScreen);currentSeenMarked=false;renderedSentenceId=null;updateFeedTabs();syncPlayers(true);
+
+  const clip =
+    clipById(
+      id
+    );
+
+  if(
+    !clip
+  ){
+
+    return;
+
+  }
+
+  feedMode =
+    'for-you';
+
+  feed =
+    buildWeightedFeed(
+      'for-you'
+    );
+
+  const index =
+    feed.findIndex(
+      item =>
+        item.id === id
+    );
+
+  if(
+    index < 0
+  ){
+
+    feed.unshift(
+      clip
+    );
+
+  }
+
+  feedIndex =
+    index >= 0
+      ? index
+      : 0;
+
+  closeScreen(
+    libraryScreen
+  );
+
+  currentSeenMarked =
+    false;
+
+  renderedSentenceId =
+    null;
+
+  updateFeedTabs();
+
+  syncPlayers(
+    true
+  );
+
 }
 
-/* ---------- gestures ---------- */
-function gestureStart(x,y){touchStart={x,y,t:performance.now()}}
-function gestureEnd(x,y){
-  if(!touchStart)return;
-  const dx=x-touchStart.x,dy=y-touchStart.y,dt=performance.now()-touchStart.t;touchStart=null;
-  if(Math.abs(dy)>58&&Math.abs(dy)>Math.abs(dx)*1.2){dy<0?goNext():goPrev();return}
-  if(Math.abs(dx)<12&&Math.abs(dy)<12&&dt<360){
-    const p=players[role.current];if(!p)return;
-    if(!audioOn){toggleSound();return}
-    try{p.getPlayerState()===YT.PlayerState.PLAYING?p.pauseVideo():(stopBackgroundPlayers(),p.playVideo())}catch{}
-  }
+/* =========================================================
+   GESTURES
+   ========================================================= */
+
+function gestureStart(
+  x,
+  y
+){
+
+  touchStart = {
+    x,
+    y,
+    time:
+      performance.now()
+  };
+
 }
-gesture.addEventListener('pointerdown',e=>gestureStart(e.clientX,e.clientY));
-gesture.addEventListener('pointerup',e=>gestureEnd(e.clientX,e.clientY));
-gesture.addEventListener('pointercancel',()=>touchStart=null);
-phone.addEventListener('wheel',e=>{
-  if(wheelLocked||Math.abs(e.deltaY)<24)return;wheelLocked=true;e.deltaY>0?goNext():goPrev();setTimeout(()=>wheelLocked=false,420);
-},{passive:true});
 
-document.addEventListener('keydown',e=>{
-  if(document.activeElement===urlInput)return;
-  if(e.key==='ArrowDown'){e.preventDefault();goNext()}
-  else if(e.key==='ArrowUp'){e.preventDefault();goPrev()}
-  else if(e.key.toLowerCase()==='f')fullscreen();
-  else if(e.code==='Space'){
-    e.preventDefault();const p=players[role.current];if(!p)return;
-    try{p.getPlayerState()===YT.PlayerState.PLAYING?p.pauseVideo():(stopBackgroundPlayers(),p.playVideo())}catch{}
+function gestureEnd(
+  x,
+  y
+){
+
+  if(
+    !touchStart
+  ){
+
+    return;
+
   }
-});
 
-/* ---------- UI ---------- */
-$('#emptyAdd').onclick=()=>openScreen(addScreen);
-addNav.onclick=()=>openScreen(addScreen);
-$('#channelsAdd').onclick=()=>openScreen(addScreen);
-channelsNav.onclick=()=>{renderFollowingList();openScreen(channelsScreen)};
-libraryNav.onclick=()=>{renderLibrary();openScreen(libraryScreen)};
-homeNav.onclick=()=>{
-  [addScreen,channelsScreen,channelScreen,libraryScreen,wordScreen].forEach(closeScreen);
-  if(feedMode==='channel')rebuildFeed({mode:'for-you'});
-};
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{
-  const target=$('#'+b.dataset.close);
-  closeScreen(target);
-  if(target===wordScreen&&resumeAfterWord){
-    resumeAfterWord=false;
-    const p=players[role.current];
-    try{stopBackgroundPlayers();p?.playVideo()}catch{}
+  const dx =
+    x - touchStart.x;
+
+  const dy =
+    y - touchStart.y;
+
+  const duration =
+    performance.now()
+    - touchStart.time;
+
+  touchStart =
+    null;
+
+  if(
+    Math.abs(dy) > 58
+    &&
+    Math.abs(dy)
+    > Math.abs(dx) * 1.2
+  ){
+
+    if(
+      dy < 0
+    ){
+
+      goNext();
+
+    }else{
+
+      goPrev();
+
+    }
+
+    return;
+
   }
-});
 
-importBtn.onclick=importVideo;
-urlInput.addEventListener('keydown',e=>{if(e.key==='Enter')importVideo()});
-forYouTab.onclick=()=>rebuildFeed({mode:'for-you',keepClipId:currentClip()?.id||null});
-followingTab.onclick=()=>{
-  if(!channels.some(ch=>isFollowed(ch.id)))toastMsg('Chưa follow channel nào.');
-  rebuildFeed({mode:'following'});
-};
-shuffleBtn.onclick=()=>{rebuildFeed({mode:feedMode==='following'?'following':'for-you'});toastMsg('Feed shuffled.')};
-channelButton.onclick=()=>{const c=currentClip();if(c)showChannel(c.channelId)};
-followQuick.onclick=e=>{e.stopPropagation();const c=currentClip();if(c)toggleFollow(c.channelId)};
-followChannel.onclick=()=>{if(selectedChannelId)toggleFollow(selectedChannelId)};
-playChannel.onclick=()=>{if(selectedChannelId)playOnlyChannel(selectedChannelId)};
-deleteChannel.onclick=removeSelectedChannel;
-likeBtn.onclick=toggleLike;saveBtn.onclick=toggleSave;soundBtn.onclick=toggleSound;fullBtn.onclick=fullscreen;
-ytBtn.onclick=()=>{const c=currentClip();if(c)window.open(`https://www.youtube.com/watch?v=${c.videoId}&t=${Math.floor(c.start)}s`,'_blank','noopener')};
-savedTab.onclick=()=>{libraryMode='saved';renderLibrary()};
-historyTab.onclick=()=>{libraryMode='history';renderLibrary()};
-jishoBtn.onclick=()=>{if(selectedWord)window.open(`https://jisho.org/search/${encodeURIComponent(selectedWord)}`,'_blank','noopener')};
-copyWordBtn.onclick=async()=>{
-  if(!selectedWord)return;
-  try{await navigator.clipboard.writeText(selectedWord);toastMsg('Copied.')}catch{toastMsg(selectedWord)}
-};
+  if(
+    Math.abs(dx) < 12
+    &&
+    Math.abs(dy) < 12
+    &&
+    duration < 360
+  ){
 
-/* ---------- boot ---------- */
+    const player =
+      players[
+        role.current
+      ];
+
+    if(
+      !player
+    ){
+
+      return;
+
+    }
+
+    if(
+      !audioOn
+    ){
+
+      toggleSound();
+
+      return;
+
+    }
+
+    try{
+
+      if(
+        player.getPlayerState()
+        === YT.PlayerState.PLAYING
+      ){
+
+        player.pauseVideo();
+
+      }else{
+
+        stopBackgroundPlayers();
+
+        player.playVideo();
+
+      }
+
+    }catch{}
+
+  }
+
+}
+
+gesture.addEventListener(
+  'pointerdown',
+  event=>{
+
+    gestureStart(
+      event.clientX,
+      event.clientY
+    );
+
+  }
+);
+
+gesture.addEventListener(
+  'pointerup',
+  event=>{
+
+    gestureEnd(
+      event.clientX,
+      event.clientY
+    );
+
+  }
+);
+
+gesture.addEventListener(
+  'pointercancel',
+  ()=>{
+
+    touchStart =
+      null;
+
+  }
+);
+
+phone.addEventListener(
+  'wheel',
+  event=>{
+
+    if(
+      wheelLocked
+      ||
+      Math.abs(
+        event.deltaY
+      ) < 24
+    ){
+
+      return;
+
+    }
+
+    wheelLocked =
+      true;
+
+    if(
+      event.deltaY > 0
+    ){
+
+      goNext();
+
+    }else{
+
+      goPrev();
+
+    }
+
+    setTimeout(
+      ()=>{
+
+        wheelLocked =
+          false;
+
+      },
+      420
+    );
+
+  },
+  {
+    passive:true
+  }
+);
+
+/* =========================================================
+   KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  event=>{
+
+    if(
+      document.activeElement
+      === urlInput
+    ){
+
+      return;
+
+    }
+
+    if(
+      event.key === 'ArrowDown'
+    ){
+
+      event.preventDefault();
+
+      goNext();
+
+    }
+
+    else if(
+      event.key === 'ArrowUp'
+    ){
+
+      event.preventDefault();
+
+      goPrev();
+
+    }
+
+    else if(
+      event.key
+        .toLowerCase()
+        === 'f'
+    ){
+
+      fullscreen();
+
+    }
+
+    else if(
+      event.code === 'Space'
+    ){
+
+      event.preventDefault();
+
+      const player =
+        players[
+          role.current
+        ];
+
+      if(
+        !player
+      ){
+
+        return;
+
+      }
+
+      try{
+
+        if(
+          player.getPlayerState()
+          === YT.PlayerState.PLAYING
+        ){
+
+          player.pauseVideo();
+
+        }else{
+
+          stopBackgroundPlayers();
+
+          player.playVideo();
+
+        }
+
+      }catch{}
+
+    }
+
+  }
+);
+
+/* =========================================================
+   UI
+   ========================================================= */
+
+$('#emptyAdd').onclick =
+  ()=>{
+
+    openScreen(
+      addScreen
+    );
+
+  };
+
+addNav.onclick =
+  ()=>{
+
+    openScreen(
+      addScreen
+    );
+
+  };
+
+$('#channelsAdd').onclick =
+  ()=>{
+
+    openScreen(
+      addScreen
+    );
+
+  };
+
+channelsNav.onclick =
+  ()=>{
+
+    renderFollowingList();
+
+    openScreen(
+      channelsScreen
+    );
+
+  };
+
+libraryNav.onclick =
+  ()=>{
+
+    renderLibrary();
+
+    openScreen(
+      libraryScreen
+    );
+
+  };
+
+homeNav.onclick =
+  ()=>{
+
+    [
+      addScreen,
+      channelsScreen,
+      channelScreen,
+      libraryScreen,
+      wordScreen
+    ].forEach(
+      closeScreen
+    );
+
+    if(
+      feedMode === 'channel'
+    ){
+
+      rebuildFeed({
+        mode:'for-you'
+      });
+
+    }
+
+  };
+
+/* =========================================================
+   SCREEN CLOSE
+   ========================================================= */
+
+document
+  .querySelectorAll(
+    '[data-close]'
+  )
+  .forEach(
+    button=>{
+
+      button.onclick =
+        ()=>{
+
+          const target =
+            $(
+              '#'
+              + button.dataset.close
+            );
+
+          closeScreen(
+            target
+          );
+
+          /*
+            Khi tap từ:
+            video pause để học.
+            Back ra -> resume nếu trước đó đang chạy.
+          */
+
+          if(
+            target === wordScreen
+            &&
+            resumeAfterWord
+          ){
+
+            resumeAfterWord =
+              false;
+
+            const player =
+              players[
+                role.current
+              ];
+
+            try{
+
+              stopBackgroundPlayers();
+
+              player?.playVideo();
+
+            }catch{}
+
+          }
+
+        };
+
+    }
+  );
+
+/* =========================================================
+   IMPORT EVENTS
+   ========================================================= */
+
+importBtn.onclick =
+  importVideo;
+
+urlInput.addEventListener(
+  'keydown',
+  event=>{
+
+    if(
+      event.key === 'Enter'
+    ){
+
+      importVideo();
+
+    }
+
+  }
+);
+
+/* =========================================================
+   FEED TABS
+   ========================================================= */
+
+forYouTab.onclick =
+  ()=>{
+
+    rebuildFeed({
+
+      mode:
+        'for-you',
+
+      keepClipId:
+        currentClip()?.id
+        || null
+
+    });
+
+  };
+
+followingTab.onclick =
+  ()=>{
+
+    if(
+      !channels.some(
+        channel =>
+          isFollowed(
+            channel.id
+          )
+      )
+    ){
+
+      toastMsg(
+        'Chưa follow channel nào.'
+      );
+
+    }
+
+    rebuildFeed({
+      mode:'following'
+    });
+
+  };
+
+/* =========================================================
+   SHUFFLE
+   ========================================================= */
+
+shuffleBtn.onclick =
+  ()=>{
+
+    rebuildFeed({
+
+      mode:
+        feedMode === 'following'
+          ? 'following'
+          : 'for-you'
+
+    });
+
+    toastMsg(
+      'Feed shuffled.'
+    );
+
+  };
+
+/* =========================================================
+   CHANNEL EVENTS
+   ========================================================= */
+
+channelButton.onclick =
+  ()=>{
+
+    const clip =
+      currentClip();
+
+    if(
+      clip
+    ){
+
+      showChannel(
+        clip.channelId
+      );
+
+    }
+
+  };
+
+followQuick.onclick =
+  event=>{
+
+    event.stopPropagation();
+
+    const clip =
+      currentClip();
+
+    if(
+      clip
+    ){
+
+      toggleFollow(
+        clip.channelId
+      );
+
+    }
+
+  };
+
+followChannel.onclick =
+  ()=>{
+
+    if(
+      selectedChannelId
+    ){
+
+      toggleFollow(
+        selectedChannelId
+      );
+
+    }
+
+  };
+
+playChannel.onclick =
+  ()=>{
+
+    if(
+      selectedChannelId
+    ){
+
+      playOnlyChannel(
+        selectedChannelId
+      );
+
+    }
+
+  };
+
+deleteChannel.onclick =
+  removeSelectedChannel;
+
+/* =========================================================
+   REEL ACTIONS
+   ========================================================= */
+
+likeBtn.onclick =
+  toggleLike;
+
+saveBtn.onclick =
+  toggleSave;
+
+soundBtn.onclick =
+  toggleSound;
+
+fullBtn.onclick =
+  fullscreen;
+
+ytBtn.onclick =
+  ()=>{
+
+    const clip =
+      currentClip();
+
+    if(
+      !clip
+    ){
+
+      return;
+
+    }
+
+    window.open(
+
+      `https://www.youtube.com/watch?v=${
+        clip.videoId
+      }&t=${
+        Math.floor(
+          clip.start
+        )
+      }s`,
+
+      '_blank',
+
+      'noopener'
+
+    );
+
+  };
+
+/* =========================================================
+   LIBRARY EVENTS
+   ========================================================= */
+
+savedTab.onclick =
+  ()=>{
+
+    libraryMode =
+      'saved';
+
+    renderLibrary();
+
+  };
+
+historyTab.onclick =
+  ()=>{
+
+    libraryMode =
+      'history';
+
+    renderLibrary();
+
+  };
+
+/* =========================================================
+   WORD EVENTS
+   ========================================================= */
+
+jishoBtn.onclick =
+  ()=>{
+
+    if(
+      selectedWord
+    ){
+
+      window.open(
+
+        `https://jisho.org/search/${
+          encodeURIComponent(
+            selectedWord
+          )
+        }`,
+
+        '_blank',
+
+        'noopener'
+
+      );
+
+    }
+
+  };
+
+copyWordBtn.onclick =
+  async ()=>{
+
+    if(
+      !selectedWord
+    ){
+
+      return;
+
+    }
+
+    try{
+
+      await navigator.clipboard.writeText(
+        selectedWord
+      );
+
+      toastMsg(
+        'Copied.'
+      );
+
+    }catch{
+
+      toastMsg(
+        selectedWord
+      );
+
+    }
+
+  };
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+
 async function boot(){
-  try{db=await openDB();channels=await dbAll();channels.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))}
-  catch(err){console.error(err);channels=[];toastMsg('Không mở được local database.')}
-  renderFollowingList();feed=buildWeightedFeed('for-you');renderCurrent();updateFeedTabs();startMonitor();
-  const api=document.createElement('script');api.src='https://www.youtube.com/iframe_api';document.head.appendChild(api);
+
+  try{
+
+    db =
+      await openDB();
+
+    channels =
+      await dbAll();
+
+    await migrateStoredSentences();
+
+    channels.sort(
+      (
+        a,
+        b
+      )=>
+        (
+          a.createdAt
+          || 0
+        )
+        -
+        (
+          b.createdAt
+          || 0
+        )
+    );
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+    channels =
+      [];
+
+    toastMsg(
+      'Không mở được local database.'
+    );
+
+  }
+
+  renderFollowingList();
+
+  feed =
+    buildWeightedFeed(
+      'for-you'
+    );
+
+  renderCurrent();
+
+  updateFeedTabs();
+
+  startMonitor();
+
+  const api =
+    document.createElement(
+      'script'
+    );
+
+  api.src =
+    'https://www.youtube.com/iframe_api';
+
+  document.head.appendChild(
+    api
+  );
+
 }
+
 boot();
+
 })();
 </script>
+
 </body>
 </html>
-
