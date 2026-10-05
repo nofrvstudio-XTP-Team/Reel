@@ -734,23 +734,24 @@ button{cursor:pointer}
 
 
 /* =========================================================
-   XTP JP — FEED + INLINE LEARNING LAYOUT
-   Video stays the feed item. Reading/meaning live directly
-   below it; tapping a word never opens another screen.
+   XTP JP — PRE-LISTEN FEED
+   One sentence is shown BEFORE it is spoken. Hiragana is the
+   primary reading line; kanji is secondary above it. The app
+   automatically chooses one target word per sentence and
+   guides attention without requiring taps or opening panels.
    ========================================================= */
 :root{
   --xtp-video-h:48.5%;
   --xtp-nav-h:calc(62px + var(--safe-b));
   --xtp-bg:#070708;
   --xtp-line:#27272b;
-  --xtp-muted:#919197;
-  --xtp-faint:#606068;
+  --xtp-muted:#94949a;
+  --xtp-faint:#66666e;
   --xtp-accent:#ffdc3c;
 }
 
 #phone{background:var(--xtp-bg)}
 
-/* video occupies the upper feed region */
 .playerSlot{
   inset:0 0 auto 0;
   height:var(--xtp-video-h);
@@ -766,7 +767,6 @@ button{cursor:pointer}
   height:var(--xtp-video-h);
 }
 
-/* feed tabs only; no wasted brand/header chrome */
 #top{
   top:0;
   left:0;
@@ -791,7 +791,6 @@ button{cursor:pointer}
 .feedTab.active{opacity:1}
 .feedTab.active:after{width:42px;height:2px;bottom:2px}
 
-/* one continuous reel item: source line sits on the video edge */
 #reelInfo{
   position:absolute;
   z-index:12;
@@ -802,7 +801,7 @@ button{cursor:pointer}
   padding:0;
   background:var(--xtp-bg);
   text-shadow:none;
-  overflow:visible;
+  overflow:hidden;
 }
 #channelRow{
   position:absolute;
@@ -840,9 +839,10 @@ button{cursor:pointer}
 .followPill.following{background:#f4f4f4;color:#050505;border-color:#f4f4f4}
 
 #sentenceWrap{
+  position:relative;
   height:100%;
   margin:0;
-  padding:34px 16px 74px;
+  padding:27px 16px 62px;
   overflow:hidden;
 }
 #sentence{
@@ -850,14 +850,14 @@ button{cursor:pointer}
   flex-wrap:wrap;
   align-items:flex-end;
   align-content:flex-start;
-  gap:12px 5px;
+  gap:11px 5px;
   max-width:100%;
   color:#f8f8f8;
   font-size:29px;
   font-weight:900;
-  line-height:1.2;
+  line-height:1.18;
   letter-spacing:0;
-  pointer-events:auto;
+  pointer-events:none;
 }
 .jpWord,
 .jpPunc{
@@ -871,10 +871,9 @@ button{cursor:pointer}
   justify-content:flex-end;
   min-height:52px;
   padding:0;
-  border:0;
-  background:transparent;
+  margin:0;
   color:#f8f8f8;
-  text-align:left;
+  line-height:1;
 }
 .jpWord .jpKanji{
   min-height:15px;
@@ -894,9 +893,19 @@ button{cursor:pointer}
   font-weight:900;
   line-height:1.08;
   white-space:nowrap;
+  transition:color .12s, border-color .12s, text-shadow .12s, transform .12s;
+  transform-origin:left center;
 }
-.jpWord.selected .jpHira{border-bottom-color:var(--xtp-accent)}
-.jpWord:active{opacity:.72;border-bottom:0}
+.jpWord.target .jpKanji{color:#bca943}
+.jpWord.target .jpHira{
+  border-bottom-color:var(--xtp-accent);
+  color:#fff;
+}
+.jpWord.target.speaking .jpHira{
+  color:var(--xtp-accent);
+  text-shadow:0 0 15px rgba(255,220,60,.38);
+  transform:scale(1.035);
+}
 .jpPunc{
   display:inline-block;
   padding:0 0 5px;
@@ -907,27 +916,34 @@ button{cursor:pointer}
 }
 #sentenceProgress{display:none!important}
 
-/* the SAME meaning line changes between sentence meaning and word meaning */
+/* Full sentence meaning is always part of the same flow, not a popup. */
+#sentenceTranslation{
+  margin-top:16px;
+  min-height:34px;
+  color:#d8d8dc;
+  font-size:13px;
+  font-weight:680;
+  line-height:1.38;
+}
+
+/* Automatic target-word guidance: one inline row, no tab/panel. */
 #meaningLine{
-  position:absolute;
-  left:16px;
-  right:16px;
-  top:min(205px,36%);
-  min-height:54px;
-  padding:11px 74px 9px 0;
+  position:relative;
+  min-height:46px;
+  margin-top:9px;
+  padding:10px 74px 8px 0;
   border-top:1px solid var(--xtp-line);
-  border-bottom:1px solid var(--xtp-line);
   display:flex;
   align-items:flex-start;
-  gap:12px;
+  gap:10px;
 }
 #meaningReading{
   flex:0 0 auto;
-  max-width:112px;
-  padding-top:2px;
-  color:var(--xtp-muted);
-  font-size:10px;
-  font-weight:800;
+  max-width:132px;
+  padding-top:1px;
+  color:var(--xtp-accent);
+  font-size:12px;
+  font-weight:900;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -936,16 +952,16 @@ button{cursor:pointer}
   min-width:0;
   color:#f4f4f4;
   font-size:13px;
-  font-weight:760;
-  line-height:1.35;
+  font-weight:780;
+  line-height:1.32;
 }
 #meaningSave{
   position:absolute;
-  top:8px;
+  top:7px;
   right:0;
-  height:36px;
+  height:34px;
   min-width:64px;
-  padding:0 11px;
+  padding:0 10px;
   border:0;
   border-radius:7px;
   background:#f4f4f4;
@@ -959,16 +975,16 @@ button{cursor:pointer}
   position:absolute;
   left:16px;
   right:16px;
-  bottom:17px;
-  height:32px;
+  bottom:14px;
+  height:31px;
   display:grid;
   grid-template-columns:repeat(4,1fr);
   align-items:center;
   border-top:1px solid var(--xtp-line);
-  padding-top:10px;
+  padding-top:9px;
 }
 .inlineAction{
-  height:30px;
+  height:29px;
   padding:0 4px;
   border:0;
   background:transparent;
@@ -980,7 +996,6 @@ button{cursor:pointer}
 .inlineAction:last-child{text-align:right}
 .inlineAction.saved{color:var(--xtp-accent)}
 
-/* remove social rail; keep only sound/full as tiny video utilities */
 #rail{
   z-index:18;
   top:56px;
@@ -1000,7 +1015,6 @@ button{cursor:pointer}
   backdrop-filter:none;
 }
 
-/* nav stays functional; only visual cleanup */
 #nav{
   height:var(--xtp-nav-h);
   padding:0 4px var(--safe-b);
@@ -1013,14 +1027,14 @@ button{cursor:pointer}
 .navText{font-size:8px}
 #addNav .navIcon{background:transparent;color:inherit;width:auto;height:auto}
 
-/* the old Word screen remains in the file for compatibility, but inline taps never open it */
 #wordScreen{display:none!important}
 
 @media(max-height:680px){
-  #sentenceWrap{padding-top:24px}
-  #sentence{font-size:25px;gap:9px 4px}
+  #sentenceWrap{padding-top:20px}
+  #sentence{font-size:25px;gap:8px 4px}
   .jpWord .jpHira,.jpPunc{font-size:25px}
-  #meaningLine{top:min(175px,34%)}
+  #sentenceTranslation{margin-top:11px;font-size:12px}
+  #meaningLine{margin-top:6px}
 }
 
 </style>
@@ -1121,10 +1135,14 @@ button{cursor:pointer}
         —
       </div>
 
+      <div id="sentenceTranslation" aria-live="polite">
+        —
+      </div>
+
       <div id="meaningLine" aria-live="polite">
-        <span id="meaningReading">cả câu</span>
+        <span id="meaningReading">—</span>
         <strong id="meaningText">—</strong>
-        <button id="meaningSave" class="hidden" type="button">＋ Lưu</button>
+        <button id="meaningSave" class="hidden" type="button">＋ Lưu từ</button>
       </div>
 
       <div id="inlineActions">
@@ -1654,6 +1672,9 @@ const sentenceWrap =
 
 const sentenceProgress =
   $('#sentenceProgress');
+
+const sentenceTranslation =
+  $('#sentenceTranslation');
 
 const meaningReading =
   $('#meaningReading');
@@ -4221,6 +4242,17 @@ function stopBackgroundPlayers(){
 }
 
 /* =========================================================
+   PRE-LISTEN TIMING
+   ========================================================= */
+
+const PREVIEW_LEAD_SECONDS = 1.0;
+const TARGET_PULSE_PAD = .10;
+
+function clipPreviewStart(clip){
+  return Math.max(0, (clip?.start || 0) - PREVIEW_LEAD_SECONDS);
+}
+
+/* =========================================================
    PRELOAD
    ========================================================= */
 
@@ -4268,7 +4300,7 @@ function cuePrev(
         clip.videoId,
 
       startSeconds:
-        clip.start
+        clipPreviewStart(clip)
 
     });
 
@@ -4320,7 +4352,7 @@ function prewarmNext(
         clip.videoId,
 
       startSeconds:
-        clip.start
+        clipPreviewStart(clip)
 
     });
 
@@ -4404,7 +4436,7 @@ function playCurrent(){
     ){
 
       player.seekTo(
-        clip.start,
+        clipPreviewStart(clip),
         true
       );
 
@@ -4420,7 +4452,7 @@ function playCurrent(){
           clip.videoId,
 
         startSeconds:
-          clip.start
+          clipPreviewStart(clip)
 
       });
 
@@ -4760,7 +4792,6 @@ const wordSegmenter =
 let readingEnginePromise = null;
 let sentenceRenderSeq = 0;
 let activeInlineSentence = null;
-let selectedInlineWord = null;
 let meaningVisible = true;
 let playbackRate = 1;
 
@@ -4857,72 +4888,189 @@ function inlineWordKey(token){
   return String(token || '').trim().toLowerCase();
 }
 
-function refreshMeaningSave(){
-  const key = inlineWordKey(selectedInlineWord?.token);
-  const saved = !!(key && state.words?.[key]);
-  meaningSave.classList.toggle('saved', saved);
-  meaningSave.textContent = saved ? '✓ Đã lưu' : '＋ Lưu';
+let activeTarget = null;
+const sentencePrepCache = new Map();
+
+const targetStopWords = new Set([
+  'は','が','を','に','へ','で','と','も','の','や','か','ね','よ','な','ぞ','さ',
+  'ん','です','ます','でした','でしたら','する','した','して','いる','ある','なる',
+  'これ','それ','あれ','ここ','そこ','あそこ','この','その','あの','こと','もの',
+  'ため','よう','そう','ない','たい','た','だ','て','って','から','まで','より'
+]);
+
+function sentenceParts(text){
+  const source = String(text || '');
+  const raw = wordSegmenter
+    ? Array.from(wordSegmenter.segment(source))
+    : [{segment:source,isWordLike:true}];
+
+  let charCursor = 0;
+  return raw.map(part=>{
+    const token = part.segment || '';
+    const len = Math.max(1, Array.from(token).length);
+    const item = {
+      text:token,
+      isWordLike:!!part.isWordLike,
+      charStart:charCursor,
+      charEnd:charCursor + len
+    };
+    charCursor += len;
+    return item;
+  });
 }
 
-function clearInlineWord(){
-  selectedInlineWord = null;
-  sentenceEl.querySelectorAll('.jpWord.selected').forEach(el =>
-    el.classList.remove('selected')
-  );
-  meaningSave.classList.add('hidden');
-  meaningReading.textContent = 'cả câu';
-  if(activeInlineSentence){
-    showSentenceMeaning(activeInlineSentence);
+function targetScore(part){
+  const token = String(part?.text || '').trim();
+  if(!part?.isWordLike || !token){ return -9999; }
+  if(targetStopWords.has(token)){ return -9999; }
+  if(/^[\d０-９]+$/.test(token)){ return -9999; }
+
+  const len = Array.from(token).length;
+  let score = 0;
+
+  if(state.words?.[inlineWordKey(token)]){ score += 8; }
+  if(hasKanji(token)){ score += 6; }
+  if(len >= 2 && len <= 6){ score += 3; }
+  if(len === 1){ score -= 1; }
+  if(/^[ぁ-ゖァ-ヺー]+$/.test(token) && len >= 3){ score += 1; }
+
+  return score;
+}
+
+function chooseTarget(parts){
+  let best = null;
+  let bestScore = -9999;
+
+  for(const part of parts){
+    const score = targetScore(part);
+    if(score > bestScore){
+      best = part;
+      bestScore = score;
+    }
   }
+
+  return bestScore > -9999 ? best : null;
+}
+
+async function prepareSentenceData(sentence, clip){
+  if(!sentence || !clip){ return null; }
+  const key = `${clip.id}:${sentence.id}:${sentence.text}`;
+  if(sentencePrepCache.has(key)){ return sentencePrepCache.get(key); }
+
+  const promise = (async()=>{
+    const parts = sentenceParts(sentence.text);
+    const words = parts.filter(part=>part.isWordLike && part.text);
+    const readings = await Promise.all(words.map(part=>readingFor(part.text)));
+
+    let r = 0;
+    for(const part of parts){
+      if(part.isWordLike && part.text){
+        part.reading = readings[r++] || part.text;
+      }else{
+        part.reading = kataToHira(part.text);
+      }
+    }
+
+    const targetPart = chooseTarget(parts);
+    let target = null;
+
+    if(targetPart){
+      const spokenUnits = part=>Math.max(
+        1,
+        Array.from(String(part?.reading || part?.text || '').replace(/[\s、。！？!?]/g, '')).length
+      );
+      const totalUnits = Math.max(1, parts.reduce((sum, part)=>sum + spokenUnits(part), 0));
+      let beforeUnits = 0;
+      for(const part of parts){
+        if(part === targetPart){ break; }
+        beforeUnits += spokenUnits(part);
+      }
+      const targetUnits = spokenUnits(targetPart);
+      const duration = Math.max(.35, sentence.end - sentence.start);
+      const startRatio = Math.max(0, Math.min(1, beforeUnits / totalUnits));
+      const endRatio = Math.max(startRatio, Math.min(1, (beforeUnits + targetUnits) / totalUnits));
+
+      target = {
+        token:targetPart.text,
+        reading:targetPart.reading || targetPart.text,
+        kanji:hasKanji(targetPart.text) ? targetPart.text : '',
+        context:sentence.text,
+        estimatedStart:sentence.start + duration * startRatio,
+        estimatedEnd:Math.max(
+          sentence.start + duration * endRatio,
+          sentence.start + duration * startRatio + .22
+        )
+      };
+    }
+
+    return {parts,target};
+  })();
+
+  sentencePrepCache.set(key, promise);
+  return promise;
+}
+
+function refreshMeaningSave(){
+  const key = inlineWordKey(activeTarget?.token);
+  const saved = !!(key && state.words?.[key]);
+  meaningSave.classList.toggle('saved', saved);
+  meaningSave.textContent = saved ? '✓ Đã lưu' : '＋ Lưu từ';
 }
 
 async function showSentenceMeaning(sentence){
   const id = sentence ? `${sentence.id}:${sentence.text}` : '';
-  meaningReading.textContent = 'cả câu';
-  meaningText.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
-  meaningSave.classList.add('hidden');
-
+  sentenceTranslation.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
   if(!sentence || !meaningVisible){ return; }
+
   const translated = await translateJaVi(sentence.text);
   if(!activeInlineSentence || `${activeInlineSentence.id}:${activeInlineSentence.text}` !== id){ return; }
-  if(selectedInlineWord){ return; }
-  meaningText.textContent = translated;
+  sentenceTranslation.textContent = translated;
 }
 
-async function openWord(token, context, button, reading){
-  selectedInlineWord = {token, context, reading};
+async function showTargetMeaning(target){
+  if(!target){
+    meaningReading.textContent = '—';
+    meaningText.textContent = '—';
+    meaningSave.classList.add('hidden');
+    return;
+  }
 
-  sentenceEl.querySelectorAll('.jpWord.selected').forEach(el =>
-    el.classList.remove('selected')
-  );
-  button?.classList.add('selected');
-
-  meaningReading.textContent = reading || kataToHira(token);
+  const token = target.token;
+  meaningReading.textContent = target.reading || kataToHira(token);
   meaningText.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
   meaningSave.classList.remove('hidden');
   refreshMeaningSave();
 
   if(!meaningVisible){ return; }
-  const lookupToken = token;
   const translated = await translateJaVi(token);
-  if(selectedInlineWord?.token !== lookupToken){ return; }
+  if(activeTarget?.token !== token){ return; }
   meaningText.textContent = translated;
 }
 
-async function renderSentence(
-  sentence,
-  clip
-){
+async function prewarmLearning(clip){
+  if(!clip?.sentences?.length){ return; }
 
+  for(const sentence of clip.sentences.slice(0, 8)){
+    void translateJaVi(sentence.text);
+    void prepareSentenceData(sentence, clip).then(data=>{
+      if(data?.target?.token){
+        void translateJaVi(data.target.token);
+      }
+    });
+  }
+}
+
+async function renderSentence(sentence, clip){
   activeInlineSentence = sentence || null;
-  selectedInlineWord = null;
-  meaningSave.classList.add('hidden');
+  activeTarget = null;
 
   if(!sentence){
     sentenceEl.textContent = '—';
     sentenceProgress.textContent = '—';
-    meaningReading.textContent = 'cả câu';
+    sentenceTranslation.textContent = '—';
+    meaningReading.textContent = '—';
     meaningText.textContent = '—';
+    meaningSave.classList.add('hidden');
     renderedSentenceId = null;
     return;
   }
@@ -4933,39 +5081,39 @@ async function renderSentence(
 
   const seq = ++sentenceRenderSeq;
   sentenceEl.innerHTML = '';
-  meaningReading.textContent = 'cả câu';
+  sentenceTranslation.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
+  meaningReading.textContent = '—';
   meaningText.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
+  meaningSave.classList.add('hidden');
 
-  const parts = wordSegmenter
-    ? Array.from(wordSegmenter.segment(sentence.text))
-    : [{segment:sentence.text,isWordLike:true}];
+  const data = await prepareSentenceData(sentence, clip);
+  if(seq !== sentenceRenderSeq || renderedSentenceId !== id || !data){ return; }
 
-  for(const part of parts){
-    const text = part.segment;
+  for(const part of data.parts){
+    const text = part.text;
     if(!text){ continue; }
 
     if(part.isWordLike){
-      const button = document.createElement('button');
-      button.className = 'jpWord';
-      button.type = 'button';
+      const span = document.createElement('span');
+      span.className = 'jpWord';
 
-      const reading = await readingFor(text);
-      if(seq !== sentenceRenderSeq || renderedSentenceId !== id){ return; }
+      const isTarget = !!(data.target && data.target.token === text && !activeTarget);
+      if(isTarget){ span.classList.add('target'); }
 
       const kanji = document.createElement('span');
       kanji.className = 'jpKanji';
-      kanji.textContent = hasKanji(text) && reading !== text ? text : '';
+      kanji.textContent = hasKanji(text) && part.reading !== text ? text : '';
 
       const hira = document.createElement('span');
       hira.className = 'jpHira';
-      hira.textContent = reading || text;
+      hira.textContent = part.reading || text;
 
-      button.append(kanji, hira);
-      button.addEventListener('click', event=>{
-        event.stopPropagation();
-        openWord(text, sentence.text, button, reading || text);
-      });
-      sentenceEl.appendChild(button);
+      span.append(kanji, hira);
+      sentenceEl.appendChild(span);
+
+      if(isTarget){
+        activeTarget = {...data.target, element:span};
+      }
     }else{
       const span = document.createElement('span');
       span.className = 'jpPunc';
@@ -4974,59 +5122,43 @@ async function renderSentence(
     }
   }
 
-  const index = clip.sentences.findIndex(item => item.id === sentence.id);
+  const index = clip.sentences.findIndex(item=>item.id === sentence.id);
   sentenceProgress.textContent = `${index+1}/${clip.sentences.length} · ${fmt(sentence.start)}–${fmt(sentence.end)}`;
-  showSentenceMeaning(sentence);
+
+  void showSentenceMeaning(sentence);
+  void showTargetMeaning(activeTarget);
+
+  const sentenceKey = `${clip.id}:${sentence.id}`;
+  const sentenceSaved = !!state.sentences?.[sentenceKey];
+  sentenceSaveBtn.classList.toggle('saved', sentenceSaved);
+  sentenceSaveBtn.textContent = sentenceSaved ? '★ Đã lưu' : '☆ Lưu câu';
 }
 
-function activeSentenceAt(
-  clip,
-  time
-){
+function previewSentenceAt(clip, time){
+  if(!clip?.sentences?.length){ return null; }
 
-  if(
-    !clip?.sentences?.length
-  ){
-
-    return null;
-
-  }
-
-  const exact =
-    clip.sentences.find(
-      sentence =>
-        time >= sentence.start
-        &&
-        time < sentence.end
-    );
-
-  if(
-    exact
-  ){
-
-    return exact;
-
-  }
-
-  for(
-    let i=clip.sentences.length-1;
-    i>=0;
-    i--
-  ){
-
-    if(
-      time
-      >= clip.sentences[i].start
-    ){
-
-      return clip.sentences[i];
-
-    }
-
+  /*
+    IMPORTANT: this is intentionally NOT subtitle timing.
+    The next sentence becomes visible BEFORE its audio begins,
+    so the learner can read it first and then wait to catch it.
+  */
+  for(let i=clip.sentences.length-1; i>=0; i--){
+    const sentence = clip.sentences[i];
+    const revealAt = Math.max(clipPreviewStart(clip), sentence.start - PREVIEW_LEAD_SECONDS);
+    if(time >= revealAt){ return sentence; }
   }
 
   return clip.sentences[0];
+}
 
+function updateTargetCue(time){
+  if(!activeInlineSentence || !activeTarget?.element){ return; }
+
+  const speaking =
+    time >= activeTarget.estimatedStart - TARGET_PULSE_PAD
+    && time <= activeTarget.estimatedEnd + TARGET_PULSE_PAD;
+
+  activeTarget.element.classList.toggle('speaking', speaking);
 }
 
 /* =========================================================
@@ -5136,6 +5268,8 @@ function renderCurrent(){
     chỉ hiện câu đầu tiên.
     Monitor sẽ thay bằng câu đúng theo currentTime.
   */
+
+  void prewarmLearning(clip);
 
   renderSentence(
     clip.sentences?.[0]
@@ -5270,17 +5404,20 @@ function startMonitor(){
         }
 
         /*
-          Đây là phần chính:
-          currentTime -> đúng 1 sentence.
+          PRE-LISTEN: show exactly one upcoming/current sentence
+          before its audio, then pulse the auto-selected target
+          around the moment it is likely being spoken.
         */
 
         renderSentence(
-          activeSentenceAt(
+          previewSentenceAt(
             clip,
             time
           ),
           clip
         );
+
+        updateTargetCue(time);
 
         if(
           status
@@ -5309,7 +5446,7 @@ function startMonitor(){
           try{
 
             player.seekTo(
-              clip.start,
+              clipPreviewStart(clip),
               true
             );
 
@@ -6875,7 +7012,7 @@ historyTab.onclick =
 
 meaningSave.onclick = event=>{
   event.stopPropagation();
-  const item = selectedInlineWord;
+  const item = activeTarget;
   const key = inlineWordKey(item?.token);
   if(!item || !key){ return; }
 
@@ -6905,7 +7042,7 @@ sentenceReplayBtn.onclick = event=>{
   const player = players[role.current];
   if(!clip || !sentence || !player){ return; }
   try{
-    player.seekTo(Math.max(clip.start, sentence.start), true);
+    player.seekTo(Math.max(clipPreviewStart(clip), sentence.start - PREVIEW_LEAD_SECONDS), true);
     player.playVideo();
     if(audioOn){ player.unMute(); } else { player.mute(); }
   }catch{}
@@ -6924,21 +7061,15 @@ meaningToggleBtn.onclick = event=>{
   event.stopPropagation();
   meaningVisible = !meaningVisible;
   meaningToggleBtn.textContent = meaningVisible ? 'Ẩn nghĩa' : 'Hiện nghĩa';
-  if(selectedInlineWord){
-    if(meaningVisible){
-      const selected = sentenceEl.querySelector('.jpWord.selected');
-      openWord(
-        selectedInlineWord.token,
-        selectedInlineWord.context,
-        selected,
-        selectedInlineWord.reading
-      );
-    }else{
-      meaningText.textContent = 'Nghĩa đang ẩn';
-    }
-  }else if(activeInlineSentence){
-    showSentenceMeaning(activeInlineSentence);
+
+  if(!meaningVisible){
+    sentenceTranslation.textContent = 'Nghĩa đang ẩn';
+    meaningText.textContent = 'Nghĩa đang ẩn';
+    return;
   }
+
+  if(activeInlineSentence){ void showSentenceMeaning(activeInlineSentence); }
+  if(activeTarget){ void showTargetMeaning(activeTarget); }
 };
 
 sentenceSaveBtn.onclick = event=>{
@@ -6971,11 +7102,6 @@ sentenceSaveBtn.onclick = event=>{
   }
   saveState();
 };
-
-sentenceWrap.addEventListener('click', event=>{
-  if(event.target.closest('.jpWord,#meaningSave,.inlineAction')){ return; }
-  clearInlineWord();
-});
 
 jishoBtn.onclick =
   ()=>{
