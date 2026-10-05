@@ -1397,7 +1397,7 @@ html,body{background:var(--xtp-black)!important;color:var(--xtp-text)!important}
   transform:scale(1.015)!important;
 }
 #sentenceWrap:before{
-  content:"Câu được chọn tự động · 1 câu / video";
+  content:"1 câu focus / reel";
   position:absolute;
   left:0;
   top:78px;
@@ -1513,6 +1513,178 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
 }
 
 </style>
+
+<style id="xtp-approved-dark-final">
+/* Final visual lock: match the approved dark preview, without changing app logic. */
+:root{--xtp-video-top:58px;--xtp-video-h:54.2%;}
+#top{padding-left:18px!important;padding-right:18px!important;justify-content:space-between!important;}
+#feedTabs{display:flex!important;gap:34px!important;}
+#followingTab{order:1!important;}
+#forYouTab{order:2!important;}
+#shuffleBtn{
+  display:grid!important;place-items:center!important;position:absolute!important;right:18px!important;top:12px!important;
+  width:43px!important;height:32px!important;border:1px solid var(--xtp-line)!important;border-radius:16px!important;
+  background:var(--xtp-card-2)!important;color:transparent!important;backdrop-filter:none!important;pointer-events:auto!important;
+}
+#shuffleBtn:after{content:"＋";color:var(--xtp-text);font-size:17px;font-weight:850;position:absolute;inset:0;display:grid;place-items:center;}
+.playerSlot,#shade,#gesture,#buffer{left:14px!important;right:14px!important;border-radius:22px!important;}
+#channelRow{top:68px!important;left:28px!important;right:28px!important;}
+#sentenceWrap{top:64.1%!important;left:18px!important;right:18px!important;height:166px!important;}
+#sentenceTranslation,#sentence{height:62px!important;border-radius:16px!important;background:var(--xtp-card)!important;}
+#inlineActions{top:116px!important;grid-template-columns:1.15fr .78fr .9fr 1.3fr!important;}
+#nav{background:#07080a!important;border-top:1px solid var(--xtp-line)!important;}
+</style>
+
+<style id="xtp-image-exact-v3">
+/* Exact implementation of the approved dark preview. */
+:root{
+  --exact-bg:#08090b;
+  --exact-card:#101216;
+  --exact-card2:#171a1f;
+  --exact-text:#f6f7f9;
+  --exact-muted:#91969f;
+  --exact-line:#31353c;
+  --exact-coral:#ff644e;
+  --exact-coral-soft:#361816;
+  --exact-teal:#30a094;
+  --exact-yellow:#ffd048;
+  --exact-nav-y:686px;
+}
+html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-text)!important}
+#phone{container-type:size}
+
+/* exact top bar */
+#top{
+  top:0!important;left:0!important;right:0!important;height:52px!important;
+  padding:8px 18px 0!important;display:flex!important;align-items:flex-start!important;
+  justify-content:flex-start!important;background:var(--exact-bg)!important;z-index:30!important;
+}
+#feedTabs{display:flex!important;gap:34px!important;margin:0!important;align-items:flex-start!important}
+#followingTab{order:1!important}#forYouTab{order:2!important}
+.feedTab{height:36px!important;padding:7px 0 9px!important;font-size:12px!important;font-weight:800!important;color:var(--exact-text)!important;opacity:.56!important}
+.feedTab.active{opacity:1!important}.feedTab.active:after{width:54px!important;height:3px!important;bottom:0!important;background:var(--exact-coral)!important}
+#brand{display:none!important}
+#shuffleBtn{
+  display:grid!important;place-items:center!important;position:absolute!important;right:18px!important;top:12px!important;
+  width:43px!important;height:32px!important;border:1px solid var(--exact-line)!important;border-radius:16px!important;
+  background:var(--exact-card2)!important;color:transparent!important;pointer-events:auto!important;backdrop-filter:none!important;
+}
+#shuffleBtn:after{content:"＋";position:absolute;inset:0;display:grid;place-items:center;color:var(--exact-text);font-size:17px;font-weight:850}
+
+/* exact 402×414 video card on the 430×764 reference phone */
+.playerSlot,#shade,#gesture,#buffer{
+  top:58px!important;left:14px!important;right:14px!important;bottom:auto!important;height:414px!important;
+  border-radius:22px!important;overflow:hidden!important;
+}
+.playerSlot{background:#000!important}
+.playerSlot>div{position:absolute!important;inset:0!important;overflow:hidden!important;border-radius:22px!important}
+/* Crop 16:9 YouTube content to the same cover treatment used in the approved preview. */
+.playerSlot iframe{
+  position:absolute!important;top:50%!important;left:50%!important;width:183.2%!important;height:100%!important;
+  transform:translate(-50%,-50%)!important;border:0!important;max-width:none!important;border-radius:0!important;
+}
+#shade{
+  z-index:8!important;pointer-events:none!important;
+  background:linear-gradient(to bottom,#0d1118 0 44px,rgba(13,17,24,.25) 70px,transparent 120px),
+             linear-gradient(to top,rgba(6,8,12,.92),rgba(6,8,12,.28) 72px,transparent 138px)!important;
+}
+#gesture{z-index:9!important}
+#buffer{z-index:25!important}
+
+/* channel row: y 69–98 in preview */
+#reelInfo{position:absolute!important;z-index:20!important;inset:0 0 78px 0!important;background:transparent!important;pointer-events:none!important;overflow:visible!important}
+#channelRow{
+  position:absolute!important;z-index:27!important;top:69px!important;left:28px!important;right:28px!important;height:30px!important;
+  margin:0!important;padding:0!important;background:transparent!important;display:flex!important;align-items:center!important;pointer-events:auto!important;
+}
+.avatar{display:none!important}
+#channelName{font-size:10px!important;font-weight:850!important;color:#fff!important;max-width:250px!important;text-shadow:0 2px 10px #000!important}
+.followPill{
+  margin-left:auto!important;height:30px!important;padding:0 14px!important;border:0!important;border-radius:15px!important;
+  background:#fff!important;color:#141820!important;font-size:9px!important;font-weight:900!important;box-shadow:none!important;backdrop-filter:none!important;
+}
+.followPill.following{background:var(--exact-card2)!important;color:#fff!important;box-shadow:0 0 0 1px var(--exact-line)!important}
+
+/* focus label + focus timing rail inside video */
+#reelInfo:before{
+  content:"câu focus"!important;position:absolute!important;z-index:28!important;top:402px!important;left:50%!important;
+  transform:translateX(-50%)!important;color:#fff!important;font-size:9px!important;font-weight:850!important;text-shadow:0 1px 7px #000!important;
+}
+#reelInfo:after{
+  content:""!important;position:absolute!important;z-index:27!important;top:426px!important;left:112px!important;right:101px!important;height:18px!important;
+  border-radius:9px!important;background:linear-gradient(90deg,transparent 0 34%,var(--exact-yellow) 34% 66%,transparent 66% 100%),linear-gradient(#485365,#485365) center/94% 4px no-repeat,#121822!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.03)!important;
+}
+#reelInfo:has(#sentenceWrap.focus-live):after{background:linear-gradient(90deg,transparent 0 34%,var(--exact-coral) 34% 66%,transparent 66% 100%),linear-gradient(#657389,#657389) center/94% 4px no-repeat,#121822!important;box-shadow:0 0 18px rgba(255,100,78,.2)!important}
+
+/* top replay + speed pills placed exactly on the video */
+#rail{
+  position:absolute!important;z-index:29!important;top:418px!important;left:28px!important;right:32px!important;bottom:auto!important;
+  display:flex!important;flex-direction:row!important;justify-content:space-between!important;align-items:center!important;gap:0!important;pointer-events:none!important;
+}
+#likeBtn,#saveBtn,#ytBtn,.railLabel{display:none!important}
+#soundBtn,#fullBtn{display:grid!important;place-items:center!important;width:auto!important;height:34px!important;min-width:38px!important;padding:0 12px!important;border:0!important;border-radius:17px!important;background:#f7f7f7!important;color:#12161d!important;font-size:11px!important;font-weight:900!important;pointer-events:auto!important;backdrop-filter:none!important}
+#rail:before{content:"";position:absolute;left:191px;top:6px;width:8px;height:22px;border-radius:4px;background:var(--exact-coral);z-index:2;pointer-events:none}
+
+/* exact subtitle card */
+#sentenceWrap{
+  --focus-spoken:1.6s;position:absolute!important;z-index:31!important;top:490px!important;left:18px!important;right:18px!important;height:166px!important;
+  margin:0!important;padding:0!important;display:block!important;background:transparent!important;overflow:visible!important;pointer-events:auto!important;cursor:pointer!important;
+}
+#sentenceWrap:active{transform:none!important}
+#sentenceTranslation,#sentence{
+  position:absolute!important;top:0!important;left:0!important;right:0!important;width:100%!important;height:62px!important;margin:0!important;
+  border:2px solid var(--exact-coral)!important;border-radius:16px!important;background:var(--exact-card)!important;color:var(--exact-text)!important;
+  box-shadow:none!important;text-shadow:none!important;overflow:hidden!important;
+}
+#sentenceTranslation{display:block!important;padding:11px 14px 19px 70px!important;font-size:13px!important;line-height:1.28!important;font-weight:820!important;text-align:left!important}
+#sentenceTranslation:before{content:"VI";position:absolute;left:11px;top:9px;min-width:47px;height:21px;padding:0 8px;border-radius:11px;display:grid;place-items:center;background:var(--exact-coral-soft);color:var(--exact-coral);font-size:9px;font-weight:900}
+#sentenceTranslation:after{content:"Chạm để đổi sang 日本語";position:absolute;left:11px;bottom:6px;color:var(--exact-muted);font-size:9px;font-weight:550}
+#sentence{display:none!important;padding:9px 14px 15px 64px!important;flex-wrap:wrap!important;justify-content:flex-start!important;align-items:flex-end!important;align-content:center!important;gap:3px 2px!important;font-size:17px!important;line-height:1.04!important}
+#sentenceWrap.jp-mode #sentence{display:flex!important}#sentenceWrap.jp-mode #sentenceTranslation{display:none!important}
+#sentence:before{content:"JP";position:absolute;left:11px;top:9px;min-width:42px;height:21px;padding:0 8px;border-radius:11px;display:grid;place-items:center;background:#182629;color:#55c7bb;font-size:9px;font-weight:900}
+#sentence:after{content:"Chạm để đổi sang VI";position:absolute;left:11px;bottom:5px;color:var(--exact-muted);font-size:8px;font-weight:550}
+.jpWord{min-height:27px!important}.jpWord .jpKanji{min-height:9px!important;margin:0 1px 1px!important;color:#737983!important;font-size:7px!important;font-weight:800!important}.jpWord .jpHira,.jpPunc{color:#f8f8f9!important;font-size:17px!important;font-weight:900!important;line-height:1!important}
+#sentenceWrap.focus-soon #sentenceTranslation,#sentenceWrap.focus-soon #sentence{border-color:#ff806d!important}
+#sentenceWrap.focus-live #sentenceTranslation,#sentenceWrap.focus-live #sentence{border-color:var(--exact-coral)!important;box-shadow:0 0 0 1px rgba(255,100,78,.18),0 0 22px rgba(255,100,78,.18)!important;transform:scale(1.015)!important}
+#sentenceWrap.focus-live .jpHira{color:#fff!important;text-shadow:0 0 12px rgba(255,208,72,.18)!important;transform:scale(1.015)!important}
+/* exact meta row and attention dot */
+#sentenceWrap:before{content:"Câu được chọn tự động · 1 câu / video"!important;position:absolute!important;left:0!important;top:88px!important;color:var(--exact-muted)!important;font-size:10px!important;font-weight:550!important}
+#sentenceWrap:after{content:""!important;position:absolute!important;right:7px!important;top:79px!important;width:30px!important;height:24px!important;border-radius:12px!important;background:var(--exact-coral-soft)!important;box-shadow:none!important;opacity:1!important;transform:none!important}
+#sentenceWrap.focus-live:after{animation:exactDot .72s ease-in-out infinite alternate!important}
+#sentenceWrap.focus-live:before{color:#c2c5ca!important}
+@keyframes exactDot{from{box-shadow:inset 0 0 0 0 rgba(255,100,78,.1)}to{box-shadow:inset 0 0 0 12px rgba(255,100,78,.12)}}
+#meaningLine,#sentenceProgress{display:none!important}
+
+/* exact bottom action row */
+#inlineActions{position:absolute!important;left:0!important;right:0!important;top:118px!important;height:38px!important;display:grid!important;grid-template-columns:98px 85px 50px 124px!important;gap:10px!important;pointer-events:auto!important}
+#inlineActions .inlineAction{height:38px!important;min-width:0!important;padding:0 8px!important;border:1px solid var(--exact-line)!important;border-radius:12px!important;background:var(--exact-card2)!important;color:var(--exact-text)!important;font-size:10px!important;font-weight:800!important;white-space:nowrap!important}
+#sentenceReplayBtn{grid-column:1!important}#sentenceSaveBtn{grid-column:2!important}#speedBtn{grid-column:3!important}#meaningToggleBtn{display:none!important}
+#inlineActions:after{content:"Vuốt lên  ↑"!important;grid-column:4!important;height:38px!important;border-radius:12px!important;display:grid!important;place-items:center!important;background:var(--exact-teal)!important;color:#fff!important;font-size:10px!important;font-weight:900!important;pointer-events:none!important}
+
+/* exact bottom nav */
+#nav{position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:78px!important;padding:0!important;background:#07080a!important;border-top:1px solid var(--exact-line)!important;display:grid!important;grid-template-columns:repeat(4,1fr)!important;z-index:40!important}
+.navBtn{height:78px!important;padding:10px 0 8px!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:center!important;gap:5px!important;color:var(--exact-muted)!important;opacity:.58!important;background:transparent!important;border:0!important}
+.navBtn.active{color:var(--exact-coral)!important;opacity:1!important}.navIcon{font-size:15px!important;line-height:28px!important}.navText{font-size:9px!important;font-weight:800!important}
+#homeNav.active .navIcon{width:34px!important;height:29px!important;border-radius:14px!important;display:grid!important;place-items:center!important;background:var(--exact-coral-soft)!important;color:var(--exact-coral)!important}
+#addNav .navIcon{width:auto!important;height:auto!important;background:transparent!important;color:inherit!important;font-size:15px!important}
+
+/* other screens match this product, without changing the feed composition */
+.screen{background:#0a0b0d!important;color:var(--exact-text)!important}.screenHead{height:58px!important;background:#0d0f12!important;border-bottom:1px solid var(--exact-line)!important}.screenTitle{font-weight:850!important}.backBtn,.secondary{background:var(--exact-card2)!important;color:var(--exact-text)!important;border:1px solid var(--exact-line)!important}.primary{background:var(--exact-teal)!important;color:#fff!important}.addBox,.listItem,.videoItem,.savedItem,.settingRow,.profileCard,.clipCard{background:var(--exact-card)!important;border-color:var(--exact-line)!important}.exactScreenBody{padding:16px}.exactSearchInput{width:100%;height:44px;border:1px solid var(--exact-line);border-radius:12px;background:#0f1115;color:#fff;padding:0 14px;outline:none;margin-bottom:14px}.exactReviewLead{font-size:12px;color:var(--exact-muted);margin-bottom:14px}.exactMiniCard{width:100%;border:1px solid var(--exact-line);border-radius:12px;background:var(--exact-card);color:var(--exact-text);padding:12px;margin-bottom:9px;text-align:left}.exactMiniTitle{font-size:14px;font-weight:850;line-height:1.35}.exactMiniMeta{margin-top:5px;color:var(--exact-muted);font-size:10px;line-height:1.35}.exactEmpty{padding:28px 6px;color:var(--exact-muted);font-size:12px}
+
+/* phone scales as one approved 430×764 composition on desktop */
+@media(min-width:700px){#phone{width:min(430px,calc(100vw - 32px),calc((100vh - 24px)*430/764))!important;aspect-ratio:430/764!important;height:auto!important}}
+@media(max-width:699px){
+  #phone{width:100%!important;height:100%!important}
+  /* preserve exact proportions on a 9:16-ish phone while still filling the viewport */
+  .playerSlot,#shade,#gesture,#buffer{height:54.19%!important}
+  #reelInfo:before{top:52.62%!important}#reelInfo:after{top:55.76%!important}
+  #rail{top:54.71%!important}
+  #sentenceWrap{top:64.14%!important}
+  #nav{height:calc(68px + var(--safe-b))!important}
+}
+</style>
+
 </head>
 
 <body>
@@ -1552,7 +1724,7 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
         class="feedTab active"
         id="forYouTab"
       >
-        For you
+        For You
       </button>
 
       <button
@@ -1705,8 +1877,8 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
 
       <p>
         Paste video YouTube.
-        App tự chọn đúng 1 câu nổi bật trong video,
-        tạo reel quanh câu đó và cho bạn biết trước câu cần nghe.
+        Mỗi video YouTube được chia thành nhiều reel.
+        Mỗi reel chỉ có đúng 1 câu focus để bạn biết trước câu cần nghe.
       </p>
 
       <button
@@ -1740,11 +1912,11 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
       id="channelsNav"
     >
       <span class="navIcon">
-        ▦
+        ⌕
       </span>
 
       <span class="navText">
-        Following
+        Search
       </span>
     </button>
 
@@ -1753,11 +1925,11 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
       id="libraryNav"
     >
       <span class="navIcon">
-        ▱
+        ◇
       </span>
 
       <span class="navText">
-        Saved
+        Review
       </span>
     </button>
 
@@ -1766,11 +1938,11 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
       id="addNav"
     >
       <span class="navIcon">
-        ＋
+        ♡
       </span>
 
       <span class="navText">
-        Add
+        Saved
       </span>
     </button>
 
@@ -1804,9 +1976,8 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
 
       <p>
         Link chỉ là source.
-        App tự nhận channel thật,
-        lấy transcript tiếng Nhật,
-        chọn 1 câu focus rồi cắt reel quanh đúng câu đó.
+        App tự nhận channel thật, lấy transcript tiếng Nhật,
+        chia video nguồn thành nhiều reel và chọn đúng 1 câu focus cho mỗi reel.
       </p>
 
       <div class="urlRow">
@@ -2048,6 +2219,28 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
 
     </div>
 
+  </section>
+
+  <section class="screen exactUtilityScreen" id="searchScreen">
+    <header class="screenHead">
+      <button class="backBtn" data-close="searchScreen">‹</button>
+      <div class="screenTitle">Search</div>
+    </header>
+    <div class="exactScreenBody">
+      <input id="exactSearchInput" class="exactSearchInput" autocomplete="off" spellcheck="false" placeholder="Tìm câu tiếng Nhật…">
+      <div id="exactSearchList" class="list"></div>
+    </div>
+  </section>
+
+  <section class="screen exactUtilityScreen" id="reviewScreen">
+    <header class="screenHead">
+      <button class="backBtn" data-close="reviewScreen">‹</button>
+      <div class="screenTitle">Review</div>
+    </header>
+    <div class="exactScreenBody">
+      <div class="exactReviewLead">Những câu và từ bạn đã lưu để gặp lại sau.</div>
+      <div id="exactReviewList" class="list"></div>
+    </div>
   </section>
 
   <div id="toast"></div>
@@ -3699,30 +3892,94 @@ function buildClips(
   sentences,
   duration
 ){
-  const picked = chooseFocusSentence(sentences);
-  if(!picked){ return []; }
+  if(!sentences?.length){ return []; }
 
-  const focus = picked.sentence;
-  const bounds = focusClipBounds(sentences, picked.index, duration);
-  const focusSentence = {
-    id:`${videoId}:focus`,
-    start:focus.start,
-    end:focus.end,
-    text:focus.text
-  };
+  /*
+    IMPORTANT PRODUCT RULE:
+    - One SOURCE YouTube video can create MANY feed reels.
+    - One FEED REEL has exactly ONE focus sentence.
+    We first split the source into natural ~20s sentence groups, then
+    pick one short/isolated/emphatic sentence inside each group.
+  */
+  const ranges = [];
+  let i = 0;
 
-  return [{
-    id:`${videoId}:focus-reel`,
-    focusVersion:1,
-    focusReason:picked.strong ? 'short-isolated' : 'fallback-random',
-    channelId,
-    videoId,
-    start:bounds.start,
-    end:bounds.end,
-    sentences:[focusSentence],
-    focusSentence,
-    preview:focus.text
-  }];
+  while(i < sentences.length){
+    const first = i;
+    let last = i;
+    const groupStart = sentences[i].start;
+    let groupEnd = Math.min(duration, sentences[i].end);
+
+    while(last + 1 < sentences.length){
+      const candidateEnd = Math.min(duration, sentences[last+1].end);
+      const now = groupEnd - groupStart;
+      const next = candidateEnd - groupStart;
+
+      if(now < MIN_CLIP){
+        last++;
+        groupEnd = candidateEnd;
+        continue;
+      }
+
+      if(now >= TARGET_CLIP || next > MAX_CLIP){
+        break;
+      }
+
+      last++;
+      groupEnd = candidateEnd;
+    }
+
+    ranges.push({first,last,start:groupStart,end:groupEnd});
+    i = last + 1;
+  }
+
+  return ranges.map((range,reelIndex)=>{
+    const local = sentences.slice(range.first, range.last + 1);
+    const pickedLocal = chooseFocusSentence(local) || {
+      sentence:local[0],
+      index:0,
+      strong:false
+    };
+
+    const focusIndex = range.first + pickedLocal.index;
+    const focus = sentences[focusIndex];
+    const bounds = focusClipBounds(sentences, focusIndex, duration);
+
+    /* Keep the reel tight around the chosen sentence. The source video
+       still yields many reels because we choose once per sentence group. */
+    let start = Math.max(range.start, bounds.start);
+    let end = Math.min(range.end, bounds.end);
+
+    if(end - start < 5.6){
+      start = Math.max(range.start, focus.start - 2.8);
+      end = Math.min(range.end, focus.end + 2.3);
+    }
+
+    if(end <= start + .5){
+      start = range.start;
+      end = range.end;
+    }
+
+    const focusSentence = {
+      id:`${videoId}:focus:${focusIndex}`,
+      start:focus.start,
+      end:focus.end,
+      text:focus.text
+    };
+
+    return {
+      id:`${videoId}:focus-reel:${reelIndex}:${focusIndex}`,
+      focusVersion:2,
+      focusReason:pickedLocal.strong ? 'short-isolated' : 'fallback-random',
+      channelId,
+      videoId,
+      start,
+      end,
+      sentences:[focusSentence],
+      focusSentence,
+      preview:focus.text
+    };
+  });
 }
 
 async function upgradeChannelsToFocusReels(){
@@ -3733,14 +3990,14 @@ async function upgradeChannelsToFocusReels(){
     const nextClips = [];
 
     for(const video of (channel.videos || [])){
-      const existing = oldClips.find(clip =>
+      const existing = oldClips.filter(clip =>
         clip.videoId === video.videoId
-        && clip.focusVersion === 1
+        && clip.focusVersion === 2
         && clip.sentences?.length === 1
       );
 
-      const clips = existing
-        ? [existing]
+      const clips = existing.length
+        ? existing
         : buildClips(
             channel.id,
             video.videoId,
@@ -3748,15 +4005,13 @@ async function upgradeChannelsToFocusReels(){
             video.duration || 0
           );
 
-      if(clips.length){
-        video.clipIds = clips.map(clip=>clip.id);
-        nextClips.push(...clips);
-      }
+      video.clipIds = clips.map(clip=>clip.id);
+      nextClips.push(...clips);
     }
 
     const same =
       nextClips.length === oldClips.length
-      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 1);
+      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 2);
 
     if(!same){
       channel.clips = nextClips;
@@ -7264,20 +7519,7 @@ followingTab.onclick =
 
 shuffleBtn.onclick =
   ()=>{
-
-    rebuildFeed({
-
-      mode:
-        feedMode === 'following'
-          ? 'following'
-          : 'for-you'
-
-    });
-
-    toastMsg(
-      'Feed shuffled.'
-    );
-
+    openScreen(addScreen);
   };
 
 /* =========================================================
@@ -7659,6 +7901,128 @@ async function boot(){
   );
 
 }
+
+
+/* =========================================================
+   EXACT APPROVED UI WIRING
+   Keep the existing feed/player/data engine; only remap the
+   controls/navigation to the approved UI and add Search/Review.
+   ========================================================= */
+const exactSearchScreen = $('#searchScreen');
+const exactReviewScreen = $('#reviewScreen');
+const exactSearchInput = $('#exactSearchInput');
+const exactSearchList = $('#exactSearchList');
+const exactReviewList = $('#exactReviewList');
+
+function exactCloseUtilities(){
+  closeScreen(exactSearchScreen);
+  closeScreen(exactReviewScreen);
+}
+function exactCloseAllScreens(){
+  [addScreen,channelsScreen,channelScreen,libraryScreen,wordScreen,exactSearchScreen,exactReviewScreen].forEach(screen=>{ if(screen) closeScreen(screen); });
+}
+
+function exactSetNav(active){
+  [homeNav,channelsNav,libraryNav,addNav].forEach(btn=>btn.classList.remove('active'));
+  active?.classList.add('active');
+}
+
+function exactClipSentence(clip){
+  return (clip?.focusSentence?.text || clip?.sentences?.[0]?.text || clip?.preview || '').trim();
+}
+
+function exactRenderSearch(){
+  const q=(exactSearchInput.value||'').trim().toLowerCase();
+  exactSearchList.innerHTML='';
+  const clips=allClips().filter(clip=>{
+    if(!q) return true;
+    const ch=channelById(clip.channelId);
+    const hay=`${exactClipSentence(clip)} ${ch?.title||''}`.toLowerCase();
+    return hay.includes(q);
+  }).slice(0,80);
+  if(!clips.length){ exactSearchList.innerHTML='<div class="exactEmpty">Không có câu phù hợp.</div>'; return; }
+  for(const clip of clips){
+    const ch=channelById(clip.channelId);
+    const b=document.createElement('button');
+    b.className='exactMiniCard';
+    b.innerHTML=`<div class="exactMiniTitle">${escapeHtml(exactClipSentence(clip)||'—')}</div><div class="exactMiniMeta">${escapeHtml(ch?.title||'Channel')} · ${fmt(clip.start)}–${fmt(clip.end)}</div>`;
+    b.onclick=()=>{ exactCloseUtilities(); playClipFromLibrary(clip.id); exactSetNav(homeNav); };
+    exactSearchList.appendChild(b);
+  }
+}
+
+function exactRenderReview(){
+  exactReviewList.innerHTML='';
+  const words=Object.values(state.words||{}).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+  const sentences=Object.values(state.sentences||{}).sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+  if(!words.length && !sentences.length){ exactReviewList.innerHTML='<div class="exactEmpty">Chưa có gì để review.</div>'; return; }
+  for(const item of words.slice(0,60)){
+    const b=document.createElement('button'); b.className='exactMiniCard';
+    b.innerHTML=`<div class="exactMiniTitle">${escapeHtml(item.reading||item.token||'—')} <span style="color:#91969f;font-size:11px">${escapeHtml(item.token||'')}</span></div><div class="exactMiniMeta">${escapeHtml(item.meaning||item.context||'')}</div>`;
+    if(item.clipId) b.onclick=()=>{ exactCloseUtilities(); playClipFromLibrary(item.clipId); exactSetNav(homeNav); };
+    exactReviewList.appendChild(b);
+  }
+  for(const item of sentences.slice(0,60)){
+    const b=document.createElement('button'); b.className='exactMiniCard';
+    b.innerHTML=`<div class="exactMiniTitle">${escapeHtml(item.text||'—')}</div><div class="exactMiniMeta">Câu đã lưu · ${fmt(item.start||0)}</div>`;
+    if(item.clipId) b.onclick=()=>{ exactCloseUtilities(); playClipFromLibrary(item.clipId); exactSetNav(homeNav); };
+    exactReviewList.appendChild(b);
+  }
+}
+
+// Top + is Add Video, exactly as the approved preview.
+shuffleBtn.onclick=()=>openScreen(addScreen);
+
+// Remap bottom navigation to Feed / Search / Review / Saved.
+homeNav.onclick=()=>{ exactCloseAllScreens(); exactSetNav(homeNav); };
+channelsNav.onclick=()=>{ exactCloseAllScreens(); exactRenderSearch(); openScreen(exactSearchScreen); exactSetNav(channelsNav); };
+libraryNav.onclick=()=>{ exactCloseAllScreens(); exactRenderReview(); openScreen(exactReviewScreen); exactSetNav(libraryNav); };
+addNav.onclick=()=>{ exactCloseAllScreens(); libraryMode='saved'; renderLibrary(); openScreen(libraryScreen); exactSetNav(addNav); };
+exactSearchInput.addEventListener('input',exactRenderSearch);
+
+// Exact labels/actions shown in the approved preview.
+sentenceReplayBtn.textContent='↺ Nghe lại';
+sentenceSaveBtn.textContent=state.sentences ? '♡ Lưu' : '♡ Lưu';
+speedBtn.textContent='⋯';
+
+// Save button stays functional in the second action slot.
+const exactSentenceSaveHandler=sentenceSaveBtn.onclick;
+sentenceSaveBtn.onclick=(event)=>{ exactSentenceSaveHandler?.(event); sentenceSaveBtn.textContent=sentenceSaveBtn.classList.contains('saved')?'♥ Đã lưu':'♡ Lưu'; };
+// Third small button is intentionally a compact more affordance; keep it non-disruptive.
+speedBtn.onclick=(event)=>{ event.stopPropagation(); toastMsg('Thêm tuỳ chọn sau.'); };
+
+// Video-left control replays the focus sentence; video-right cycles speed.
+soundBtn.textContent='↺';
+soundBtn.title='Nghe lại câu';
+soundBtn.onclick=(event)=>{ event.stopPropagation(); sentenceReplayBtn.click(); };
+let exactRate=.8;
+fullBtn.textContent='0.8×';
+fullBtn.title='Tốc độ';
+fullBtn.onclick=(event)=>{
+  event.stopPropagation();
+  const rates=[.8,1,1.25];
+  const idx=rates.indexOf(exactRate);
+  exactRate=rates[(idx+1)%rates.length];
+  try{ players[role.current]?.setPlaybackRate(exactRate); }catch{}
+  fullBtn.textContent=`${exactRate}×`;
+};
+
+// Keep the approved labels after render/update functions mutate button text.
+const exactOldRenderCurrent=renderCurrent;
+renderCurrent=function(){
+  const out=exactOldRenderCurrent.apply(this,arguments);
+  sentenceReplayBtn.textContent='↺ Nghe lại';
+  speedBtn.textContent='⋯';
+  soundBtn.textContent='↺';
+  fullBtn.textContent=`${exactRate}×`;
+  const clip=currentClip();
+  const sentence=clip?.focusSentence||clip?.sentences?.[0];
+  if(clip&&sentence){
+    const key=`${clip.id}:${sentence.id}`;
+    sentenceSaveBtn.textContent=state.sentences?.[key]?'♥ Đã lưu':'♡ Lưu';
+  }
+  return out;
+};
 
 boot();
 
