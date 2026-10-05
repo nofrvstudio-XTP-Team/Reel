@@ -732,597 +732,295 @@ button{cursor:pointer}
   opacity:1
 }
 
-/* =========================================================
-   XTP JP — FIXED REEL LAYOUT
-   One 9:16 reel canvas. YouTube is only the playback engine.
-   All product UI is a fixed overlay above it.
-   ========================================================= */
 
-/*
-  YouTube does not expose an API switch that reliably removes
-  the title/channel chrome. Keep the iframe untouched and cover
-  the top chrome with our own opaque/faded product header layer.
-*/
-#ytChromeMask{
-  position:absolute;
+/* =========================================================
+   XTP JP — FEED + INLINE LEARNING LAYOUT
+   Video stays the feed item. Reading/meaning live directly
+   below it; tapping a word never opens another screen.
+   ========================================================= */
+:root{
+  --xtp-video-h:48.5%;
+  --xtp-nav-h:calc(62px + var(--safe-b));
+  --xtp-bg:#070708;
+  --xtp-line:#27272b;
+  --xtp-muted:#919197;
+  --xtp-faint:#606068;
+  --xtp-accent:#ffdc3c;
+}
+
+#phone{background:var(--xtp-bg)}
+
+/* video occupies the upper feed region */
+.playerSlot{
+  inset:0 0 auto 0;
+  height:var(--xtp-video-h);
+}
+#shade{
+  inset:0 0 auto 0;
+  height:44px;
   z-index:7;
+  background:#000;
+}
+#buffer{
+  inset:0 0 auto 0;
+  height:var(--xtp-video-h);
+}
+
+/* feed tabs only; no wasted brand/header chrome */
+#top{
   top:0;
   left:0;
   right:0;
-  height:calc(var(--safe-t) + 92px);
-  pointer-events:none;
-  background:
-    linear-gradient(
-      to bottom,
-      #000 0,
-      #000 calc(var(--safe-t) + 50px),
-      rgba(0,0,0,.96) calc(var(--safe-t) + 60px),
-      rgba(0,0,0,.72) calc(var(--safe-t) + 73px),
-      rgba(0,0,0,.25) calc(var(--safe-t) + 84px),
-      transparent 100%
-    );
+  height:44px;
+  padding-top:var(--safe-t);
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  z-index:20;
+  background:#000;
 }
-
-/* Product header: fixed overlay, never participates in layout flow. */
-#top{
-  top:var(--safe-t);
-  left:12px;
-  right:12px;
-  height:42px;
-  z-index:10;
+#brand,#shuffleBtn{display:none!important}
+#feedTabs{justify-self:auto;gap:30px}
+.feedTab{
+  padding:3px 0 9px;
+  font-size:12px;
+  font-weight:800;
+  opacity:.56;
+  text-shadow:none;
 }
+.feedTab.active{opacity:1}
+.feedTab.active:after{width:42px;height:2px;bottom:2px}
 
-#brand{
-  font-size:15px;
-  letter-spacing:-.35px;
-  opacity:.94;
-}
-
-/*
-  Bottom-left learning area is fixed. Its coordinates and height
-  never change when a new phrase appears.
-*/
+/* one continuous reel item: source line sits on the video edge */
 #reelInfo{
-  left:13px;
-  right:68px;
-  bottom:calc(64px + var(--safe-b));
-  height:164px;
-  text-shadow:0 2px 12px rgba(0,0,0,.98);
-  pointer-events:none;
+  position:absolute;
+  z-index:12;
+  top:var(--xtp-video-h);
+  left:0;
+  right:0;
+  bottom:var(--xtp-nav-h);
+  padding:0;
+  background:var(--xtp-bg);
+  text-shadow:none;
+  overflow:visible;
 }
-
 #channelRow{
   position:absolute;
-  left:1px;
+  left:0;
   right:0;
-  top:0;
-  height:36px;
+  top:-42px;
+  height:42px;
   margin:0;
+  padding:0 14px;
   display:flex;
   align-items:center;
   gap:8px;
-  pointer-events:auto;
+  background:#000;
+  border-bottom:1px solid var(--xtp-line);
 }
+.avatar{display:none}
+#channelName{
+  max-width:270px;
+  font-size:10px;
+  font-weight:800;
+  color:#f1f1f1;
+}
+.followPill{
+  margin-left:auto;
+  height:28px;
+  padding:0 10px;
+  border-radius:4px;
+  border:1px solid #4a4a4f;
+  background:#000;
+  color:#f7f7f7;
+  font-size:10px;
+  font-weight:850;
+  backdrop-filter:none;
+}
+.followPill.following{background:#f4f4f4;color:#050505;border-color:#f4f4f4}
 
-/*
-  The learning focus card. This is deliberately more prominent
-  than a normal social-media caption so the eye lands on Japanese.
-*/
 #sentenceWrap{
-  --sentence-progress:0;
-  position:absolute;
-  left:0;
-  right:0;
-  top:45px;
-  height:104px;
+  height:100%;
   margin:0;
-  padding:27px 12px 12px 14px;
+  padding:34px 16px 74px;
   overflow:hidden;
-  pointer-events:auto;
-  border:1px solid rgba(255,255,255,.20);
-  border-left:3px solid rgba(255,255,255,.96);
-  border-radius:15px;
-  background:rgba(8,8,8,.66);
-  -webkit-backdrop-filter:blur(14px) saturate(1.08);
-  backdrop-filter:blur(14px) saturate(1.08);
-  box-shadow:
-    0 10px 28px rgba(0,0,0,.34),
-    inset 0 1px 0 rgba(255,255,255,.07);
 }
-
-#sentenceWrap::before{
-  content:"LISTEN";
-  position:absolute;
-  top:8px;
-  left:13px;
-  font-size:8px;
-  line-height:1;
-  font-weight:950;
-  letter-spacing:1.25px;
-  opacity:.62;
-}
-
-#sentenceWrap::after{
-  content:"";
-  position:absolute;
-  left:0;
-  bottom:0;
-  width:calc(var(--sentence-progress) * 100%);
-  height:3px;
-  border-radius:0 999px 999px 0;
-  background:rgba(255,255,255,.92);
-  transition:width .08s linear;
-}
-
-#sentenceWrap.attention{
-  animation:xtpCaptionFocus .18s ease-out;
-}
-
-@keyframes xtpCaptionFocus{
-  0%{transform:scale(.985);filter:brightness(1.28)}
-  100%{transform:scale(1);filter:brightness(1)}
-}
-
-/* Exactly one active phrase. Fixed box; changing text cannot move UI. */
 #sentence{
   display:flex;
   flex-wrap:wrap;
+  align-items:flex-end;
   align-content:flex-start;
-  align-items:baseline;
-  gap:0 3px;
-  width:100%;
-  height:62px;
-  max-height:62px;
-  overflow:hidden;
-  font-size:clamp(20px,4.9vw,23px);
-  font-weight:950;
-  line-height:1.34;
-  letter-spacing:-.18px;
+  gap:12px 5px;
+  max-width:100%;
+  color:#f8f8f8;
+  font-size:29px;
+  font-weight:900;
+  line-height:1.2;
+  letter-spacing:0;
   pointer-events:auto;
 }
-
-#sentenceProgress{
-  display:none!important;
+.jpWord,
+.jpPunc{
+  text-shadow:none!important;
 }
-
 .jpWord{
-  border-bottom:1px solid rgba(255,255,255,.18);
-}
-
-.jpWord:active{
-  opacity:.68;
-  border-bottom-color:#fff;
-}
-
-/* Compact channel identity above the focus card. */
-.avatar{
-  width:32px;
-  height:32px;
-}
-
-#channelName{
-  font-size:13px;
-  max-width:min(47vw,240px);
-}
-
-.followPill{
-  height:28px;
-  padding:0 10px;
-  font-size:10px;
-}
-
-/* Fixed action rail. */
-#rail{
-  right:8px;
-  bottom:calc(77px + var(--safe-b));
-  gap:7px;
-}
-
-.railBtn{
-  width:42px;
-  height:42px;
-  font-size:18px;
-  background:rgba(15,15,15,.58);
-  border:1px solid rgba(255,255,255,.08);
-}
-
-.railLabel{
-  display:none!important;
-}
-
-/* Bottom nav is an overlay, not a layout row. */
-#nav{
-  height:calc(58px + var(--safe-b));
-  padding:0 4px var(--safe-b);
-  background:
-    linear-gradient(
-      to top,
-      rgba(0,0,0,.98) 0,
-      rgba(0,0,0,.78) 58%,
-      transparent 100%
-    );
-}
-
-.navBtn{
-  height:46px;
-}
-
-/* Spinner belongs to the reel canvas. */
-#buffer{
-  position:absolute;
-  inset:0;
-}
-
-/* Readability fades only. No separate video/caption panels. */
-#shade{
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(0,0,0,.22) 0,
-      transparent 25%
-    ),
-    linear-gradient(
-      to top,
-      rgba(0,0,0,.92) 0,
-      rgba(0,0,0,.50) 22%,
-      rgba(0,0,0,.10) 43%,
-      transparent 57%
-    );
-}
-
-/* Full app fullscreen: keep our UI, not YouTube's iframe UI. */
-#phone.appFullscreen,
-#phone:fullscreen,
-#phone:-webkit-full-screen{
-  width:100vw!important;
-  height:100vh!important;
-  height:100dvh!important;
-  max-width:none!important;
-  aspect-ratio:auto!important;
-  border-radius:0!important;
-  box-shadow:none!important;
-  inset:0!important;
-}
-
-html.pseudoFullscreen,
-html.pseudoFullscreen body{
-  width:100%!important;
-  height:100%!important;
-  overflow:hidden!important;
-  background:#000!important;
-}
-
-
-/* =========================================================
-   XTP JP — LEARNING-FIRST UI
-   Video is context. Japanese is the product.
-   ========================================================= */
-
-/* Hide YouTube's top chrome behind an app-owned opaque mask. */
-#ytChromeMask{
-  height:calc(var(--safe-t) + 112px);
-  background:
-    linear-gradient(
-      to bottom,
-      #000 0,
-      #000 calc(var(--safe-t) + 68px),
-      rgba(0,0,0,.98) calc(var(--safe-t) + 78px),
-      rgba(0,0,0,.72) calc(var(--safe-t) + 94px),
-      transparent 100%
-    );
-}
-
-#shuffleBtn{display:none!important}
-
-/* The fixed learning surface. Text changes never move the reel UI. */
-#reelInfo{
-  left:12px;
-  right:64px;
-  bottom:calc(64px + var(--safe-b));
-  height:214px;
-  pointer-events:none;
-}
-
-#channelRow{
-  top:0;
-  height:34px;
-}
-
-#sentenceWrap{
-  --sentence-progress:0;
-  top:42px;
-  height:164px;
-  padding:37px 12px 42px 13px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.20);
-  border-left:3px solid #fff;
-  background:rgba(5,5,5,.76);
-  -webkit-backdrop-filter:blur(16px) saturate(1.05);
-  backdrop-filter:blur(16px) saturate(1.05);
-  box-shadow:0 14px 34px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.08);
-}
-
-#sentenceWrap::before{display:none}
-
-#learningKicker{
-  position:absolute;
-  top:10px;
-  left:13px;
-  right:12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  font-size:9px;
-  font-weight:950;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  pointer-events:none;
-}
-
-#learningKicker .mode{
-  padding:4px 7px;
-  border-radius:999px;
-  background:#fff;
-  color:#000;
-  letter-spacing:.9px;
-}
-
-#learningHint{
-  opacity:.56;
-  letter-spacing:.3px;
-  text-transform:none;
-  font-weight:800;
-}
-
-#sentence{
-  width:100%;
-  height:76px;
-  max-height:76px;
-  align-content:center;
-  font-size:clamp(23px,5.5vw,28px);
-  line-height:1.32;
-  gap:1px 4px;
-}
-
-.jpWord{
-  border-radius:5px;
-  border-bottom:2px solid rgba(255,255,255,.24);
-  padding:0 1px;
-  transition:background .12s,border-color .12s,transform .08s;
-}
-
-.jpWord:hover,
-.jpWord:focus-visible{
-  background:rgba(255,255,255,.12);
-  border-bottom-color:#fff;
-  outline:none;
-}
-
-.jpWord:active{transform:scale(.96)}
-
-#learningActions{
-  position:absolute;
-  left:10px;
-  right:10px;
-  bottom:9px;
-  height:28px;
-  display:flex;
-  gap:7px;
-  align-items:center;
-}
-
-.learnMini{
-  height:28px;
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:999px;
-  background:rgba(255,255,255,.09);
-  padding:0 10px;
-  font-size:10px;
-  font-weight:900;
-  white-space:nowrap;
-}
-
-.learnMini.primaryLearn{
-  background:#fff;
-  color:#000;
-  border-color:#fff;
-  margin-left:auto;
-}
-
-.learnMini.saved{
-  background:rgba(255,255,255,.18);
-  color:#fff;
-}
-
-/* Right rail = playback / learning controls, not social buttons. */
-#rail{
-  right:7px;
-  bottom:calc(88px + var(--safe-b));
-  gap:8px;
-}
-
-.railBtn{
-  width:44px;
-  height:44px;
-  font-size:17px;
-  font-weight:900;
-}
-
-#speedBtn{font-size:12px}
-
-/* Five app destinations: feed, follows, search, study, import. */
-#nav{
-  grid-template-columns:repeat(5,1fr);
-  height:calc(60px + var(--safe-b));
-  background:linear-gradient(to top,#000 0,rgba(0,0,0,.94) 72%,rgba(0,0,0,.10) 100%);
-}
-
-.navText{font-size:8px}
-
-/* Search / study / review */
-.searchBox{
-  position:sticky;
-  top:calc(58px + var(--safe-t));
-  z-index:2;
-  padding:12px 14px;
-  background:rgba(11,11,11,.96);
-  border-bottom:1px solid var(--line);
-}
-
-#searchInput{
-  width:100%;
-  height:46px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;
-  background:#171717;
-  color:#fff;
-  padding:0 14px;
-  outline:none;
-}
-
-#searchInput:focus{border-color:rgba(255,255,255,.42)}
-
-.searchHint{
-  margin-top:8px;
-  font-size:10px;
-  opacity:.48;
-}
-
-.studyTop{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
-
-.studyCount{
-  font-size:11px;
-  opacity:.55;
-}
-
-.wordCard,
-.sentenceCard{
-  width:100%;
-  border:1px solid rgba(255,255,255,.07);
-  border-radius:16px;
-  background:#151515;
-  padding:14px;
+  position:relative;
+  display:inline-flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-end;
+  min-height:52px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#f8f8f8;
   text-align:left;
 }
-
-.wordCardToken{
-  font-size:24px;
-  line-height:1.2;
-  font-weight:950;
-  margin-bottom:7px;
-}
-
-.wordCardContext,
-.sentenceCardText{
-  font-size:13px;
-  line-height:1.5;
-  opacity:.74;
-}
-
-.wordCardMeta,
-.sentenceCardMeta{
-  margin-top:8px;
+.jpWord .jpKanji{
+  min-height:15px;
+  margin:0 2px 3px;
+  color:var(--xtp-faint);
   font-size:10px;
-  opacity:.42;
+  font-weight:800;
+  line-height:1.15;
+  white-space:nowrap;
 }
-
-#wordScreen .wordBox{
-  padding-top:18px;
+.jpWord .jpHira{
+  display:block;
+  padding:0 1px 5px;
+  border-bottom:4px solid transparent;
+  color:#f8f8f8;
+  font-size:29px;
+  font-weight:900;
+  line-height:1.08;
+  white-space:nowrap;
 }
-
-.wordLabel{
-  font-size:9px;
-  font-weight:950;
-  letter-spacing:1.1px;
-  text-transform:uppercase;
-  opacity:.46;
-  margin-top:8px;
+.jpWord.selected .jpHira{border-bottom-color:var(--xtp-accent)}
+.jpWord:active{opacity:.72;border-bottom:0}
+.jpPunc{
+  display:inline-block;
+  padding:0 0 5px;
+  color:#f8f8f8;
+  font-size:29px;
+  font-weight:900;
+  line-height:1.08;
 }
+#sentenceProgress{display:none!important}
 
-#wordToken{font-size:44px;margin-top:2px}
-
-#wordMeta{
-  font-size:11px;
-  opacity:.48;
-  margin:-3px 0 14px;
-}
-
-#wordContext{
-  padding:13px 14px;
-  border-radius:14px;
-  background:#151515;
-  border:1px solid rgba(255,255,255,.07);
-  font-size:18px;
-  opacity:1;
-}
-
-#wordSaveBtn.saved{
-  background:#2b2b2b;
-  color:#fff;
-  border:1px solid rgba(255,255,255,.16);
-}
-
-.reviewBody{
-  min-height:calc(100% - 70px);
-  padding:24px 17px;
+/* the SAME meaning line changes between sentence meaning and word meaning */
+#meaningLine{
+  position:absolute;
+  left:16px;
+  right:16px;
+  top:min(205px,36%);
+  min-height:54px;
+  padding:11px 74px 9px 0;
+  border-top:1px solid var(--xtp-line);
+  border-bottom:1px solid var(--xtp-line);
   display:flex;
-  flex-direction:column;
+  align-items:flex-start;
+  gap:12px;
 }
-
-#reviewCounter{
-  font-size:11px;
-  opacity:.45;
+#meaningReading{
+  flex:0 0 auto;
+  max-width:112px;
+  padding-top:2px;
+  color:var(--xtp-muted);
+  font-size:10px;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
-
-#reviewToken{
-  font-size:48px;
-  font-weight:950;
-  text-align:center;
-  margin:50px 0 18px;
+#meaningText{
+  min-width:0;
+  color:#f4f4f4;
+  font-size:13px;
+  font-weight:760;
+  line-height:1.35;
 }
-
-#reviewPrompt{
-  text-align:center;
-  font-size:12px;
-  opacity:.48;
+#meaningSave{
+  position:absolute;
+  top:8px;
+  right:0;
+  height:36px;
+  min-width:64px;
+  padding:0 11px;
+  border:0;
+  border-radius:7px;
+  background:#f4f4f4;
+  color:#080808;
+  font-size:10px;
+  font-weight:900;
 }
+#meaningSave.saved{background:var(--xtp-accent)}
 
-#reviewContext{
-  margin-top:28px;
-  padding:16px;
-  border-radius:16px;
-  background:#151515;
-  border:1px solid rgba(255,255,255,.08);
-  font-size:19px;
-  line-height:1.55;
-  text-align:center;
-}
-
-.reviewActions{
-  margin-top:auto;
+#inlineActions{
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:17px;
+  height:32px;
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
+  grid-template-columns:repeat(4,1fr);
+  align-items:center;
+  border-top:1px solid var(--xtp-line);
+  padding-top:10px;
+}
+.inlineAction{
+  height:30px;
+  padding:0 4px;
+  border:0;
+  background:transparent;
+  color:var(--xtp-muted);
+  font-size:10px;
+  font-weight:800;
+}
+.inlineAction:first-child{color:#f4f4f4;text-align:left}
+.inlineAction:last-child{text-align:right}
+.inlineAction.saved{color:var(--xtp-accent)}
+
+/* remove social rail; keep only sound/full as tiny video utilities */
+#rail{
+  z-index:18;
+  top:56px;
+  right:10px;
+  bottom:auto;
+  display:flex;
+  flex-direction:row;
+  gap:7px;
+}
+#likeBtn,#saveBtn,#ytBtn,.railLabel{display:none!important}
+.railBtn{
+  width:38px;
+  height:32px;
+  border-radius:16px;
+  background:rgba(0,0,0,.78);
+  font-size:14px;
+  backdrop-filter:none;
 }
 
-.reviewActions .primary,
-.reviewActions .secondary{width:100%}
+/* nav stays functional; only visual cleanup */
+#nav{
+  height:var(--xtp-nav-h);
+  padding:0 4px var(--safe-b);
+  background:#050506;
+  border-top:1px solid var(--xtp-line);
+}
+.navBtn{opacity:.48}
+.navBtn.active{opacity:1}
+.navIcon{font-size:17px}
+.navText{font-size:8px}
+#addNav .navIcon{background:transparent;color:inherit;width:auto;height:auto}
 
-#reviewReveal{grid-column:1/-1}
-#reviewScreen{z-index:65}
+/* the old Word screen remains in the file for compatibility, but inline taps never open it */
+#wordScreen{display:none!important}
 
-/* Keep app UI usable in real/pseudo fullscreen. */
-#phone.appFullscreen #reelInfo,
-#phone:fullscreen #reelInfo,
-#phone:-webkit-full-screen #reelInfo{
-  bottom:calc(64px + var(--safe-b));
+@media(max-height:680px){
+  #sentenceWrap{padding-top:24px}
+  #sentence{font-size:25px;gap:9px 4px}
+  .jpWord .jpHira,.jpPunc{font-size:25px}
+  #meaningLine{top:min(175px,34%)}
 }
 
 </style>
@@ -1347,7 +1045,6 @@ html.pseudoFullscreen body{
   </div>
 
   <div id="shade"></div>
-  <div id="ytChromeMask"></div>
   <div id="gesture"></div>
 
   <div id="buffer">
@@ -1356,7 +1053,7 @@ html.pseudoFullscreen body{
 
   <header id="top">
 
-    <div id="brand">
+    <div id="brand" aria-hidden="true">
       XTP jp
     </div>
 
@@ -1416,22 +1113,25 @@ html.pseudoFullscreen body{
 
     <div id="sentenceWrap">
 
-      <div id="learningKicker">
-        <span class="mode">Listen</span>
-        <span id="learningHint">Tap a word to learn it</span>
-      </div>
-
       <div id="sentence">
         —
       </div>
 
-      <div id="learningActions">
-        <button class="learnMini" id="sentenceReplayBtn">↺ Replay</button>
-        <button class="learnMini primaryLearn" id="sentenceSaveBtn">＋ Save sentence</button>
-      </div>
-
       <div id="sentenceProgress">
         —
+      </div>
+
+      <div id="meaningLine" aria-live="polite">
+        <span id="meaningReading">cả câu</span>
+        <strong id="meaningText">—</strong>
+        <button id="meaningSave" class="hidden" type="button">＋ Lưu</button>
+      </div>
+
+      <div id="inlineActions">
+        <button class="inlineAction" id="sentenceReplayBtn" type="button">↺ Câu</button>
+        <button class="inlineAction" id="speedBtn" type="button">1×</button>
+        <button class="inlineAction" id="meaningToggleBtn" type="button">Ẩn nghĩa</button>
+        <button class="inlineAction" id="sentenceSaveBtn" type="button">☆ Lưu câu</button>
       </div>
 
     </div>
@@ -1440,16 +1140,65 @@ html.pseudoFullscreen body{
 
   <aside id="rail">
 
-    <button class="railBtn" id="replayBtn" title="Replay sentence">↺</button>
-    <button class="railBtn" id="playBtn" title="Play / pause">❚❚</button>
-    <button class="railBtn" id="speedBtn" title="Playback speed">1×</button>
-    <button class="railBtn" id="soundBtn" title="Sound">🔇</button>
-    <button class="railBtn" id="fullBtn" title="Fullscreen">⛶</button>
+    <button
+      class="railBtn"
+      id="likeBtn"
+      title="Like"
+    >
+      ♡
+    </button>
 
-    <!-- Kept only for state compatibility; social actions are not primary UI. -->
-    <button class="hidden" id="likeBtn" aria-hidden="true"></button>
-    <button class="hidden" id="saveBtn" aria-hidden="true"></button>
-    <button class="hidden" id="ytBtn" aria-hidden="true"></button>
+    <span class="railLabel">
+      like
+    </span>
+
+    <button
+      class="railBtn"
+      id="saveBtn"
+      title="Save"
+    >
+      ▱
+    </button>
+
+    <span class="railLabel">
+      save
+    </span>
+
+    <button
+      class="railBtn"
+      id="soundBtn"
+      title="Sound"
+    >
+      🔇
+    </button>
+
+    <span class="railLabel">
+      sound
+    </span>
+
+    <button
+      class="railBtn"
+      id="fullBtn"
+      title="Fullscreen"
+    >
+      ⛶
+    </button>
+
+    <span class="railLabel">
+      full
+    </span>
+
+    <button
+      class="railBtn"
+      id="ytBtn"
+      title="YouTube"
+    >
+      ↗
+    </button>
+
+    <span class="railLabel">
+      YouTube
+    </span>
 
   </aside>
 
@@ -1462,8 +1211,9 @@ html.pseudoFullscreen body{
       </h1>
 
       <p>
-        Add a YouTube video.
-        XTP jp turns its Japanese transcript into short listening contexts: tap words, save vocabulary, and review.
+        Paste video YouTube.
+        App lấy transcript theo timestamp,
+        tạo reel và chỉ hiện đúng câu đang được nói.
       </p>
 
       <button
@@ -1479,29 +1229,56 @@ html.pseudoFullscreen body{
 
   <nav id="nav">
 
-    <button class="navBtn active" id="homeNav">
-      <span class="navIcon">⌂</span>
-      <span class="navText">Feed</span>
+    <button
+      class="navBtn active"
+      id="homeNav"
+    >
+      <span class="navIcon">
+        ⌂
+      </span>
+
+      <span class="navText">
+        Feed
+      </span>
     </button>
 
-    <button class="navBtn" id="channelsNav">
-      <span class="navIcon">▦</span>
-      <span class="navText">Following</span>
+    <button
+      class="navBtn"
+      id="channelsNav"
+    >
+      <span class="navIcon">
+        ▦
+      </span>
+
+      <span class="navText">
+        Following
+      </span>
     </button>
 
-    <button class="navBtn" id="searchNav">
-      <span class="navIcon">⌕</span>
-      <span class="navText">Search</span>
+    <button
+      class="navBtn"
+      id="libraryNav"
+    >
+      <span class="navIcon">
+        ▱
+      </span>
+
+      <span class="navText">
+        Saved
+      </span>
     </button>
 
-    <button class="navBtn" id="libraryNav">
-      <span class="navIcon">▤</span>
-      <span class="navText">Study</span>
-    </button>
+    <button
+      class="navBtn"
+      id="addNav"
+    >
+      <span class="navIcon">
+        ＋
+      </span>
 
-    <button class="navBtn" id="addNav">
-      <span class="navIcon">＋</span>
-      <span class="navText">Add</span>
+      <span class="navText">
+        Add
+      </span>
     </button>
 
   </nav>
@@ -1533,9 +1310,10 @@ html.pseudoFullscreen body{
       </h2>
 
       <p>
-        YouTube is only the source.
-        XTP jp detects the real channel, reads the Japanese transcript,
-        builds short listening contexts, and makes every Japanese word tappable.
+        Link chỉ là source.
+        App tự nhận channel thật,
+        lấy transcript tiếng Nhật,
+        tạo sentence timeline rồi chia reel.
       </p>
 
       <div class="urlRow">
@@ -1678,91 +1456,103 @@ html.pseudoFullscreen body{
 
   </section>
 
-  <section class="screen" id="searchScreen">
+  <section
+    class="screen"
+    id="libraryScreen"
+  >
 
     <header class="screenHead">
-      <button class="backBtn" data-close="searchScreen">‹</button>
-      <div class="screenTitle">Search Japanese</div>
-    </header>
 
-    <div class="searchBox">
-      <input id="searchInput" autocomplete="off" spellcheck="false" placeholder="食べる / と思う / してる…">
-      <div class="searchHint">Search inside every imported transcript. Tap a result to hear it in context.</div>
-    </div>
+      <button
+        class="backBtn"
+        data-close="libraryScreen"
+      >
+        ‹
+      </button>
 
-    <div class="screenBody">
-      <div id="searchResults" class="list"></div>
-    </div>
-
-  </section>
-
-  <section class="screen" id="libraryScreen">
-
-    <header class="screenHead">
-      <button class="backBtn" data-close="libraryScreen">‹</button>
-      <div class="screenTitle">Study</div>
-      <button class="secondary" id="startReviewBtn">Review</button>
-    </header>
-
-    <div class="screenBody">
-
-      <div class="studyTop">
-        <div class="libraryTabs">
-          <button class="libraryTab active" id="savedTab">Words</button>
-          <button class="libraryTab" id="sentencesTab">Sentences</button>
-          <button class="libraryTab" id="historyTab">History</button>
-        </div>
-        <div class="studyCount" id="studyCount"></div>
+      <div class="screenTitle">
+        Library
       </div>
 
-      <div id="libraryList" class="list"></div>
+    </header>
+
+    <div class="screenBody">
+
+      <div class="libraryTabs">
+
+        <button
+          class="libraryTab active"
+          id="savedTab"
+        >
+          Saved
+        </button>
+
+        <button
+          class="libraryTab"
+          id="historyTab"
+        >
+          History
+        </button>
+
+      </div>
+
+      <div
+        id="libraryList"
+        class="list"
+      ></div>
 
     </div>
 
   </section>
 
-  <section class="screen" id="wordScreen">
+  <section
+    class="screen"
+    id="wordScreen"
+  >
 
     <header class="screenHead">
-      <button class="backBtn" data-close="wordScreen">‹</button>
-      <div class="screenTitle">Word</div>
+
+      <button
+        class="backBtn"
+        data-close="wordScreen"
+      >
+        ‹
+      </button>
+
+      <div class="screenTitle">
+        Word
+      </div>
+
     </header>
 
     <div class="wordBox">
-      <div class="wordLabel">Selected word</div>
-      <div id="wordToken">—</div>
-      <div id="wordMeta">Tap Dictionary for meaning / reading.</div>
 
-      <div class="wordLabel">Context</div>
-      <div id="wordContext">—</div>
+      <div id="wordToken">
+        —
+      </div>
+
+      <div id="wordContext">
+        —
+      </div>
 
       <div class="wordActions">
-        <button class="primary" id="wordSaveBtn">＋ Save word</button>
-        <button class="secondary" id="jishoBtn">Dictionary</button>
-        <button class="secondary" id="copyWordBtn">Copy</button>
+
+        <button
+          class="primary"
+          id="jishoBtn"
+        >
+          Jisho
+        </button>
+
+        <button
+          class="secondary"
+          id="copyWordBtn"
+        >
+          Copy
+        </button>
+
       </div>
-    </div>
 
-  </section>
-
-  <section class="screen" id="reviewScreen">
-
-    <header class="screenHead">
-      <button class="backBtn" data-close="reviewScreen">‹</button>
-      <div class="screenTitle">Review</div>
-      <div id="reviewCounter"></div>
-    </header>
-
-    <div class="reviewBody">
-      <div id="reviewToken">—</div>
-      <div id="reviewPrompt">Recall the meaning and the sentence.</div>
-      <div id="reviewContext" class="hidden">—</div>
-
-      <div class="reviewActions">
-        <button class="primary" id="reviewReveal">Show context</button>
-        <button class="secondary hidden" id="reviewAgain">Again</button>
-        <button class="primary hidden" id="reviewGood">Good</button>
-      </div>
     </div>
 
   </section>
@@ -1773,6 +1563,8 @@ html.pseudoFullscreen body{
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/kuroshiro@1.2.0/dist/kuroshiro.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/kuroshiro-analyzer-kuromoji@1.1.0/dist/kuroshiro-analyzer-kuromoji.min.js"></script>
 <script>
 (()=>{
 
@@ -1808,10 +1600,10 @@ const MAX_CLIP =
   38;
 
 const MAX_SENTENCE_CHARS =
-  22;
+  38;
 
 const MAX_SENTENCE_SECONDS =
-  5.5;
+  7.5;
 
 /* =========================================================
    DOM
@@ -1854,32 +1646,35 @@ const channelName =
 const followQuick =
   $('#followQuick');
 
-const sentenceWrap =
-  $('#sentenceWrap');
-
 const sentenceEl =
   $('#sentence');
+
+const sentenceWrap =
+  $('#sentenceWrap');
 
 const sentenceProgress =
   $('#sentenceProgress');
 
-const learningHint =
-  $('#learningHint');
+const meaningReading =
+  $('#meaningReading');
+
+const meaningText =
+  $('#meaningText');
+
+const meaningSave =
+  $('#meaningSave');
 
 const sentenceReplayBtn =
   $('#sentenceReplayBtn');
 
-const sentenceSaveBtn =
-  $('#sentenceSaveBtn');
-
-const replayBtn =
-  $('#replayBtn');
-
-const playBtn =
-  $('#playBtn');
-
 const speedBtn =
   $('#speedBtn');
+
+const meaningToggleBtn =
+  $('#meaningToggleBtn');
+
+const sentenceSaveBtn =
+  $('#sentenceSaveBtn');
 
 const likeBtn =
   $('#likeBtn');
@@ -1902,9 +1697,6 @@ const homeNav =
 const channelsNav =
   $('#channelsNav');
 
-const searchNav =
-  $('#searchNav');
-
 const libraryNav =
   $('#libraryNav');
 
@@ -1916,9 +1708,6 @@ const addScreen =
 
 const channelsScreen =
   $('#channelsScreen');
-
-const searchScreen =
-  $('#searchScreen');
 
 const channelScreen =
   $('#channelScreen');
@@ -1947,12 +1736,6 @@ const clipGrid =
 const libraryList =
   $('#libraryList');
 
-const searchInput =
-  $('#searchInput');
-
-const searchResults =
-  $('#searchResults');
-
 const heroImg =
   $('#heroImg');
 
@@ -1974,15 +1757,6 @@ const deleteChannel =
 const savedTab =
   $('#savedTab');
 
-const sentencesTab =
-  $('#sentencesTab');
-
-const studyCount =
-  $('#studyCount');
-
-const startReviewBtn =
-  $('#startReviewBtn');
-
 const historyTab =
   $('#historyTab');
 
@@ -1991,33 +1765,6 @@ const wordToken =
 
 const wordContext =
   $('#wordContext');
-
-const wordMeta =
-  $('#wordMeta');
-
-const wordSaveBtn =
-  $('#wordSaveBtn');
-
-const reviewScreen =
-  $('#reviewScreen');
-
-const reviewCounter =
-  $('#reviewCounter');
-
-const reviewToken =
-  $('#reviewToken');
-
-const reviewContext =
-  $('#reviewContext');
-
-const reviewReveal =
-  $('#reviewReveal');
-
-const reviewAgain =
-  $('#reviewAgain');
-
-const reviewGood =
-  $('#reviewGood');
 
 const jishoBtn =
   $('#jishoBtn');
@@ -2051,22 +1798,7 @@ let selectedChannelId =
   null;
 
 let libraryMode =
-  'words';
-
-let activeLearningSentence =
-  null;
-
-let selectedWordClipId =
-  null;
-
-let playbackRate =
-  1;
-
-let reviewQueue =
-  [];
-
-let reviewIndex =
-  0;
+  'saved';
 
 let selectedWord =
   '';
@@ -2115,29 +1847,11 @@ let loadedKey =
     null
   ];
 
-/* Real next-reel prewarm state. Only NEXT may buffer, always muted. */
-let prewarming =
-  [
-    false,
-    false,
-    false
-  ];
-
-let prewarmTimers =
-  [
-    null,
-    null,
-    null
-  ];
-
 let monitorTimer =
   null;
 
 let state =
   loadState();
-
-state.words ||= {};
-state.sentences ||= {};
 
 /* =========================================================
    PERSISTENCE
@@ -2955,7 +2669,7 @@ function splitByJapanesePunctuation(text){
 
   return (
     cleaned.match(
-      /[^。！？!?、，,]+[。！？!?、，,]+|[^。！？!?、，,]+$/g
+      /[^。！？!?]+[。！？!?]+|[^。！？!?]+$/g
     )
     ?.map(
       normalizeText
@@ -3307,32 +3021,9 @@ function buildSentences(blocks){
 
     }
 
-    const hardBoundary =
+    if(
       /[。！？!?]$/.test(
         atomText
-      );
-
-    const softBoundary =
-      /[、，,]$/.test(
-        atomText
-      );
-
-    if(
-      hardBoundary
-      ||
-      (
-        softBoundary
-        &&
-        current
-        &&
-        (
-          current.text.length >= 8
-          ||
-          (
-            current.end
-            - current.start
-          ) >= 1.7
-        )
       )
     ){
 
@@ -3377,265 +3068,6 @@ function buildSentences(blocks){
   }
 
   return sentences;
-
-}
-
-
-/* =========================================================
-   DISPLAY PHRASE ENGINE
-
-   Stored clips may have been imported by an older version.
-   Do NOT require re-import: split the active stored sentence
-   into short display phrases at runtime and distribute its
-   existing timestamp proportionally.
-   ========================================================= */
-
-function buildDisplayPhrases(
-  sentence
-){
-
-  if(
-    !sentence
-    ||
-    !sentence.text
-  ){
-
-    return [];
-
-  }
-
-  let pieces =
-    splitByJapanesePunctuation(
-      sentence.text
-    )
-    .flatMap(
-      part =>
-        softSplitLong(
-          part,
-          MAX_SENTENCE_CHARS
-        )
-    )
-    .map(
-      normalizeText
-    )
-    .filter(Boolean);
-
-  if(
-    !pieces.length
-  ){
-
-    pieces =
-      [
-        normalizeText(
-          sentence.text
-        )
-      ];
-
-  }
-
-  /*
-    Merge stupidly tiny comma fragments such as:
-    "でも、" + next phrase.
-  */
-  const merged =
-    [];
-
-  for(
-    const piece
-    of pieces
-  ){
-
-    if(
-      merged.length
-      &&
-      (
-        piece.length <= 3
-        ||
-        merged[
-          merged.length - 1
-        ].length <= 3
-      )
-    ){
-
-      merged[
-        merged.length - 1
-      ] =
-        normalizeText(
-          merged[
-            merged.length - 1
-          ]
-          + piece
-        );
-
-    }else{
-
-      merged.push(
-        piece
-      );
-
-    }
-
-  }
-
-  const weights =
-    merged.map(
-      text =>
-        Math.max(
-          1,
-          text
-            .replace(
-              /\s/g,
-              ''
-            )
-            .length
-        )
-    );
-
-  const total =
-    weights.reduce(
-      (
-        sum,
-        value
-      ) =>
-        sum + value,
-      0
-    );
-
-  const fullDuration =
-    Math.max(
-      .25,
-      sentence.end
-      - sentence.start
-    );
-
-  let cursor =
-    sentence.start;
-
-  return merged.map(
-    (
-      text,
-      index
-    )=>{
-
-      const start =
-        cursor;
-
-      const end =
-        index === merged.length - 1
-          ? sentence.end
-          : Math.min(
-              sentence.end,
-              cursor
-              +
-              (
-                fullDuration
-                *
-                (
-                  weights[index]
-                  / total
-                )
-              )
-            );
-
-      cursor =
-        end;
-
-      return {
-        id:
-          `${sentence.id || 's'}:p${index}`,
-
-        parentSentenceId:
-          sentence.id || '',
-
-        start,
-
-        end:
-          Math.max(
-            start + .08,
-            end
-          ),
-
-        text
-      };
-
-    }
-  );
-
-}
-
-function activeDisplayPhraseAt(
-  clip,
-  time
-){
-
-  if(
-    !clip?.sentences?.length
-  ){
-
-    return null;
-
-  }
-
-  let sentence =
-    clip.sentences.find(
-      item =>
-        time >= item.start
-        &&
-        time < item.end
-    );
-
-  if(
-    !sentence
-  ){
-
-    activeLearningSentence =
-      null;
-
-    for(
-      let i=clip.sentences.length-1;
-      i>=0;
-      i--
-    ){
-
-      if(
-        time
-        >= clip.sentences[i].start
-      ){
-
-        sentence =
-          clip.sentences[i];
-
-        break;
-
-      }
-
-    }
-
-  }
-
-  sentence =
-    sentence
-    || clip.sentences[0];
-
-  const phrases =
-    buildDisplayPhrases(
-      sentence
-    );
-
-  return (
-    phrases.find(
-      phrase =>
-        time >= phrase.start
-        &&
-        time < phrase.end
-    )
-    ||
-    phrases[
-      phrases.length - 1
-    ]
-    ||
-    null
-  );
 
 }
 
@@ -4562,8 +3994,6 @@ function playerVars(){
 
     modestbranding:1,
 
-    disablekb:1,
-
     fs:0
 
   };
@@ -4717,105 +4147,6 @@ function activateSlot(){
 
 }
 
-function cancelPrewarm(
-  index,
-  {
-    pause=false
-  }={}
-){
-
-  if(
-    prewarmTimers[index]
-  ){
-
-    clearTimeout(
-      prewarmTimers[index]
-    );
-
-    prewarmTimers[index] =
-      null;
-
-  }
-
-  prewarming[index] =
-    false;
-
-  if(
-    pause
-    &&
-    index !== role.current
-  ){
-
-    try{
-
-      players[index]?.mute();
-      players[index]?.pauseVideo();
-
-    }catch{}
-
-  }
-
-}
-
-function finishPrewarm(
-  index,
-  key
-){
-
-  if(
-    index === role.current
-    ||
-    loadedKey[index] !== key
-  ){
-
-    cancelPrewarm(
-      index
-    );
-
-    return;
-
-  }
-
-  try{
-
-    players[index]?.mute();
-    players[index]?.pauseVideo();
-
-  }catch{}
-
-  cancelPrewarm(
-    index
-  );
-
-}
-
-function schedulePrewarmStop(
-  index,
-  key,
-  delay=650
-){
-
-  if(
-    prewarmTimers[index]
-  ){
-
-    clearTimeout(
-      prewarmTimers[index]
-    );
-
-  }
-
-  prewarmTimers[index] =
-    setTimeout(
-      ()=>finishPrewarm(
-        index,
-        key
-      ),
-      delay
-    );
-
-}
-
 function stopPlayer(
   index,
   {
@@ -4825,10 +4156,6 @@ function stopPlayer(
 
   const player =
     players[index];
-
-  cancelPrewarm(
-    index
-  );
 
   if(
     !player
@@ -4880,132 +4207,16 @@ function stopBackgroundPlayers(){
   ){
 
     if(
-      i === role.current
+      i !== role.current
     ){
 
-      continue;
-
-    }
-
-    /* Keep the deliberate muted NEXT preload alive. */
-    if(
-      prewarming[i]
-      &&
-      i === role.next
-    ){
-
-      try{
-
-        players[i]?.mute();
-
-      }catch{}
-
-      continue;
-
-    }
-
-    stopPlayer(
-      i
-    );
-
-  }
-
-}
-
-
-function enforceSingleActivePlayer(){
-
-  if(
-    !ytReady
-  ){
-
-    return;
-
-  }
-
-  for(
-    let i=0;
-    i<players.length;
-    i++
-  ){
-
-    if(
-      i === role.current
-    ){
-
-      continue;
-
-    }
-
-    const player =
-      players[i];
-
-    if(
-      !player
-    ){
-
-      continue;
-
-    }
-
-    try{
-
-      player.mute();
-
-    }catch{}
-
-    /*
-      NEXT is allowed a very short muted load window so the browser
-      actually buffers media. Every other background player is paused.
-    */
-    if(
-      prewarming[i]
-      &&
-      i === role.next
-    ){
-
-      continue;
-
-    }
-
-    try{
-
-      const status =
-        player.getPlayerState();
-
-      if(
-        status === YT.PlayerState.PLAYING
-        ||
-        status === YT.PlayerState.BUFFERING
-      ){
-
-        player.pauseVideo();
-
-      }
-
-    }catch{}
-
-  }
-
-}
-
-function scheduleSinglePlayerGuard(){
-
-  [
-    0,
-    80,
-    220,
-    500
-  ].forEach(
-    delay =>{
-
-      setTimeout(
-        enforceSingleActivePlayer,
-        delay
+      stopPlayer(
+        i
       );
 
     }
-  );
+
+  }
 
 }
 
@@ -5076,8 +4287,6 @@ function prewarmNext(
     !players[index]
     ||
     !clip
-    ||
-    index === role.current
   ){
 
     return;
@@ -5098,23 +4307,11 @@ function prewarmNext(
 
   }
 
-  cancelPrewarm(
-    index
-  );
-
   loadedKey[index] =
     key;
 
-  prewarming[index] =
-    true;
-
   try{
 
-    /*
-      cueVideoById alone does not materially buffer the media.
-      loadVideoById does. We load NEXT muted for a short window,
-      then pause it. The hidden slot stays opacity:0 and cannot click.
-    */
     players[index].mute();
 
     players[index].loadVideoById({
@@ -5123,37 +4320,31 @@ function prewarmNext(
         clip.videoId,
 
       startSeconds:
-        clip.start,
-
-      endSeconds:
-        clip.end
+        clip.start
 
     });
 
-    schedulePrewarmStop(
-      index,
-      key,
-      900
+    setTimeout(
+      ()=>{
+
+        if(
+          index !== role.current
+          &&
+          loadedKey[index]
+            === key
+        ){
+
+          stopPlayer(
+            index
+          );
+
+        }
+
+      },
+      300
     );
 
-  }catch{
-
-    cancelPrewarm(
-      index
-    );
-
-    /* Safe fallback if autoplay/prewarm is rejected. */
-    try{
-
-      players[index].mute();
-      players[index].cueVideoById({
-        videoId:clip.videoId,
-        startSeconds:clip.start
-      });
-
-    }catch{}
-
-  }
+  }catch{}
 
 }
 
@@ -5190,10 +4381,6 @@ function playCurrent(){
     return;
 
   }
-
-  cancelPrewarm(
-    role.current
-  );
 
   stopBackgroundPlayers();
 
@@ -5251,12 +4438,7 @@ function playCurrent(){
 
     }
 
-    try{ player.setPlaybackRate(playbackRate); }catch{}
-
     player.playVideo();
-    playBtn.textContent = '❚❚';
-
-    scheduleSinglePlayerGuard();
 
   }catch{}
 
@@ -5328,46 +4510,20 @@ function onPlayerState(
   status
 ){
 
+  /*
+    Đây là guard quan trọng.
+
+    Bất cứ iframe nào không phải CURRENT
+    mà tự chạy -> pause ngay.
+  */
+
   if(
     index !== role.current
   ){
 
-    try{
-
-      players[index]?.mute();
-
-    }catch{}
-
-    /*
-      The only legal background activity is NEXT while prewarming.
-      Once it reaches PLAYING, give it ~180 ms to fill buffer and pause.
-    */
     if(
-      prewarming[index]
-      &&
-      index === role.next
-    ){
-
-      if(
-        status === YT.PlayerState.PLAYING
-      ){
-
-        schedulePrewarmStop(
-          index,
-          loadedKey[index],
-          180
-        );
-
-      }
-
-      return;
-
-    }
-
-    if(
-      status === YT.PlayerState.PLAYING
-      ||
-      status === YT.PlayerState.BUFFERING
+      status
+      === YT.PlayerState.PLAYING
     ){
 
       stopPlayer(
@@ -5380,11 +4536,6 @@ function onPlayerState(
 
   }
 
-  /* Current role must no longer be governed by a prewarm timer. */
-  cancelPrewarm(
-    index
-  );
-
   if(
     status
     === YT.PlayerState.PLAYING
@@ -5393,8 +4544,6 @@ function onPlayerState(
     buffer.classList.remove(
       'on'
     );
-
-    playBtn.textContent = '❚❚';
 
     if(
       audioOn
@@ -5408,13 +4557,6 @@ function onPlayerState(
       }catch{}
 
     }
-
-  }else if(
-    status === YT.PlayerState.PAUSED
-    || status === YT.PlayerState.ENDED
-  ){
-
-    playBtn.textContent = '▶';
 
   }
 
@@ -5527,8 +4669,6 @@ function goNext(){
 
   playCurrent();
 
-  scheduleSinglePlayerGuard();
-
   prewarmNext(
     role.next,
     clipForRole(
@@ -5590,19 +4730,10 @@ function goPrev(){
 
   playCurrent();
 
-  scheduleSinglePlayerGuard();
-
   cuePrev(
     role.prev,
     clipForRole(
       'prev'
-    )
-  );
-
-  prewarmNext(
-    role.next,
-    clipForRole(
-      'next'
     )
   );
 
@@ -5626,359 +4757,226 @@ const wordSegmenter =
 
     : null;
 
-function openWord(
-  token,
-  context
-){
+let readingEnginePromise = null;
+let sentenceRenderSeq = 0;
+let activeInlineSentence = null;
+let selectedInlineWord = null;
+let meaningVisible = true;
+let playbackRate = 1;
 
-  selectedWord =
-    token;
+const readingCache = new Map();
+const translationCache = new Map();
 
-  selectedWordContext =
-    context;
+function hasKanji(text){
+  return /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(text || '');
+}
 
-  selectedWordClipId =
-    currentClip()?.id || null;
-
-  const player =
-    players[
-      role.current
-    ];
-
-  resumeAfterWord =
-    false;
-
-  if(
-    player
-  ){
-
-    try{
-
-      resumeAfterWord =
-        player.getPlayerState()
-        === YT.PlayerState.PLAYING;
-
-      if(
-        resumeAfterWord
-      ){
-
-        player.pauseVideo();
-
-      }
-
-    }catch{}
-
-  }
-
-  wordToken.textContent =
-    token;
-
-  wordContext.textContent =
-    context;
-
-  wordMeta.textContent =
-    'Tap Dictionary for reading and meaning. Save it to review later.';
-
-  updateWordSaveButton();
-
-  openScreen(
-    wordScreen
+function kataToHira(text){
+  return String(text || '').replace(/[\u30a1-\u30f6]/g, ch =>
+    String.fromCharCode(ch.charCodeAt(0) - 0x60)
   );
-
 }
 
+function readingEngine(){
+  if(readingEnginePromise){ return readingEnginePromise; }
 
-/* =========================================================
-   LEARNING ACTIONS
-   ========================================================= */
-
-function wordKey(token){
-  return normalizeText(token).toLowerCase();
-}
-
-function isWordSaved(token){
-  const key = wordKey(token);
-  return !!(key && state.words?.[key]);
-}
-
-function updateWordSaveButton(){
-  if(!wordSaveBtn){ return; }
-  const saved = isWordSaved(selectedWord);
-  wordSaveBtn.textContent = saved ? '✓ Saved word' : '＋ Save word';
-  wordSaveBtn.classList.toggle('saved', saved);
-}
-
-function toggleSelectedWordSaved(){
-  const key = wordKey(selectedWord);
-  if(!key){ return; }
-
-  state.words ||= {};
-
-  if(state.words[key]){
-    delete state.words[key];
-    toastMsg('Removed word.');
-  }else{
-    state.words[key] = {
-      token:selectedWord,
-      context:selectedWordContext,
-      clipId:selectedWordClipId,
-      savedAt:Date.now(),
-      reviewCount:0,
-      dueAt:Date.now(),
-      lastReviewed:0
-    };
-    toastMsg('Word saved for review.');
-  }
-
-  saveState();
-  updateWordSaveButton();
-}
-
-function activeSentenceSaveKey(){
-  const clip = currentClip();
-  if(!clip || !activeLearningSentence){ return null; }
-  return `${clip.id}:${activeLearningSentence.id}`;
-}
-
-function updateSentenceSaveButton(){
-  const key = activeSentenceSaveKey();
-  const saved = !!(key && state.sentences?.[key]);
-  sentenceSaveBtn.textContent = saved ? '✓ Saved sentence' : '＋ Save sentence';
-  sentenceSaveBtn.classList.toggle('saved', saved);
-}
-
-function toggleCurrentSentenceSaved(){
-  const clip = currentClip();
-  const sentence = activeLearningSentence;
-  const key = activeSentenceSaveKey();
-  if(!clip || !sentence || !key){ return; }
-
-  state.sentences ||= {};
-
-  if(state.sentences[key]){
-    delete state.sentences[key];
-    toastMsg('Removed sentence.');
-  }else{
-    state.sentences[key] = {
-      id:key,
-      text:sentence.text,
-      clipId:clip.id,
-      channelId:clip.channelId,
-      videoId:clip.videoId,
-      start:sentence.start,
-      end:sentence.end,
-      savedAt:Date.now()
-    };
-    toastMsg('Sentence saved for study.');
-  }
-
-  saveState();
-  updateSentenceSaveButton();
-}
-
-function replayLearningSentence(){
-  const clip = currentClip();
-  const sentence = activeLearningSentence;
-  const player = players[role.current];
-  if(!clip || !sentence || !player){ return; }
-
-  try{
-    stopBackgroundPlayers();
-    player.seekTo(Math.max(clip.start, sentence.start), true);
-    player.playVideo();
-    if(audioOn){ player.unMute(); } else { player.mute(); }
-    playBtn.textContent = '❚❚';
-  }catch{}
-}
-
-function togglePlayPause(){
-  const player = players[role.current];
-  if(!player){ return; }
-  try{
-    if(player.getPlayerState() === YT.PlayerState.PLAYING){
-      player.pauseVideo();
-      playBtn.textContent = '▶';
-    }else{
-      stopBackgroundPlayers();
-      player.playVideo();
-      playBtn.textContent = '❚❚';
+  readingEnginePromise = (async()=>{
+    try{
+      if(!window.Kuroshiro || !window.KuromojiAnalyzer){ return null; }
+      const engine = new window.Kuroshiro();
+      await engine.init(new window.KuromojiAnalyzer({
+        dictPath:'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/'
+      }));
+      return engine;
+    }catch(error){
+      console.warn('Reading engine unavailable', error);
+      return null;
     }
-  }catch{}
+  })();
+
+  return readingEnginePromise;
 }
 
-function cyclePlaybackRate(){
-  const rates = [.75, 1, 1.25];
-  const currentIndex = Math.max(0, rates.indexOf(playbackRate));
-  playbackRate = rates[(currentIndex + 1) % rates.length];
-  try{ players[role.current]?.setPlaybackRate(playbackRate); }catch{}
-  speedBtn.textContent = `${playbackRate}×`;
-  toastMsg(`Speed ${playbackRate}×`);
+async function readingFor(text){
+  const key = String(text || '');
+  if(!key){ return ''; }
+  if(readingCache.has(key)){ return readingCache.get(key); }
+
+  if(!hasKanji(key)){
+    const value = kataToHira(key);
+    readingCache.set(key, value);
+    return value;
+  }
+
+  try{
+    const engine = await readingEngine();
+    if(engine){
+      const value = await engine.convert(key, {to:'hiragana', mode:'normal'});
+      const clean = String(value || key);
+      readingCache.set(key, clean);
+      return clean;
+    }
+  }catch(error){
+    console.warn('Reading failed', error);
+  }
+
+  readingCache.set(key, key);
+  return key;
 }
 
-/* =========================================================
-   RENDER EXACT ACTIVE SENTENCE
-   ========================================================= */
+async function translateJaVi(text){
+  const key = String(text || '').trim();
+  if(!key){ return ''; }
+  if(translationCache.has(key)){ return translationCache.get(key); }
 
-function renderSentence(
+  try{
+    const url =
+      'https://translate.googleapis.com/translate_a/single'
+      + '?client=gtx&sl=ja&tl=vi&dt=t&q='
+      + encodeURIComponent(key);
+
+    const response = await fetch(url);
+    if(!response.ok){ throw new Error(`translate ${response.status}`); }
+    const data = await response.json();
+    const value = Array.isArray(data?.[0])
+      ? data[0].map(part => part?.[0] || '').join('').trim()
+      : '';
+
+    if(value){
+      translationCache.set(key, value);
+      return value;
+    }
+  }catch(error){
+    console.warn('Translation unavailable', error);
+  }
+
+  return 'Không lấy được nghĩa.';
+}
+
+function inlineWordKey(token){
+  return String(token || '').trim().toLowerCase();
+}
+
+function refreshMeaningSave(){
+  const key = inlineWordKey(selectedInlineWord?.token);
+  const saved = !!(key && state.words?.[key]);
+  meaningSave.classList.toggle('saved', saved);
+  meaningSave.textContent = saved ? '✓ Đã lưu' : '＋ Lưu';
+}
+
+function clearInlineWord(){
+  selectedInlineWord = null;
+  sentenceEl.querySelectorAll('.jpWord.selected').forEach(el =>
+    el.classList.remove('selected')
+  );
+  meaningSave.classList.add('hidden');
+  meaningReading.textContent = 'cả câu';
+  if(activeInlineSentence){
+    showSentenceMeaning(activeInlineSentence);
+  }
+}
+
+async function showSentenceMeaning(sentence){
+  const id = sentence ? `${sentence.id}:${sentence.text}` : '';
+  meaningReading.textContent = 'cả câu';
+  meaningText.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
+  meaningSave.classList.add('hidden');
+
+  if(!sentence || !meaningVisible){ return; }
+  const translated = await translateJaVi(sentence.text);
+  if(!activeInlineSentence || `${activeInlineSentence.id}:${activeInlineSentence.text}` !== id){ return; }
+  if(selectedInlineWord){ return; }
+  meaningText.textContent = translated;
+}
+
+async function openWord(token, context, button, reading){
+  selectedInlineWord = {token, context, reading};
+
+  sentenceEl.querySelectorAll('.jpWord.selected').forEach(el =>
+    el.classList.remove('selected')
+  );
+  button?.classList.add('selected');
+
+  meaningReading.textContent = reading || kataToHira(token);
+  meaningText.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
+  meaningSave.classList.remove('hidden');
+  refreshMeaningSave();
+
+  if(!meaningVisible){ return; }
+  const lookupToken = token;
+  const translated = await translateJaVi(token);
+  if(selectedInlineWord?.token !== lookupToken){ return; }
+  meaningText.textContent = translated;
+}
+
+async function renderSentence(
   sentence,
   clip
 ){
 
-  if(
-    !sentence
-  ){
+  activeInlineSentence = sentence || null;
+  selectedInlineWord = null;
+  meaningSave.classList.add('hidden');
 
-    activeLearningSentence =
-      null;
-
-    sentenceEl.textContent =
-      '—';
-
-    sentenceProgress.textContent =
-      '—';
-
-    sentenceWrap.style.setProperty(
-      '--sentence-progress',
-      '0'
-    );
-
-    sentenceSaveBtn.textContent =
-      '＋ Save sentence';
-
-    sentenceSaveBtn.classList.remove(
-      'saved'
-    );
-
-    renderedSentenceId =
-      null;
-
+  if(!sentence){
+    sentenceEl.textContent = '—';
+    sentenceProgress.textContent = '—';
+    meaningReading.textContent = 'cả câu';
+    meaningText.textContent = '—';
+    renderedSentenceId = null;
     return;
-
   }
 
-  const id =
-    `${clip.id}:${sentence.id}`;
+  const id = `${clip.id}:${sentence.id}`;
+  if(renderedSentenceId === id){ return; }
+  renderedSentenceId = id;
 
-  if(
-    renderedSentenceId
-    === id
-  ){
+  const seq = ++sentenceRenderSeq;
+  sentenceEl.innerHTML = '';
+  meaningReading.textContent = 'cả câu';
+  meaningText.textContent = meaningVisible ? '…' : 'Nghĩa đang ẩn';
 
-    return;
+  const parts = wordSegmenter
+    ? Array.from(wordSegmenter.segment(sentence.text))
+    : [{segment:sentence.text,isWordLike:true}];
 
-  }
+  for(const part of parts){
+    const text = part.segment;
+    if(!text){ continue; }
 
-  renderedSentenceId =
-    id;
+    if(part.isWordLike){
+      const button = document.createElement('button');
+      button.className = 'jpWord';
+      button.type = 'button';
 
-  activeLearningSentence =
-    sentence;
+      const reading = await readingFor(text);
+      if(seq !== sentenceRenderSeq || renderedSentenceId !== id){ return; }
 
-  learningHint.textContent =
-    'Tap any word • replay • save';
+      const kanji = document.createElement('span');
+      kanji.className = 'jpKanji';
+      kanji.textContent = hasKanji(text) && reading !== text ? text : '';
 
-  sentenceWrap.classList.remove(
-    'attention'
-  );
+      const hira = document.createElement('span');
+      hira.className = 'jpHira';
+      hira.textContent = reading || text;
 
-  /* Force animation restart only when the phrase actually changes. */
-  void sentenceWrap.offsetWidth;
-
-  sentenceWrap.classList.add(
-    'attention'
-  );
-
-  sentenceEl.innerHTML =
-    '';
-
-  if(
-    wordSegmenter
-  ){
-
-    for(
-      const part
-      of wordSegmenter.segment(
-        sentence.text
-      )
-    ){
-
-      const text =
-        part.segment;
-
-      if(
-        !text
-      ){
-
-        continue;
-
-      }
-
-      if(
-        part.isWordLike
-      ){
-
-        const button =
-          document.createElement(
-            'button'
-          );
-
-        button.className =
-          'jpWord';
-
-        button.textContent =
-          text;
-
-        button.addEventListener(
-          'click',
-          event=>{
-
-            event.stopPropagation();
-
-            openWord(
-              text,
-              sentence.text
-            );
-
-          }
-        );
-
-        sentenceEl.appendChild(
-          button
-        );
-
-      }else{
-
-        const span =
-          document.createElement(
-            'span'
-          );
-
-        span.className =
-          'jpPunc';
-
-        span.textContent =
-          text;
-
-        sentenceEl.appendChild(
-          span
-        );
-
-      }
-
+      button.append(kanji, hira);
+      button.addEventListener('click', event=>{
+        event.stopPropagation();
+        openWord(text, sentence.text, button, reading || text);
+      });
+      sentenceEl.appendChild(button);
+    }else{
+      const span = document.createElement('span');
+      span.className = 'jpPunc';
+      span.textContent = kataToHira(text);
+      sentenceEl.appendChild(span);
     }
-
-  }else{
-
-    sentenceEl.textContent =
-      sentence.text;
-
   }
 
-  sentenceProgress.textContent =
-    '';
-
-  updateSentenceSaveButton();
-
+  const index = clip.sentences.findIndex(item => item.id === sentence.id);
+  sentenceProgress.textContent = `${index+1}/${clip.sentences.length} · ${fmt(sentence.start)}–${fmt(sentence.end)}`;
+  showSentenceMeaning(sentence);
 }
 
 function activeSentenceAt(
@@ -6139,21 +5137,17 @@ function renderCurrent(){
     Monitor sẽ thay bằng câu đúng theo currentTime.
   */
 
-  sentenceWrap.style.setProperty(
-    '--sentence-progress',
-    '0'
-  );
-
-  updateSentenceSaveButton();
-
   renderSentence(
-    buildDisplayPhrases(
-      clip.sentences?.[0]
-      || null
-    )[0]
+    clip.sentences?.[0]
     || null,
     clip
   );
+
+  const firstSentence = clip.sentences?.[0] || null;
+  const sentenceKey = firstSentence ? `${clip.id}:${firstSentence.id}` : null;
+  const sentenceSaved = !!(sentenceKey && state.sentences?.[sentenceKey]);
+  sentenceSaveBtn.classList.toggle('saved', sentenceSaved);
+  sentenceSaveBtn.textContent = sentenceSaved ? '★ Đã lưu' : '☆ Lưu câu';
 
 }
 
@@ -6226,8 +5220,6 @@ function startMonitor(){
     setInterval(
       ()=>{
 
-        enforceSingleActivePlayer();
-
         if(
           !ytReady
           ||
@@ -6282,54 +5274,13 @@ function startMonitor(){
           currentTime -> đúng 1 sentence.
         */
 
-        const activePhrase =
-          activeDisplayPhraseAt(
+        renderSentence(
+          activeSentenceAt(
             clip,
             time
-          );
-
-        renderSentence(
-          activePhrase,
+          ),
           clip
         );
-
-        if(
-          activePhrase
-        ){
-
-          const span =
-            Math.max(
-              .08,
-              activePhrase.end
-              - activePhrase.start
-            );
-
-          const progress =
-            Math.max(
-              0,
-              Math.min(
-                1,
-                (
-                  time
-                  - activePhrase.start
-                )
-                / span
-              )
-            );
-
-          sentenceWrap.style.setProperty(
-            '--sentence-progress',
-            String(progress)
-          );
-
-        }else{
-
-          sentenceWrap.style.setProperty(
-            '--sentence-progress',
-            '0'
-          );
-
-        }
 
         if(
           status
@@ -6587,199 +5538,51 @@ function toggleSave(){
    FULLSCREEN
    ========================================================= */
 
-function fullscreenElement(){
-
-  return (
-    document.fullscreenElement
-    ||
-    document.webkitFullscreenElement
-    ||
-    null
-  );
-
-}
-
-function setFullscreenUi(
-  active
-){
-
-  phone.classList.toggle(
-    'appFullscreen',
-    active
-  );
-
-  fullBtn.classList.toggle(
-    'active',
-    active
-  );
-
-  fullBtn.textContent =
-    active
-      ? '×'
-      : '⛶';
-
-}
-
 async function fullscreen(){
 
-  const active =
-    !!fullscreenElement();
+  const player =
+    players[
+      role.current
+    ];
+
+  if(
+    !player
+  ){
+
+    return;
+
+  }
 
   try{
 
+    const iframe =
+      player.getIframe();
+
     if(
-      active
+      iframe.requestFullscreen
     ){
 
-      if(
-        document.exitFullscreen
-      ){
+      await iframe
+        .requestFullscreen();
 
-        await document.exitFullscreen();
+    }else if(
+      iframe.webkitRequestFullscreen
+    ){
 
-      }else if(
-        document.webkitExitFullscreen
-      ){
-
-        document.webkitExitFullscreen();
-
-      }
-
-      document.documentElement.classList.remove(
-        'pseudoFullscreen'
-      );
-
-      setFullscreenUi(
-        false
-      );
-
-      return;
+      iframe
+        .webkitRequestFullscreen();
 
     }
 
-    if(
-      phone.requestFullscreen
-    ){
-
-      await phone.requestFullscreen();
-
-      setFullscreenUi(
-        true
-      );
-
-      return;
-
-    }
-
-    if(
-      phone.webkitRequestFullscreen
-    ){
-
-      phone.webkitRequestFullscreen();
-
-      setFullscreenUi(
-        true
-      );
-
-      return;
-
-    }
-
-    /*
-      iPhone Safari may not expose element Fullscreen API.
-      Fallback still expands the app to the entire available viewport.
-    */
-    const next =
-      !phone.classList.contains(
-        'appFullscreen'
-      );
-
-    document.documentElement.classList.toggle(
-      'pseudoFullscreen',
-      next
-    );
-
-    setFullscreenUi(
-      next
-    );
-
-    if(
-      next
-    ){
-
-      window.scrollTo(
-        0,
-        1
-      );
-
-    }
-
-  }catch(error){
-
-    console.warn(
-      'Fullscreen failed:',
-      error
-    );
-
-    const next =
-      !phone.classList.contains(
-        'appFullscreen'
-      );
-
-    document.documentElement.classList.toggle(
-      'pseudoFullscreen',
-      next
-    );
-
-    setFullscreenUi(
-      next
-    );
+  }catch{
 
     toastMsg(
-      'Browser không cho true fullscreen; đã mở full viewport.'
+      'Browser chặn fullscreen.'
     );
 
   }
 
 }
-
-document.addEventListener(
-  'fullscreenchange',
-  ()=>{
-
-    const active =
-      !!fullscreenElement();
-
-    setFullscreenUi(
-      active
-    );
-
-    if(
-      !active
-    ){
-
-      document.documentElement.classList.remove(
-        'pseudoFullscreen'
-      );
-
-    }
-
-  }
-);
-
-document.addEventListener(
-  'webkitfullscreenchange',
-  ()=>{
-
-    const active =
-      !!fullscreenElement();
-
-    setFullscreenUi(
-      active
-    );
-
-  }
-);
 
 /* =========================================================
    FOLLOWING LIST
@@ -7209,104 +6012,135 @@ async function removeSelectedChannel(){
 
 function renderLibrary(){
 
-  savedTab.classList.toggle('active', libraryMode === 'words');
-  sentencesTab.classList.toggle('active', libraryMode === 'sentences');
-  historyTab.classList.toggle('active', libraryMode === 'history');
+  savedTab.classList.toggle(
+    'active',
+    libraryMode === 'saved'
+  );
 
-  libraryList.innerHTML = '';
+  historyTab.classList.toggle(
+    'active',
+    libraryMode === 'history'
+  );
 
-  state.words ||= {};
-  state.sentences ||= {};
+  libraryList.innerHTML =
+    '';
 
-  if(libraryMode === 'words'){
-    const words = Object.values(state.words)
-      .sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+  const ids =
+    libraryMode === 'saved'
 
-    studyCount.textContent = `${words.length} words`;
+      ? Object.keys(
+          state.saved
+        ).filter(
+          id =>
+            state.saved[id]
+        )
 
-    if(!words.length){
-      libraryList.innerHTML = '<div class="emptyList">Tap a Japanese word in the feed, then Save word. Your review deck appears here.</div>';
-      return;
-    }
+      : state.history;
 
-    for(const item of words){
-      const button = document.createElement('button');
-      button.className = 'wordCard';
-      const due = !item.dueAt || item.dueAt <= Date.now();
-      button.innerHTML = `
-        <div class="wordCardToken">${escapeHtml(item.token || '')}</div>
-        <div class="wordCardContext">${escapeHtml(item.context || '')}</div>
-        <div class="wordCardMeta">${due ? 'Due now' : 'Scheduled'} · reviewed ${item.reviewCount || 0}×</div>
-      `;
-      button.onclick = ()=>{
-        selectedWord = item.token || '';
-        selectedWordContext = item.context || '';
-        selectedWordClipId = item.clipId || null;
-        wordToken.textContent = selectedWord;
-        wordContext.textContent = selectedWordContext;
-        wordMeta.textContent = 'Saved vocabulary · tap Dictionary for meaning / reading.';
-        updateWordSaveButton();
-        openScreen(wordScreen);
-      };
-      libraryList.appendChild(button);
-    }
+  const clips =
+    ids
+      .map(
+        clipById
+      )
+      .filter(Boolean);
 
-    return;
-  }
+  if(
+    !clips.length
+  ){
 
-  if(libraryMode === 'sentences'){
-    const items = Object.values(state.sentences)
-      .sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
-
-    studyCount.textContent = `${items.length} sentences`;
-
-    if(!items.length){
-      libraryList.innerHTML = '<div class="emptyList">Save useful sentences from the learning card. They will stay linked to the original clip.</div>';
-      return;
-    }
-
-    for(const item of items){
-      const channel = channelById(item.channelId);
-      const button = document.createElement('button');
-      button.className = 'sentenceCard';
-      button.innerHTML = `
-        <div class="sentenceCardText">${escapeHtml(item.text || '')}</div>
-        <div class="sentenceCardMeta">${escapeHtml(channel?.title || 'Channel')} · ${fmt(item.start || 0)}</div>
-      `;
-      button.onclick = ()=>playClipFromLibrary(item.clipId);
-      libraryList.appendChild(button);
-    }
-
-    return;
-  }
-
-  const clips = state.history.map(clipById).filter(Boolean);
-  studyCount.textContent = `${clips.length} history`;
-
-  if(!clips.length){
-    libraryList.innerHTML = '<div class="emptyList">No watch history yet.</div>';
-    return;
-  }
-
-  for(const clip of clips){
-    const channel = channelById(clip.channelId);
-    const video = channel?.videos?.find(item=>item.videoId===clip.videoId);
-    const button = document.createElement('button');
-    button.className = 'clipCard';
-    button.innerHTML = `
-      <img class="cardImg" src="${escapeHtml(video?.thumbnail || thumb(clip.videoId,'mqdefault'))}" alt="">
-      <div class="cardText">
-        <div class="cardTitle">${escapeHtml(channel?.title || 'Channel')}</div>
-        <div class="cardMeta">${fmt(clip.start)}–${fmt(clip.end)}</div>
-        <div class="cardSentence">${escapeHtml(clip.preview || '')}</div>
+    libraryList.innerHTML =
+      `
+      <div class="emptyList">
+        ${
+          libraryMode === 'saved'
+            ? 'Chưa save reel nào.'
+            : 'Chưa có history.'
+        }
       </div>
-    `;
-    button.onclick = ()=>playClipFromLibrary(clip.id);
-    libraryList.appendChild(button);
+      `;
+
+    return;
+
+  }
+
+  for(
+    const clip
+    of clips
+  ){
+
+    const channel =
+      channelById(
+        clip.channelId
+      );
+
+    const video =
+      channel?.videos?.find(
+        item =>
+          item.videoId
+          === clip.videoId
+      );
+
+    const button =
+      document.createElement(
+        'button'
+      );
+
+    button.className =
+      'clipCard';
+
+    button.innerHTML =
+      `
+      <img
+        class="cardImg"
+        src="${escapeHtml(
+          video?.thumbnail
+          || thumb(
+              clip.videoId,
+              'mqdefault'
+            )
+        )}"
+        alt=""
+      >
+
+      <div class="cardText">
+
+        <div class="cardTitle">
+          ${escapeHtml(
+            channel?.title
+            || 'Channel'
+          )}
+        </div>
+
+        <div class="cardMeta">
+          ${fmt(clip.start)}–${fmt(clip.end)}
+        </div>
+
+        <div class="cardSentence">
+          ${escapeHtml(
+            clip.preview
+            || ''
+          )}
+        </div>
+
+      </div>
+      `;
+
+    button.onclick =
+      ()=>{
+
+        playClipFromLibrary(
+          clip.id
+        );
+
+      };
+
+    libraryList.appendChild(
+      button
+    );
+
   }
 
 }
-
 
 function playClipFromLibrary(id){
 
@@ -7368,139 +6202,6 @@ function playClipFromLibrary(id){
     true
   );
 
-}
-
-
-/* =========================================================
-   SEARCH INSIDE IMPORTED JAPANESE
-   ========================================================= */
-
-function renderSearchResults(query=''){
-  const q = normalizeText(query);
-  searchResults.innerHTML = '';
-
-  if(!q){
-    searchResults.innerHTML = '<div class="emptyList">Search a Japanese word or phrase. Results come from the videos you imported.</div>';
-    return;
-  }
-
-  const matches = [];
-
-  for(const channel of channels){
-    for(const clip of channel.clips || []){
-      const sentence = (clip.sentences || []).find(item=>item.text?.includes(q));
-      if(sentence){
-        matches.push({channel, clip, sentence});
-        if(matches.length >= 60){ break; }
-      }
-    }
-    if(matches.length >= 60){ break; }
-  }
-
-  if(!matches.length){
-    searchResults.innerHTML = '<div class="emptyList">No matching sentence in imported videos.</div>';
-    return;
-  }
-
-  for(const match of matches){
-    const button = document.createElement('button');
-    button.className = 'sentenceCard';
-    button.innerHTML = `
-      <div class="sentenceCardText">${escapeHtml(match.sentence.text)}</div>
-      <div class="sentenceCardMeta">${escapeHtml(match.channel.title || 'Channel')} · ${fmt(match.sentence.start)}</div>
-    `;
-    button.onclick = ()=>{
-      closeScreen(searchScreen);
-      playClipFromLibrary(match.clip.id);
-      setTimeout(()=>{
-        try{
-          players[role.current]?.seekTo(match.sentence.start, true);
-        }catch{}
-      }, 180);
-    };
-    searchResults.appendChild(button);
-  }
-}
-
-/* =========================================================
-   WORD REVIEW
-   ========================================================= */
-
-function buildReviewQueue(){
-  const all = Object.values(state.words || {});
-  const due = all.filter(item=>!item.dueAt || item.dueAt <= Date.now());
-  return (due.length ? due : all)
-    .sort((a,b)=>(a.dueAt||0)-(b.dueAt||0));
-}
-
-function renderReviewCard(){
-  const item = reviewQueue[reviewIndex];
-
-  if(!item){
-    reviewToken.textContent = '✓';
-    reviewPrompt.textContent = 'Review complete.';
-    reviewContext.textContent = '';
-    reviewContext.classList.add('hidden');
-    reviewReveal.classList.add('hidden');
-    reviewAgain.classList.add('hidden');
-    reviewGood.classList.add('hidden');
-    reviewCounter.textContent = '';
-    return;
-  }
-
-  reviewCounter.textContent = `${reviewIndex + 1}/${reviewQueue.length}`;
-  reviewToken.textContent = item.token || '—';
-  reviewPrompt.textContent = 'Recall the meaning, reading, and how it was used.';
-  reviewContext.textContent = item.context || '—';
-  reviewContext.classList.add('hidden');
-  reviewReveal.classList.remove('hidden');
-  reviewAgain.classList.add('hidden');
-  reviewGood.classList.add('hidden');
-}
-
-function startReview(){
-  reviewQueue = buildReviewQueue();
-  reviewIndex = 0;
-
-  if(!reviewQueue.length){
-    toastMsg('Save some words first.');
-    return;
-  }
-
-  renderReviewCard();
-  openScreen(reviewScreen);
-}
-
-function revealReview(){
-  reviewContext.classList.remove('hidden');
-  reviewReveal.classList.add('hidden');
-  reviewAgain.classList.remove('hidden');
-  reviewGood.classList.remove('hidden');
-}
-
-function gradeReview(good){
-  const item = reviewQueue[reviewIndex];
-  if(!item){ return; }
-
-  const key = wordKey(item.token || '');
-  const stored = state.words?.[key];
-  if(stored){
-    stored.lastReviewed = Date.now();
-
-    if(good){
-      stored.reviewCount = (stored.reviewCount || 0) + 1;
-      const days = [1,3,7,14,30,60][Math.min(stored.reviewCount - 1, 5)];
-      stored.dueAt = Date.now() + days * 86400000;
-    }else{
-      stored.reviewCount = Math.max(0, (stored.reviewCount || 0) - 1);
-      stored.dueAt = Date.now() + 10 * 60000;
-    }
-
-    saveState();
-  }
-
-  reviewIndex += 1;
-  renderReviewCard();
 }
 
 /* =========================================================
@@ -7716,8 +6417,6 @@ document.addEventListener(
     if(
       document.activeElement
       === urlInput
-      || document.activeElement
-      === searchInput
     ){
 
       return;
@@ -7839,35 +6538,8 @@ channelsNav.onclick =
 
   };
 
-
-searchNav.onclick =
-  ()=>{
-
-    renderSearchResults(
-      searchInput.value
-    );
-
-    openScreen(
-      searchScreen
-    );
-
-    setTimeout(
-      ()=>searchInput.focus(),
-      80
-    );
-
-  };
-
-searchInput.addEventListener(
-  'input',
-  ()=>renderSearchResults(searchInput.value)
-);
-
 libraryNav.onclick =
   ()=>{
-
-    libraryMode =
-      'words';
 
     renderLibrary();
 
@@ -7884,10 +6556,8 @@ homeNav.onclick =
       addScreen,
       channelsScreen,
       channelScreen,
-      searchScreen,
       libraryScreen,
-      wordScreen,
-      reviewScreen
+      wordScreen
     ].forEach(
       closeScreen
     );
@@ -8127,20 +6797,20 @@ deleteChannel.onclick =
   removeSelectedChannel;
 
 /* =========================================================
-   REEL LEARNING ACTIONS
+   REEL ACTIONS
    ========================================================= */
 
-/* Legacy state actions remain callable but are not primary UI. */
-likeBtn.onclick = toggleLike;
-saveBtn.onclick = toggleSave;
+likeBtn.onclick =
+  toggleLike;
 
-replayBtn.onclick = replayLearningSentence;
-sentenceReplayBtn.onclick = replayLearningSentence;
-playBtn.onclick = togglePlayPause;
-speedBtn.onclick = cyclePlaybackRate;
-sentenceSaveBtn.onclick = toggleCurrentSentenceSaved;
-soundBtn.onclick = toggleSound;
-fullBtn.onclick = fullscreen;
+saveBtn.onclick =
+  toggleSave;
+
+soundBtn.onclick =
+  toggleSound;
+
+fullBtn.onclick =
+  fullscreen;
 
 ytBtn.onclick =
   ()=>{
@@ -8175,45 +6845,137 @@ ytBtn.onclick =
   };
 
 /* =========================================================
-   STUDY EVENTS
+   LIBRARY EVENTS
    ========================================================= */
 
 savedTab.onclick =
   ()=>{
-    libraryMode = 'words';
-    renderLibrary();
-  };
 
-sentencesTab.onclick =
-  ()=>{
-    libraryMode = 'sentences';
+    libraryMode =
+      'saved';
+
     renderLibrary();
+
   };
 
 historyTab.onclick =
   ()=>{
-    libraryMode = 'history';
+
+    libraryMode =
+      'history';
+
     renderLibrary();
+
   };
-
-startReviewBtn.onclick =
-  startReview;
-
-reviewReveal.onclick =
-  revealReview;
-
-reviewAgain.onclick =
-  ()=>gradeReview(false);
-
-reviewGood.onclick =
-  ()=>gradeReview(true);
 
 /* =========================================================
    WORD EVENTS
    ========================================================= */
 
-wordSaveBtn.onclick =
-  toggleSelectedWordSaved;
+
+meaningSave.onclick = event=>{
+  event.stopPropagation();
+  const item = selectedInlineWord;
+  const key = inlineWordKey(item?.token);
+  if(!item || !key){ return; }
+
+  state.words ||= {};
+  if(state.words[key]){
+    delete state.words[key];
+    toastMsg('Đã bỏ lưu từ.');
+  }else{
+    state.words[key] = {
+      token:item.token,
+      reading:item.reading,
+      meaning:meaningText.textContent,
+      context:item.context,
+      clipId:currentClip()?.id || null,
+      savedAt:Date.now()
+    };
+    toastMsg('Đã lưu từ.');
+  }
+  saveState();
+  refreshMeaningSave();
+};
+
+sentenceReplayBtn.onclick = event=>{
+  event.stopPropagation();
+  const clip = currentClip();
+  const sentence = activeInlineSentence;
+  const player = players[role.current];
+  if(!clip || !sentence || !player){ return; }
+  try{
+    player.seekTo(Math.max(clip.start, sentence.start), true);
+    player.playVideo();
+    if(audioOn){ player.unMute(); } else { player.mute(); }
+  }catch{}
+};
+
+speedBtn.onclick = event=>{
+  event.stopPropagation();
+  const rates = [.75,1,1.25];
+  const pos = rates.indexOf(playbackRate);
+  playbackRate = rates[(pos < 0 ? 1 : pos + 1) % rates.length];
+  try{ players[role.current]?.setPlaybackRate(playbackRate); }catch{}
+  speedBtn.textContent = `${playbackRate}×`;
+};
+
+meaningToggleBtn.onclick = event=>{
+  event.stopPropagation();
+  meaningVisible = !meaningVisible;
+  meaningToggleBtn.textContent = meaningVisible ? 'Ẩn nghĩa' : 'Hiện nghĩa';
+  if(selectedInlineWord){
+    if(meaningVisible){
+      const selected = sentenceEl.querySelector('.jpWord.selected');
+      openWord(
+        selectedInlineWord.token,
+        selectedInlineWord.context,
+        selected,
+        selectedInlineWord.reading
+      );
+    }else{
+      meaningText.textContent = 'Nghĩa đang ẩn';
+    }
+  }else if(activeInlineSentence){
+    showSentenceMeaning(activeInlineSentence);
+  }
+};
+
+sentenceSaveBtn.onclick = event=>{
+  event.stopPropagation();
+  const clip = currentClip();
+  const sentence = activeInlineSentence;
+  if(!clip || !sentence){ return; }
+
+  state.sentences ||= {};
+  const key = `${clip.id}:${sentence.id}`;
+  if(state.sentences[key]){
+    delete state.sentences[key];
+    sentenceSaveBtn.classList.remove('saved');
+    sentenceSaveBtn.textContent = '☆ Lưu câu';
+    toastMsg('Đã bỏ lưu câu.');
+  }else{
+    state.sentences[key] = {
+      id:key,
+      text:sentence.text,
+      clipId:clip.id,
+      channelId:clip.channelId,
+      videoId:clip.videoId,
+      start:sentence.start,
+      end:sentence.end,
+      savedAt:Date.now()
+    };
+    sentenceSaveBtn.classList.add('saved');
+    sentenceSaveBtn.textContent = '★ Đã lưu';
+    toastMsg('Đã lưu câu.');
+  }
+  saveState();
+};
+
+sentenceWrap.addEventListener('click', event=>{
+  if(event.target.closest('.jpWord,#meaningSave,.inlineAction')){ return; }
+  clearInlineWord();
+});
 
 jishoBtn.onclick =
   ()=>{
