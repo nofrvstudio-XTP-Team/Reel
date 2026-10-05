@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#08090b">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>XTP jp</title>
 <style>
@@ -1029,6 +1029,487 @@ button{cursor:pointer}
   #sentenceTranslation{font-size:12px}
   #sentence{font-size:17px}
   .jpWord .jpHira,.jpPunc{font-size:17px}
+}
+
+
+/* =========================================================
+   XTP JP — DARK PRODUCT UI
+   Same one-focus-sentence behavior; visual implementation of
+   the approved layout. This block intentionally only restyles
+   the app and does not replace the feed/player logic.
+   ========================================================= */
+:root{
+  --xtp-black:#08090b;
+  --xtp-card:#101216;
+  --xtp-card-2:#171a1f;
+  --xtp-text:#f6f7f9;
+  --xtp-muted:#91969f;
+  --xtp-line:#31353c;
+  --xtp-coral:#ff644e;
+  --xtp-coral-soft:#361816;
+  --xtp-teal:#30a094;
+  --xtp-yellow:#ffd048;
+  --xtp-nav-h:calc(78px + var(--safe-b));
+  --xtp-video-top:58px;
+  --xtp-video-h:54.2%;
+}
+
+html,body{background:var(--xtp-black)!important;color:var(--xtp-text)!important}
+#app{background:var(--xtp-black)!important}
+#phone{background:var(--xtp-black)!important}
+
+/* top tabs */
+#top{
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  height:52px!important;
+  padding:calc(var(--safe-t) - 8px) 18px 0!important;
+  display:flex!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  background:var(--xtp-black)!important;
+  pointer-events:none!important;
+}
+#feedTabs{
+  justify-self:auto!important;
+  gap:34px!important;
+  pointer-events:auto!important;
+}
+.feedTab{
+  padding:8px 0 10px!important;
+  font-size:12px!important;
+  color:var(--xtp-text)!important;
+  opacity:.56!important;
+  text-shadow:none!important;
+}
+.feedTab.active{opacity:1!important}
+.feedTab.active:after{
+  width:54px!important;
+  height:3px!important;
+  bottom:1px!important;
+  border-radius:2px!important;
+  background:var(--xtp-coral)!important;
+}
+#brand,#shuffleBtn{display:none!important}
+
+/* video becomes a real card instead of edge-to-edge subtitle-video */
+.playerSlot{
+  top:var(--xtp-video-top)!important;
+  left:14px!important;
+  right:14px!important;
+  bottom:auto!important;
+  height:var(--xtp-video-h)!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+  background:#000!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.04)!important;
+}
+.playerSlot>div,.playerSlot iframe{border-radius:22px!important}
+#shade{
+  top:var(--xtp-video-top)!important;
+  left:14px!important;
+  right:14px!important;
+  bottom:auto!important;
+  height:var(--xtp-video-h)!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+  background:
+    linear-gradient(to bottom,rgba(8,10,14,.95),rgba(8,10,14,.18) 15%,transparent 31%),
+    linear-gradient(to top,rgba(6,8,12,.84),rgba(6,8,12,.18) 24%,transparent 42%)!important;
+}
+#gesture{
+  top:var(--xtp-video-top)!important;
+  left:14px!important;
+  right:14px!important;
+  bottom:auto!important;
+  height:var(--xtp-video-h)!important;
+  border-radius:22px!important;
+}
+#buffer{
+  top:var(--xtp-video-top)!important;
+  left:14px!important;
+  right:14px!important;
+  bottom:auto!important;
+  height:var(--xtp-video-h)!important;
+  border-radius:22px!important;
+}
+
+/* overlay content is positioned over/under the same video card */
+#reelInfo{
+  position:absolute!important;
+  z-index:12!important;
+  inset:0 0 var(--xtp-nav-h) 0!important;
+  padding:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+#reelInfo:before{
+  content:"câu focus";
+  position:absolute;
+  z-index:18;
+  top:calc(var(--xtp-video-top) + var(--xtp-video-h) - 70px);
+  left:50%;
+  transform:translateX(-50%);
+  color:#fff;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.01em;
+  text-shadow:0 1px 7px #000;
+}
+#reelInfo:after{
+  content:"";
+  position:absolute;
+  z-index:18;
+  top:calc(var(--xtp-video-top) + var(--xtp-video-h) - 46px);
+  left:112px;
+  right:101px;
+  height:18px;
+  border-radius:9px;
+  background:
+    linear-gradient(90deg,transparent 0 34%,var(--xtp-yellow) 34% 66%,transparent 66% 100%),
+    linear-gradient(#485365,#485365) center/94% 4px no-repeat,
+    #121822;
+  box-shadow:0 0 0 1px rgba(255,255,255,.03);
+}
+#reelInfo:has(#sentenceWrap.focus-live):after{
+  background:
+    linear-gradient(90deg,transparent 0 34%,var(--xtp-coral) 34% 66%,transparent 66% 100%),
+    linear-gradient(#657389,#657389) center/94% 4px no-repeat,
+    #121822;
+  box-shadow:0 0 18px rgba(255,100,78,.20);
+}
+
+/* channel row is inside the top of the video card */
+#channelRow{
+  position:absolute!important;
+  z-index:20!important;
+  top:68px!important;
+  left:26px!important;
+  right:26px!important;
+  height:34px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  background:transparent!important;
+  border:0!important;
+  pointer-events:auto!important;
+}
+.avatar{display:none!important}
+#channelButton{min-width:0!important}
+#channelName{
+  max-width:250px!important;
+  color:#fff!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  text-shadow:0 2px 10px #000!important;
+}
+.followPill{
+  margin-left:auto!important;
+  height:30px!important;
+  padding:0 14px!important;
+  border:0!important;
+  border-radius:15px!important;
+  background:#fff!important;
+  color:#141820!important;
+  font-size:9px!important;
+  font-weight:900!important;
+  backdrop-filter:none!important;
+}
+.followPill.following{
+  background:var(--xtp-card-2)!important;
+  color:#fff!important;
+  box-shadow:0 0 0 1px var(--xtp-line)!important;
+}
+
+/* sound + fullscreen sit inside the video card as compact controls */
+#rail{
+  z-index:22!important;
+  top:auto!important;
+  right:31px!important;
+  bottom:calc(100% - var(--xtp-video-top) - var(--xtp-video-h) + 20px)!important;
+  display:flex!important;
+  flex-direction:row!important;
+  gap:8px!important;
+  pointer-events:auto!important;
+}
+#likeBtn,#saveBtn,#ytBtn,.railLabel{display:none!important}
+.railBtn{
+  width:auto!important;
+  min-width:40px!important;
+  height:34px!important;
+  padding:0 11px!important;
+  border-radius:17px!important;
+  background:#f7f7f7!important;
+  color:#12161d!important;
+  font-size:13px!important;
+  backdrop-filter:none!important;
+}
+
+/* one small subtitle card; Vietnamese by default, Japanese replaces it on tap */
+#sentenceWrap{
+  --focus-spoken:1.6s;
+  position:absolute!important;
+  z-index:21!important;
+  top:64.1%!important;
+  left:18px!important;
+  right:18px!important;
+  height:166px!important;
+  margin:0!important;
+  padding:0!important;
+  display:block!important;
+  background:transparent!important;
+  overflow:visible!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  user-select:none!important;
+  -webkit-tap-highlight-color:transparent!important;
+  transition:none!important;
+}
+#sentenceWrap:active{transform:none!important}
+
+#sentenceTranslation,
+#sentence{
+  position:absolute!important;
+  top:0!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  height:62px!important;
+  margin:0!important;
+  padding:11px 14px 19px 70px!important;
+  border:2px solid var(--xtp-coral)!important;
+  border-radius:16px!important;
+  background:var(--xtp-card)!important;
+  color:var(--xtp-text)!important;
+  box-shadow:none!important;
+  text-shadow:none!important;
+  overflow:hidden!important;
+}
+#sentenceTranslation{
+  display:block!important;
+  font-size:13px!important;
+  line-height:1.28!important;
+  font-weight:820!important;
+  text-align:left!important;
+  text-wrap:balance!important;
+}
+#sentenceTranslation:before{
+  content:"VI";
+  position:absolute;
+  left:11px;
+  top:9px;
+  min-width:47px;
+  height:21px;
+  padding:0 8px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  background:var(--xtp-coral-soft);
+  color:var(--xtp-coral);
+  font-size:9px;
+  font-weight:900;
+}
+#sentenceTranslation:after{
+  content:"Chạm để đổi sang 日本語";
+  position:absolute;
+  left:11px;
+  bottom:6px;
+  color:var(--xtp-muted);
+  font-size:9px;
+  font-weight:550;
+}
+
+#sentence{
+  display:none!important;
+  padding:9px 14px 15px 64px!important;
+  flex-wrap:wrap!important;
+  justify-content:flex-start!important;
+  align-items:flex-end!important;
+  align-content:center!important;
+  gap:3px 2px!important;
+  font-size:17px!important;
+  line-height:1.04!important;
+}
+#sentenceWrap.jp-mode #sentence{display:flex!important}
+#sentenceWrap.jp-mode #sentenceTranslation{display:none!important}
+#sentence:before{
+  content:"JP";
+  position:absolute;
+  left:11px;
+  top:9px;
+  min-width:42px;
+  height:21px;
+  padding:0 8px;
+  border-radius:11px;
+  display:grid;
+  place-items:center;
+  background:#182629;
+  color:#55c7bb;
+  font-size:9px;
+  font-weight:900;
+}
+#sentence:after{
+  content:"Chạm để đổi sang VI";
+  position:absolute;
+  left:11px;
+  bottom:5px;
+  color:var(--xtp-muted);
+  font-size:8px;
+  font-weight:550;
+}
+.jpWord{min-height:27px!important}
+.jpWord .jpKanji{
+  min-height:9px!important;
+  margin:0 1px 1px!important;
+  color:#737983!important;
+  font-size:7px!important;
+  font-weight:800!important;
+}
+.jpWord .jpHira,.jpPunc{
+  color:#f8f8f9!important;
+  font-size:17px!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+
+/* attention effect when the chosen sentence is actually spoken */
+#sentenceWrap.focus-soon #sentenceTranslation,
+#sentenceWrap.focus-soon #sentence{
+  border-color:#ff806d!important;
+}
+#sentenceWrap.focus-live #sentenceTranslation,
+#sentenceWrap.focus-live #sentence{
+  border-color:var(--xtp-coral)!important;
+  box-shadow:0 0 0 1px rgba(255,100,78,.18),0 0 22px rgba(255,100,78,.18)!important;
+  transform:scale(1.015)!important;
+}
+#sentenceWrap.focus-live #sentenceTranslation{
+  color:#fff!important;
+  text-shadow:none!important;
+}
+#sentenceWrap.focus-live .jpHira{
+  color:#fff!important;
+  text-shadow:0 0 12px rgba(255,208,72,.18)!important;
+  transform:scale(1.015)!important;
+}
+#sentenceWrap:before{
+  content:"Câu được chọn tự động · 1 câu / video";
+  position:absolute;
+  left:0;
+  top:78px;
+  color:var(--xtp-muted);
+  font-size:10px;
+  font-weight:550;
+}
+#sentenceWrap:after{
+  content:"";
+  position:absolute;
+  top:80px;
+  right:8px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--xtp-coral);
+  box-shadow:0 0 0 8px rgba(255,100,78,.12);
+  opacity:.85;
+  transform:none!important;
+}
+#sentenceWrap.focus-live:after{
+  animation:xtpFocusDot .72s ease-in-out infinite alternate!important;
+}
+@keyframes xtpFocusDot{
+  from{box-shadow:0 0 0 6px rgba(255,100,78,.10);transform:scale(.92)}
+  to{box-shadow:0 0 0 12px rgba(255,100,78,.03);transform:scale(1.12)}
+}
+
+/* compact controls from the real app, not fake UI */
+#sentenceProgress,#meaningLine{display:none!important}
+#inlineActions{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  top:116px!important;
+  height:40px!important;
+  display:grid!important;
+  grid-template-columns:1.15fr .78fr .9fr 1.3fr!important;
+  gap:10px!important;
+  pointer-events:auto!important;
+}
+#inlineActions .inlineAction{
+  min-width:0!important;
+  height:38px!important;
+  padding:0 10px!important;
+  border:1px solid var(--xtp-line)!important;
+  border-radius:12px!important;
+  background:var(--xtp-card-2)!important;
+  color:var(--xtp-text)!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+#meaningToggleBtn{display:none!important}
+#sentenceSaveBtn{grid-column:3!important}
+#inlineActions:after{
+  content:"Vuốt lên  ↑";
+  grid-column:4;
+  height:38px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:var(--xtp-teal);
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  pointer-events:none;
+}
+#sentenceSaveBtn.saved{
+  background:#263d3a!important;
+  border-color:#315e58!important;
+  color:#7fe1d6!important;
+}
+
+/* bottom nav: black, simple, no floating card effect */
+#nav{
+  height:var(--xtp-nav-h)!important;
+  padding:0 4px var(--safe-b)!important;
+  background:#07080a!important;
+  border-top:1px solid var(--xtp-line)!important;
+}
+.navBtn{opacity:.55!important;color:var(--xtp-muted)!important}
+.navBtn.active{opacity:1!important;color:var(--xtp-coral)!important}
+.navIcon{font-size:16px!important}
+.navText{font-size:8px!important}
+#addNav .navIcon{
+  width:auto!important;
+  height:auto!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:inherit!important;
+  font-size:18px!important;
+}
+
+/* other app screens remain functional but use the same black palette */
+.screen{background:#0a0b0d!important;color:var(--xtp-text)!important}
+.screenHead{background:#0d0f12!important;border-bottom-color:var(--xtp-line)!important}
+.addBox,.listItem,.videoItem,.savedItem,.settingRow,.profileCard{
+  background:var(--xtp-card)!important;
+  border-color:var(--xtp-line)!important;
+}
+.primary{background:var(--xtp-teal)!important;color:#fff!important}
+.secondary,.backBtn{background:var(--xtp-card-2)!important;color:var(--xtp-text)!important;border-color:var(--xtp-line)!important}
+input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-line)!important}
+
+@media(max-height:700px){
+  :root{--xtp-video-top:52px;--xtp-video-h:52.5%;--xtp-nav-h:calc(70px + var(--safe-b))}
+  #sentenceWrap{top:62%!important;height:158px!important}
+  #sentenceTranslation,#sentence{height:58px!important}
+  #sentenceWrap:before{top:72px!important}
+  #sentenceWrap:after{top:74px!important}
+  #inlineActions{top:108px!important}
 }
 
 </style>
