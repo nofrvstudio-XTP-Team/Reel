@@ -1512,6 +1512,41 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
   #inlineActions{top:108px!important}
 }
 
+
+
+/* =========================================================
+   AUTO YOUTUBE SOURCES — selected channels only
+   ========================================================= */
+.sourceBox{padding:18px 16px 26px}
+.sourceHero{margin-bottom:14px}
+.sourceHero h2{margin:0 0 6px;font-size:24px;letter-spacing:-.5px}
+.sourceHero p{margin:0;color:var(--exact-muted,#91969f);font-size:12px;line-height:1.55}
+.sourceSection{border:1px solid var(--exact-line,rgba(255,255,255,.10));background:var(--exact-card,#101216);border-radius:14px;padding:13px;margin-top:10px}
+.sourceLabel{font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--exact-muted,#91969f);margin-bottom:8px}
+.sourceRow{display:flex;gap:8px;align-items:center}
+.sourceInput{width:100%;height:44px;border:1px solid var(--exact-line,rgba(255,255,255,.10));border-radius:11px;background:#0c0e11;color:#fff;padding:0 12px;outline:none}
+.sourceInput:focus{border-color:rgba(255,255,255,.35)}
+.sourceRow .sourceInput{flex:1;min-width:0}
+.sourceBtn{height:44px;border:0;border-radius:11px;padding:0 13px;background:var(--exact-teal,#30a094);color:#fff;font-weight:850;white-space:nowrap}
+.sourceBtn.secondary{background:var(--exact-card2,#171a1f);border:1px solid var(--exact-line,rgba(255,255,255,.10));color:#fff}
+.sourceActions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.sourceActions .sourceBtn{height:38px}
+.sourceList{display:grid;gap:8px;margin-top:10px}
+.sourceItem{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--exact-line,rgba(255,255,255,.10));border-radius:12px;background:#0d0f12}
+.sourceThumb{width:38px;height:38px;border-radius:10px;object-fit:cover;background:#222;flex:0 0 auto}
+.sourceMeta{min-width:0;flex:1}
+.sourceTitle{font-size:12px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sourceId{font-size:9px;color:var(--exact-muted,#91969f);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sourceMini{height:32px;border:1px solid var(--exact-line,rgba(255,255,255,.10));border-radius:9px;background:#171a1f;color:#fff;padding:0 9px;font-size:10px;font-weight:800}
+.sourceMini.danger{color:#ff8774}
+.sourceStatus{min-height:34px;margin-top:10px;color:var(--exact-muted,#91969f);font-size:11px;line-height:1.45;white-space:pre-wrap}
+.sourceHint{font-size:10px;line-height:1.5;color:#737984;margin-top:8px}
+.sourceNumber{width:72px;flex:0 0 72px}
+.sourceToggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#cdd0d5;margin-top:10px}
+.sourceToggle input{accent-color:var(--exact-coral,#ff644e)}
+.sourceDivider{height:1px;background:var(--exact-line,rgba(255,255,255,.10));margin:14px 0}
+.sourceManual summary{cursor:pointer;color:var(--exact-muted,#91969f);font-size:11px;font-weight:800}
+
 </style>
 
 <style id="xtp-approved-dark-final">
@@ -1954,57 +1989,56 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
   >
 
     <header class="screenHead">
-
-      <button
-        class="backBtn"
-        data-close="addScreen"
-      >
-        ‹
-      </button>
-
-      <div class="screenTitle">
-        Add video
-      </div>
-
+      <button class="backBtn" data-close="addScreen">‹</button>
+      <div class="screenTitle">YouTube sources</div>
     </header>
 
-    <div class="addBox">
-
-      <h2>
-        Paste YouTube video
-      </h2>
-
-      <p>
-        Link chỉ là source.
-        App tự nhận channel thật, lấy transcript tiếng Nhật,
-        chia video nguồn thành nhiều reel và chọn đúng 1 câu focus cho mỗi reel.
-      </p>
-
-      <div class="urlRow">
-
-        <input
-          id="urlInput"
-          autocomplete="off"
-          spellcheck="false"
-          placeholder="https://youtube.com/watch?v=…"
-        >
-
-        <button
-          class="primary"
-          id="importBtn"
-        >
-          Import
-        </button>
-
+    <div class="sourceBox">
+      <div class="sourceHero">
+        <h2>Chỉ lấy đúng channel đã chọn</h2>
+        <p>App tự check video mới từ whitelist này, lấy transcript Nhật và tự tạo nhiều reel. Mỗi reel vẫn chỉ có đúng 1 câu focus.</p>
       </div>
 
-      <div id="addStatus"></div>
-
-      <div class="note">
-        Dữ liệu được lưu local bằng IndexedDB/localStorage.
-        Static HTML cần chạy trên HTTPS như GitHub Pages.
+      <div class="sourceSection">
+        <div class="sourceLabel">YouTube Data API key</div>
+        <div class="sourceRow">
+          <input id="ytApiKeyInput" class="sourceInput" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+          <button id="saveYtApiKey" class="sourceBtn">Lưu</button>
+        </div>
+        <div class="sourceHint">Với app GitHub Pages cá nhân: dùng browser key đã giới hạn HTTP referrer + chỉ bật YouTube Data API v3.</div>
       </div>
 
+      <div class="sourceSection">
+        <div class="sourceLabel">Thêm channel</div>
+        <div class="sourceRow">
+          <input id="channelSourceInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="@handle · youtube.com/@handle · UC…">
+          <button id="addChannelSourceBtn" class="sourceBtn">＋ Thêm</button>
+        </div>
+        <div class="sourceActions">
+          <button id="useCurrentChannelsBtn" class="sourceBtn secondary">Dùng channel đang có</button>
+          <button id="syncSourcesBtn" class="sourceBtn secondary">↻ Sync ngay</button>
+        </div>
+        <label class="sourceToggle">
+          <input id="autoSyncToggle" type="checkbox">
+          <span>Tự sync khi mở app</span>
+        </label>
+        <div class="sourceRow" style="margin-top:10px">
+          <span style="font-size:11px;color:#9aa0aa;flex:1">Video gần nhất mỗi channel</span>
+          <input id="sourceMaxVideos" class="sourceInput sourceNumber" type="number" min="1" max="30" step="1">
+        </div>
+        <div id="sourceList" class="sourceList"></div>
+        <div id="sourceStatus" class="sourceStatus"></div>
+      </div>
+
+      <details class="sourceSection sourceManual">
+        <summary>Import thủ công 1 video</summary>
+        <div class="sourceDivider"></div>
+        <div class="sourceRow">
+          <input id="urlInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="https://youtube.com/watch?v=…">
+          <button class="sourceBtn secondary" id="importBtn">Import</button>
+        </div>
+        <div id="addStatus" class="sourceStatus"></div>
+      </details>
     </div>
 
   </section>
@@ -2291,6 +2325,12 @@ const MAX_SENTENCE_CHARS =
 const MAX_SENTENCE_SECONDS =
   7.5;
 
+const AUTO_SOURCE_KEY =
+  'xtp-youtube-sources-v1';
+
+const AUTO_SYNC_INTERVAL =
+  3 * 60 * 60 * 1000;
+
 /* =========================================================
    DOM
    ========================================================= */
@@ -2415,6 +2455,36 @@ const importBtn =
 
 const addStatus =
   $('#addStatus');
+
+const ytApiKeyInput =
+  $('#ytApiKeyInput');
+
+const saveYtApiKey =
+  $('#saveYtApiKey');
+
+const channelSourceInput =
+  $('#channelSourceInput');
+
+const addChannelSourceBtn =
+  $('#addChannelSourceBtn');
+
+const useCurrentChannelsBtn =
+  $('#useCurrentChannelsBtn');
+
+const syncSourcesBtn =
+  $('#syncSourcesBtn');
+
+const autoSyncToggle =
+  $('#autoSyncToggle');
+
+const sourceMaxVideos =
+  $('#sourceMaxVideos');
+
+const sourceList =
+  $('#sourceList');
+
+const sourceStatus =
+  $('#sourceStatus');
 
 const channelList =
   $('#channelList');
@@ -2542,6 +2612,12 @@ let monitorTimer =
 let state =
   loadState();
 
+let autoSources =
+  loadAutoSources();
+
+let autoSyncRunning =
+  false;
+
 /* =========================================================
    PERSISTENCE
    ========================================================= */
@@ -2612,6 +2688,25 @@ function saveState(){
     JSON.stringify(state)
   );
 
+}
+
+function loadAutoSources(){
+  try{
+    const data = JSON.parse(localStorage.getItem(AUTO_SOURCE_KEY) || '{}');
+    return {
+      apiKey: String(data.apiKey || ''),
+      sources: Array.isArray(data.sources) ? data.sources : [],
+      autoSync: data.autoSync !== false,
+      maxVideos: Math.max(1, Math.min(30, Number(data.maxVideos) || 8)),
+      lastSync: Number(data.lastSync) || 0
+    };
+  }catch{
+    return { apiKey:'', sources:[], autoSync:true, maxVideos:8, lastSync:0 };
+  }
+}
+
+function saveAutoSources(){
+  localStorage.setItem(AUTO_SOURCE_KEY, JSON.stringify(autoSources));
 }
 
 /* =========================================================
@@ -4193,259 +4288,304 @@ async function getVideoMetadata(
    IMPORT
    ========================================================= */
 
-async function importVideo(){
+function videoAlreadyExists(videoId){
+  return channels.some(channel => (channel.videos || []).some(video => video.videoId === videoId));
+}
 
-  const videoId =
-    parseVideoId(
-      urlInput.value
-    );
+async function importVideoId(videoId, options={}){
+  const { metadataHint=null, silent=false } = options;
 
-  if(
-    !videoId
-  ){
-
-    addStatus.textContent =
-      'Link YouTube không hợp lệ.';
-
-    return;
-
+  if(!videoId || !/^[A-Za-z0-9_-]{11}$/.test(videoId)){
+    throw new Error('Video ID không hợp lệ.');
   }
 
-  const alreadyExists =
-    channels.some(
-      channel =>
-        (
-          channel.videos
-          || []
-        ).some(
-          video =>
-            video.videoId
-            === videoId
-        )
-    );
-
-  if(
-    alreadyExists
-  ){
-
-    addStatus.textContent =
-      'Video này đã có trong app.';
-
-    return;
-
+  if(videoAlreadyExists(videoId)){
+    return { status:'exists', videoId };
   }
 
-  importBtn.disabled =
-    true;
+  const metadataPromise = metadataHint
+    ? Promise.resolve({
+        title: metadataHint.title || `YouTube ${videoId}`,
+        channelName: metadataHint.channelName || 'Unknown channel',
+        channelUrl: metadataHint.channelUrl || '',
+        channelId: metadataHint.channelId || '',
+        thumbnail: metadataHint.thumbnail || thumb(videoId)
+      })
+    : getVideoMetadata(videoId);
 
-  addStatus.textContent =
-    'Đang lấy channel + transcript…';
+  const [metadata, transcriptText] = await Promise.all([
+    metadataPromise,
+    fetchText(TRANSCRIPT_API(videoId))
+  ]);
 
-  try{
+  const parsed = parseTranscript(transcriptText, videoId);
+  const sentences = buildSentences(parsed.blocks);
+  if(!sentences.length){
+    throw new Error('Không tạo được sentence timeline.');
+  }
 
-    const [
-      metadata,
-      transcriptText
-    ] =
-      await Promise.all([
+  let channel = channels.find(item =>
+    (metadata.channelId && item.youtubeChannelId === metadata.channelId)
+    || (metadata.channelUrl && item.channelUrl === metadata.channelUrl)
+    || (metadata.channelName && item.title === metadata.channelName)
+  ) || null;
 
-        getVideoMetadata(
-          videoId
-        ),
+  const identity = metadata.channelId
+    ? `youtube:${metadata.channelId}`
+    : (metadata.channelUrl || `name:${metadata.channelName.toLowerCase()}`);
 
-        fetchText(
-          TRANSCRIPT_API(
-            videoId
-          )
-        )
+  const channelId = channel?.id || `ch_${hash(identity)}`;
 
-      ]);
-
-    const parsed =
-      parseTranscript(
-        transcriptText,
-        videoId
-      );
-
-    const sentences =
-      buildSentences(
-        parsed.blocks
-      );
-
-    if(
-      !sentences.length
-    ){
-
-      throw new Error(
-        'Không tạo được sentence timeline.'
-      );
-
-    }
-
-    const identity =
-      metadata.channelUrl
-      ||
-      `name:${
-        metadata.channelName
-          .toLowerCase()
-      }`;
-
-    const channelId =
-      `ch_${hash(identity)}`;
-
-    let channel =
-      channelById(
-        channelId
-      );
-
-    if(
-      !channel
-    ){
-
-      channel = {
-
-        id:
-          channelId,
-
-        identity,
-
-        title:
-          metadata.channelName,
-
-        channelUrl:
-          metadata.channelUrl,
-
-        avatar:
-          metadata.thumbnail,
-
-        createdAt:
-          Date.now(),
-
-        videos:
-          [],
-
-        clips:
-          []
-
-      };
-
-      channels.push(
-        channel
-      );
-
-    }
-
-    const clips =
-      buildClips(
-        channelId,
-        videoId,
-        sentences,
-        parsed.duration
-      );
-
-    const video = {
-
-      videoId,
-
-      url:
-        videoUrl(
-          videoId
-        ),
-
-      title:
-        metadata.title
-        || parsed.title,
-
-      thumbnail:
-        metadata.thumbnail
-        || thumb(videoId),
-
-      duration:
-        parsed.duration,
-
-      language:
-        parsed.language,
-
-      addedAt:
-        Date.now(),
-
-      sentences,
-
-      clipIds:
-        clips.map(
-          clip =>
-            clip.id
-        )
-
+  if(!channel){
+    channel = {
+      id:channelId,
+      identity,
+      youtubeChannelId:metadata.channelId || '',
+      title:metadata.channelName,
+      channelUrl:metadata.channelUrl,
+      avatar:metadata.thumbnail,
+      createdAt:Date.now(),
+      videos:[],
+      clips:[]
     };
-
-    channel.title =
-      metadata.channelName
-      || channel.title;
-
-    channel.channelUrl =
-      metadata.channelUrl
-      || channel.channelUrl;
-
-    channel.avatar =
-      channel.avatar
-      || metadata.thumbnail;
-
-    channel.videos.push(
-      video
-    );
-
-    channel.clips.push(
-      ...clips
-    );
-
-    await dbPut(
-      channel
-    );
-
-    urlInput.value =
-      '';
-
-    addStatus.textContent =
-      `Xong: ${channel.title}\n${sentences.length} câu · ${clips.length} reels`;
-
-    renderFollowingList();
-
-    rebuildFeed({
-      mode:
-        feedMode === 'following'
-          ? 'following'
-          : 'for-you'
-    });
-
-    setTimeout(
-      ()=>{
-        closeScreen(
-          addScreen
-        );
-      },
-      550
-    );
-
-  }catch(error){
-
-    addStatus.textContent =
-      `Lỗi: ${
-        error?.name === 'AbortError'
-          ? 'timeout'
-          : (
-              error?.message
-              || String(error)
-            )
-      }`;
-
-  }finally{
-
-    importBtn.disabled =
-      false;
-
+    channels.push(channel);
   }
 
+  if(metadata.channelId){ channel.youtubeChannelId = metadata.channelId; }
+  channel.title = metadata.channelName || channel.title;
+  channel.channelUrl = metadata.channelUrl || channel.channelUrl;
+  channel.avatar = channel.avatar || metadata.thumbnail;
+
+  const clips = buildClips(channel.id, videoId, sentences, parsed.duration);
+  const video = {
+    videoId,
+    url:videoUrl(videoId),
+    title:metadata.title || parsed.title,
+    thumbnail:metadata.thumbnail || thumb(videoId),
+    duration:parsed.duration,
+    language:parsed.language,
+    addedAt:Date.now(),
+    sentences,
+    clipIds:clips.map(clip=>clip.id)
+  };
+
+  channel.videos.push(video);
+  channel.clips.push(...clips);
+  await dbPut(channel);
+
+  if(!silent){
+    renderFollowingList();
+    rebuildFeed({ mode:feedMode === 'following' ? 'following' : 'for-you' });
+  }
+
+  return { status:'imported', channel, video, clips, sentences };
+}
+
+async function importVideo(){
+  const videoId = parseVideoId(urlInput.value);
+  if(!videoId){
+    addStatus.textContent = 'Link YouTube không hợp lệ.';
+    return;
+  }
+  if(videoAlreadyExists(videoId)){
+    addStatus.textContent = 'Video này đã có trong app.';
+    return;
+  }
+
+  importBtn.disabled = true;
+  addStatus.textContent = 'Đang lấy channel + transcript…';
+  try{
+    const result = await importVideoId(videoId);
+    urlInput.value = '';
+    addStatus.textContent = `Xong: ${result.channel.title}\n${result.sentences.length} câu · ${result.clips.length} reels`;
+  }catch(error){
+    addStatus.textContent = `Lỗi: ${error?.name === 'AbortError' ? 'timeout' : (error?.message || String(error))}`;
+  }finally{
+    importBtn.disabled = false;
+  }
+}
+
+/* =========================================================
+   AUTO YOUTUBE SOURCES — selected channels only
+   ========================================================= */
+function youtubeApiUrl(resource, params={}){
+  const url = new URL(`https://www.googleapis.com/youtube/v3/${resource}`);
+  for(const [key,value] of Object.entries(params)){
+    if(value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value));
+  }
+  url.searchParams.set('key', autoSources.apiKey);
+  return url.toString();
+}
+
+function normalizeChannelSpecifier(raw){
+  const text = String(raw || '').trim();
+  if(!text) return null;
+  if(/^UC[A-Za-z0-9_-]{20,}$/.test(text)) return { type:'id', value:text };
+  if(/^@[A-Za-z0-9._-]+$/.test(text)) return { type:'handle', value:text.slice(1) };
+  try{
+    const url = new URL(/^https?:\/\//i.test(text) ? text : `https://${text}`);
+    if(!url.hostname.replace(/^www\./,'').endsWith('youtube.com')) return null;
+    const parts = url.pathname.split('/').filter(Boolean);
+    if(parts[0] === 'channel' && /^UC[A-Za-z0-9_-]{20,}$/.test(parts[1] || '')) return { type:'id', value:parts[1] };
+    if(parts[0]?.startsWith('@')) return { type:'handle', value:parts[0].slice(1) };
+  }catch{}
+  return null;
+}
+
+async function resolveChannelSource(raw){
+  if(!autoSources.apiKey) throw new Error('Chưa có YouTube Data API key.');
+  const spec = normalizeChannelSpecifier(raw);
+  if(!spec) throw new Error('Dùng @handle, youtube.com/@handle hoặc channel ID bắt đầu bằng UC.');
+  const params = { part:'snippet,contentDetails', maxResults:1 };
+  if(spec.type === 'id') params.id = spec.value;
+  else params.forHandle = spec.value;
+  const data = await fetchJson(youtubeApiUrl('channels', params));
+  const item = data?.items?.[0];
+  if(!item) throw new Error('Không tìm thấy channel.');
+  const custom = item.snippet?.customUrl || '';
+  return {
+    channelId:item.id,
+    title:item.snippet?.title || item.id,
+    handle:custom,
+    channelUrl: custom ? `https://www.youtube.com/${custom}` : `https://www.youtube.com/channel/${item.id}`,
+    thumbnail:item.snippet?.thumbnails?.default?.url || item.snippet?.thumbnails?.medium?.url || '',
+    uploadsPlaylistId:item.contentDetails?.relatedPlaylists?.uploads || ''
+  };
+}
+
+function channelAllowedBySources(channel){
+  if(!autoSources.sources.length) return true;
+  return autoSources.sources.some(source =>
+    (source.channelId && channel.youtubeChannelId === source.channelId)
+    || (source.channelUrl && channel.channelUrl === source.channelUrl)
+    || (source.title && channel.title === source.title)
+  );
+}
+
+function renderAutoSourceManager(){
+  if(!sourceList) return;
+  ytApiKeyInput.value = autoSources.apiKey || '';
+  autoSyncToggle.checked = !!autoSources.autoSync;
+  sourceMaxVideos.value = autoSources.maxVideos || 8;
+  sourceList.innerHTML = '';
+  if(!autoSources.sources.length){
+    sourceList.innerHTML = '<div class="sourceHint">Chưa có channel nào. Feed cũ vẫn hoạt động cho tới khi bạn thêm whitelist.</div>';
+    return;
+  }
+  for(const source of autoSources.sources){
+    const row = document.createElement('div');
+    row.className = 'sourceItem';
+    row.innerHTML = `
+      <img class="sourceThumb" src="${escapeHtml(source.thumbnail || '')}" alt="">
+      <div class="sourceMeta">
+        <div class="sourceTitle">${escapeHtml(source.title || source.channelId)}</div>
+        <div class="sourceId">${escapeHtml(source.handle || source.channelId)}</div>
+      </div>
+      <button class="sourceMini" data-sync-source="${escapeHtml(source.channelId)}">Sync</button>
+      <button class="sourceMini danger" data-remove-source="${escapeHtml(source.channelId)}">×</button>`;
+    sourceList.appendChild(row);
+  }
+  sourceList.querySelectorAll('[data-sync-source]').forEach(btn=>{
+    btn.onclick = async()=>{
+      const source = autoSources.sources.find(item=>item.channelId===btn.dataset.syncSource);
+      if(source) await syncAutoSource(source,{background:false});
+    };
+  });
+  sourceList.querySelectorAll('[data-remove-source]').forEach(btn=>{
+    btn.onclick = ()=>{
+      autoSources.sources = autoSources.sources.filter(item=>item.channelId!==btn.dataset.removeSource);
+      saveAutoSources();
+      renderAutoSourceManager();
+      rebuildFeed({ mode:feedMode === 'following' ? 'following' : 'for-you' });
+      sourceStatus.textContent = 'Đã bỏ channel khỏi whitelist. Dữ liệu cũ vẫn nằm local nhưng không còn vào feed.';
+    };
+  });
+}
+
+async function addChannelSource(raw){
+  const resolved = await resolveChannelSource(raw);
+  const exists = autoSources.sources.some(item=>item.channelId===resolved.channelId);
+  if(!exists){
+    autoSources.sources.push(resolved);
+    saveAutoSources();
+  }
+  renderAutoSourceManager();
+  return resolved;
+}
+
+async function listLatestChannelVideos(source){
+  if(!source.uploadsPlaylistId){
+    const fresh = await resolveChannelSource(source.channelId);
+    Object.assign(source,fresh);
+    saveAutoSources();
+  }
+  const data = await fetchJson(youtubeApiUrl('playlistItems',{
+    part:'snippet,contentDetails',
+    playlistId:source.uploadsPlaylistId,
+    maxResults:Math.max(1,Math.min(30,autoSources.maxVideos || 8))
+  }));
+  return (data?.items || []).map(item=>({
+    videoId:item.contentDetails?.videoId || item.snippet?.resourceId?.videoId || '',
+    title:item.snippet?.title || '',
+    publishedAt:item.contentDetails?.videoPublishedAt || item.snippet?.publishedAt || '',
+    thumbnail:item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.default?.url || '',
+    channelId:source.channelId,
+    channelName:source.title,
+    channelUrl:source.channelUrl
+  })).filter(item=>/^[A-Za-z0-9_-]{11}$/.test(item.videoId) && !/^private video$|^deleted video$/i.test(item.title));
+}
+
+async function syncAutoSource(source,{background=false}={}){
+  if(!autoSources.apiKey){
+    if(!background) sourceStatus.textContent = 'Chưa có YouTube Data API key.';
+    return { imported:0, skipped:0, failed:0 };
+  }
+  if(!background) sourceStatus.textContent = `Đang check ${source.title}…`;
+  const items = await listLatestChannelVideos(source);
+  const unseen = items.filter(item=>!videoAlreadyExists(item.videoId)).reverse();
+  let imported=0, skipped=items.length-unseen.length, failed=0;
+  for(let i=0;i<unseen.length;i++){
+    const item=unseen[i];
+    if(!background) sourceStatus.textContent = `${source.title}\nĐang xử lý ${i+1}/${unseen.length}: ${item.title}`;
+    try{
+      const result = await importVideoId(item.videoId,{metadataHint:item,silent:true});
+      if(result.status==='imported') imported++; else skipped++;
+    }catch(error){
+      failed++;
+      console.warn('Auto import skipped',item.videoId,error);
+    }
+  }
+  renderFollowingList();
+  rebuildFeed({ mode:feedMode === 'following' ? 'following' : 'for-you' });
+  if(!background) sourceStatus.textContent = `${source.title}: +${imported} video · ${skipped} đã có · ${failed} bỏ qua`;
+  return {imported,skipped,failed};
+}
+
+async function syncAllAutoSources({background=false,force=false}={}){
+  if(autoSyncRunning || !autoSources.sources.length || !autoSources.apiKey) return;
+  if(!force && background && Date.now() - autoSources.lastSync < AUTO_SYNC_INTERVAL) return;
+  autoSyncRunning = true;
+  syncSourcesBtn.disabled = true;
+  let imported=0,failed=0;
+  try{
+    for(const source of autoSources.sources){
+      try{
+        const result = await syncAutoSource(source,{background});
+        imported += result.imported;
+        failed += result.failed;
+      }catch(error){
+        failed++;
+        console.warn('Source sync failed',source,error);
+      }
+    }
+    autoSources.lastSync = Date.now();
+    saveAutoSources();
+    if(!background) sourceStatus.textContent = `Sync xong: +${imported} video mới${failed ? ` · ${failed} lỗi/bỏ qua` : ''}.`;
+  }finally{
+    autoSyncRunning = false;
+    syncSourcesBtn.disabled = false;
+    renderAutoSourceManager();
+  }
 }
 
 /* =========================================================
@@ -4455,6 +4595,10 @@ async function importVideo(){
 function allClips(){
 
   return channels
+    .filter(
+      channel =>
+        channelAllowedBySources(channel)
+    )
     .flatMap(
       channel =>
         channel.clips
@@ -7229,8 +7373,7 @@ document.addEventListener(
   event=>{
 
     if(
-      document.activeElement
-      === urlInput
+      [urlInput,ytApiKeyInput,channelSourceInput,sourceMaxVideos,exactSearchInput].includes(document.activeElement)
     ){
 
       return;
@@ -7468,6 +7611,67 @@ urlInput.addEventListener(
 
   }
 );
+
+saveYtApiKey.onclick = ()=>{
+  autoSources.apiKey = (ytApiKeyInput.value || '').trim();
+  saveAutoSources();
+  sourceStatus.textContent = autoSources.apiKey ? 'Đã lưu API key trên thiết bị này.' : 'Đã xoá API key.';
+};
+
+addChannelSourceBtn.onclick = async()=>{
+  const raw=(channelSourceInput.value || '').trim();
+  if(!raw) return;
+  addChannelSourceBtn.disabled=true;
+  sourceStatus.textContent='Đang nhận diện channel…';
+  try{
+    const source=await addChannelSource(raw);
+    channelSourceInput.value='';
+    sourceStatus.textContent=`Đã thêm ${source.title}. Đang lấy video mới…`;
+    await syncAutoSource(source,{background:false});
+  }catch(error){
+    sourceStatus.textContent=`Lỗi: ${error?.message || error}`;
+  }finally{
+    addChannelSourceBtn.disabled=false;
+  }
+};
+
+channelSourceInput.addEventListener('keydown',event=>{
+  if(event.key==='Enter') addChannelSourceBtn.click();
+});
+
+syncSourcesBtn.onclick=()=>syncAllAutoSources({background:false,force:true});
+
+autoSyncToggle.onchange=()=>{
+  autoSources.autoSync=autoSyncToggle.checked;
+  saveAutoSources();
+};
+
+sourceMaxVideos.onchange=()=>{
+  autoSources.maxVideos=Math.max(1,Math.min(30,Number(sourceMaxVideos.value)||8));
+  sourceMaxVideos.value=autoSources.maxVideos;
+  saveAutoSources();
+};
+
+useCurrentChannelsBtn.onclick=async()=>{
+  if(!autoSources.apiKey){ sourceStatus.textContent='Lưu YouTube Data API key trước.'; return; }
+  useCurrentChannelsBtn.disabled=true;
+  let added=0,failed=0;
+  try{
+    const candidates=[...new Set(channels.map(ch=>ch.channelUrl || '').filter(Boolean))];
+    for(let i=0;i<candidates.length;i++){
+      sourceStatus.textContent=`Đang nhận diện channel ${i+1}/${candidates.length}…`;
+      try{
+        const before=autoSources.sources.length;
+        await addChannelSource(candidates[i]);
+        if(autoSources.sources.length>before) added++;
+      }catch{ failed++; }
+    }
+    sourceStatus.textContent=`Đã thêm ${added} channel${failed ? ` · ${failed} link không resolve được` : ''}.`;
+    renderAutoSourceManager();
+  }finally{
+    useCurrentChannelsBtn.disabled=false;
+  }
+};
 
 /* =========================================================
    FEED TABS
@@ -7886,7 +8090,13 @@ async function boot(){
 
   updateFeedTabs();
 
+  renderAutoSourceManager();
+
   startMonitor();
+
+  if(autoSources.autoSync && autoSources.sources.length && autoSources.apiKey){
+    setTimeout(()=>syncAllAutoSources({background:true}), 900);
+  }
 
   const api =
     document.createElement(
@@ -7971,7 +8181,7 @@ function exactRenderReview(){
 }
 
 // Top + is Add Video, exactly as the approved preview.
-shuffleBtn.onclick=()=>openScreen(addScreen);
+shuffleBtn.onclick=()=>{ renderAutoSourceManager(); openScreen(addScreen); };
 
 // Remap bottom navigation to Feed / Search / Review / Saved.
 homeNav.onclick=()=>{ exactCloseAllScreens(); exactSetNav(homeNav); };
