@@ -1835,6 +1835,231 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
 }
 </style>
 
+
+<style id="xtp-compact-progress-ui-20261006">
+/* Compact production feed pass. One real progress rail under channel/follow; no duplicate focus block. */
+
+/* Kill the old fake focus label + oversized timing block. */
+#reelInfo:before,#reelInfo:after{display:none!important;content:none!important;}
+
+/* Real video progress directly below the channel / Follow row. */
+#videoProgressBar{
+  position:absolute!important;z-index:30!important;
+  top:23.72cqw!important;left:6.512cqw!important;right:6.512cqw!important;
+  height:1.4cqw!important;min-height:5px!important;
+  pointer-events:none!important;
+}
+#videoProgressTrack,#videoProgressFocus,#videoProgressPlayed{
+  position:absolute!important;left:0;top:50%;transform:translateY(-50%);
+  height:.7cqw!important;min-height:3px!important;border-radius:999px!important;
+}
+#videoProgressTrack{right:0;background:rgba(255,255,255,.22)!important;}
+#videoProgressPlayed{width:0;background:var(--exact-coral)!important;z-index:2!important;}
+#videoProgressFocus{width:0;background:var(--exact-yellow)!important;z-index:3!important;box-shadow:0 0 0 1px rgba(0,0,0,.2)!important;}
+#videoProgressFocus.live{box-shadow:0 0 10px rgba(255,208,72,.75)!important;animation:xtpFocusRailPulse .52s ease-in-out infinite alternate!important;}
+#videoProgressKnob{
+  position:absolute!important;z-index:4!important;top:50%;left:0;
+  width:1.65cqw!important;height:1.65cqw!important;min-width:6px!important;min-height:6px!important;
+  border-radius:50%!important;background:var(--exact-coral)!important;
+  transform:translate(-50%,-50%)!important;box-shadow:0 0 0 2px rgba(8,9,11,.75)!important;
+}
+@keyframes xtpFocusRailPulse{from{opacity:.76}to{opacity:1}}
+
+/* Bottom-of-video controls are just controls now; no second timing rail. */
+#rail{
+  top:99.2cqw!important;left:6.512cqw!important;right:7.442cqw!important;
+}
+#soundBtn,#fullBtn{
+  height:7cqw!important;min-width:8.4cqw!important;padding:0 2.6cqw!important;
+  border-radius:3.5cqw!important;font-size:2.35cqw!important;
+}
+#rail:before{display:none!important;content:none!important;}
+
+/* Subtitle remains the only learning surface under the video. */
+#sentenceWrap{
+  top:113.2cqw!important;left:4.186cqw!important;right:4.186cqw!important;height:27.2cqw!important;
+}
+#sentenceTranslation,#sentence{height:14.0cqw!important;}
+
+/* Remove explanation/meta clutter under the subtitle. */
+#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important;}
+
+/* Only two useful feed actions. No fake swipe button, no dead more button. */
+#inlineActions{
+  top:16.5cqw!important;height:8.4cqw!important;
+  display:flex!important;align-items:center!important;gap:2.326cqw!important;
+}
+#inlineActions:after{display:none!important;content:none!important;}
+#inlineActions .inlineAction{height:8.4cqw!important;border-radius:2.6cqw!important;font-size:2.326cqw!important;}
+#sentenceReplayBtn{display:block!important;flex:0 0 27cqw!important;}
+#sentenceSaveBtn{display:block!important;flex:0 0 21cqw!important;}
+#speedBtn,#meaningToggleBtn{display:none!important;}
+
+/* Keep a clean gap before nav instead of inventing controls. */
+#nav{height:18.14cqw!important;}
+
+@media(max-width:699px){
+  #videoProgressBar{top:23.72cqw!important;}
+  #rail{top:99.2cqw!important;}
+  #sentenceWrap{top:113.2cqw!important;height:27.2cqw!important;}
+}
+</style>
+
+
+<style id="xtp-pv-layout-lock-20261006">
+/* Layout lock from the approved wireframe. Geometry only; keep product logic intact. */
+#phone{container-type:inline-size!important;background:#08090b!important;}
+
+/* top: 0..52 */
+#top{
+  top:0!important;left:0!important;right:0!important;height:12.093cqw!important;
+  padding:1.86cqw 4.186cqw 0!important;background:#08090b!important;
+  display:flex!important;align-items:flex-start!important;justify-content:flex-start!important;
+}
+#feedTabs{gap:7.907cqw!important;margin:0!important;}
+#followingTab{order:1!important}#forYouTab{order:2!important}
+.feedTab{height:8.372cqw!important;padding:1.628cqw 0 2.093cqw!important;font-size:2.558cqw!important;}
+.feedTab.active:after{width:10.93cqw!important;height:.698cqw!important;bottom:0!important;}
+#brand{display:none!important}
+#shuffleBtn{
+  display:grid!important;place-items:center!important;right:3.721cqw!important;top:2.326cqw!important;
+  width:10.233cqw!important;height:7.442cqw!important;border-radius:3.721cqw!important;
+}
+
+/* one outer video card: x14 y56 w402 h416 */
+#reelInfo{
+  position:absolute!important;z-index:20!important;
+  top:13.023cqw!important;left:3.256cqw!important;right:3.256cqw!important;bottom:auto!important;
+  height:96.744cqw!important;margin:0!important;padding:0!important;
+  border:1px solid #31353c!important;border-radius:4.651cqw!important;
+  background:#111318!important;overflow:visible!important;pointer-events:none!important;
+}
+
+/* channel row: inside outer card */
+#channelRow{
+  position:absolute!important;z-index:29!important;top:2.326cqw!important;left:3.256cqw!important;right:3.256cqw!important;
+  height:6.512cqw!important;padding:0!important;margin:0!important;background:transparent!important;
+  display:flex!important;align-items:center!important;pointer-events:auto!important;
+}
+.avatar{display:none!important}
+#channelName{font-size:2.326cqw!important;font-weight:850!important;max-width:59cqw!important;}
+.followPill{height:6.512cqw!important;padding:0 3.256cqw!important;border-radius:3.256cqw!important;font-size:2.093cqw!important;}
+
+/* REAL running progress immediately under channel/follow: global y≈104 */
+#videoProgressBar{
+  position:absolute!important;z-index:30!important;top:10.93cqw!important;left:2.326cqw!important;right:2.326cqw!important;
+  height:2.326cqw!important;min-height:0!important;pointer-events:none!important;
+}
+#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{
+  top:50%!important;height:.698cqw!important;min-height:0!important;border-radius:999px!important;
+}
+#videoProgressTrack{background:#4a4f58!important;}
+#videoProgressPlayed{background:#f4f4f4!important;}
+#videoProgressFocus{background:#ffd048!important;box-shadow:none!important;}
+#videoProgressFocus.live{animation:xtpPvFocusPulse .48s ease-in-out infinite alternate!important;box-shadow:0 0 1.86cqw rgba(255,208,72,.58)!important;}
+#videoProgressKnob{width:1.86cqw!important;height:1.86cqw!important;min-width:0!important;min-height:0!important;background:#ff644e!important;}
+@keyframes xtpPvFocusPulse{from{opacity:.72}to{opacity:1}}
+
+/* VIDEO ONLY block: x24 y128 w382 h286. No cover/zoom. */
+.playerSlot{
+  position:absolute!important;z-index:22!important;
+  top:29.767cqw!important;left:5.581cqw!important;right:5.581cqw!important;bottom:auto!important;
+  height:66.512cqw!important;border-radius:2.791cqw!important;background:#000!important;overflow:hidden!important;
+}
+.playerSlot>div{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important;border-radius:2.791cqw!important;background:#000!important;}
+.playerSlot iframe{
+  position:absolute!important;inset:0!important;top:0!important;left:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;
+  transform:none!important;border:0!important;border-radius:0!important;background:#000!important;
+}
+/* no artificial crop/zoom masks; YouTube viewport keeps the whole video visible */
+#shade{
+  position:absolute!important;z-index:23!important;top:29.767cqw!important;left:5.581cqw!important;right:5.581cqw!important;bottom:auto!important;
+  height:66.512cqw!important;border-radius:2.791cqw!important;background:transparent!important;overflow:hidden!important;pointer-events:none!important;
+}
+#shade:before,#shade:after{display:none!important;content:none!important;}
+#gesture{
+  position:absolute!important;z-index:24!important;top:13.023cqw!important;left:3.256cqw!important;right:3.256cqw!important;bottom:auto!important;
+  height:96.744cqw!important;border-radius:4.651cqw!important;touch-action:none!important;
+}
+#buffer{
+  position:absolute!important;z-index:25!important;top:29.767cqw!important;left:5.581cqw!important;right:5.581cqw!important;bottom:auto!important;
+  height:66.512cqw!important;border-radius:2.791cqw!important;overflow:hidden!important;
+}
+.spinner{width:6.512cqw!important;height:6.512cqw!important;border-width:.698cqw!important;}
+
+/* only the two compact playback controls at the bottom of the card */
+#rail{
+  position:absolute!important;z-index:31!important;top:98.837cqw!important;left:6.977cqw!important;right:7.442cqw!important;bottom:auto!important;
+  height:7.442cqw!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+  pointer-events:none!important;
+}
+#rail:before{display:none!important;content:none!important;}
+#likeBtn,#saveBtn,#ytBtn,.railLabel{display:none!important;}
+#soundBtn,#fullBtn{
+  display:grid!important;place-items:center!important;height:7.442cqw!important;min-width:8.837cqw!important;
+  padding:0 2.791cqw!important;border-radius:3.721cqw!important;font-size:2.326cqw!important;pointer-events:auto!important;
+}
+
+/* subtitle card: global x18 y490 w394 h58 */
+#sentenceWrap{
+  position:absolute!important;z-index:32!important;
+  top:100.93cqw!important;left:.93cqw!important;right:.93cqw!important;height:26.047cqw!important;
+  padding:0!important;margin:0!important;background:transparent!important;overflow:visible!important;pointer-events:auto!important;
+}
+#sentenceTranslation,#sentence{
+  position:absolute!important;left:0!important;right:0!important;top:0!important;width:100%!important;
+  height:13.488cqw!important;margin:0!important;border-radius:2.791cqw!important;
+}
+#sentenceTranslation{
+  padding:2.558cqw 3.256cqw 4.186cqw 14.884cqw!important;
+  font-size:2.791cqw!important;line-height:1.22!important;text-align:left!important;
+}
+#sentenceTranslation:before{
+  left:2.326cqw!important;top:2.326cqw!important;min-width:9.302cqw!important;height:4.651cqw!important;
+  padding:0 1.628cqw!important;border-radius:2.326cqw!important;font-size:1.86cqw!important;
+}
+#sentenceTranslation:after{left:2.326cqw!important;bottom:1.395cqw!important;font-size:1.86cqw!important;}
+#sentence{
+  padding:1.86cqw 3.256cqw 3.256cqw 13.953cqw!important;gap:.465cqw!important;align-content:center!important;
+}
+#sentence:before{left:2.326cqw!important;top:2.326cqw!important;min-width:8.605cqw!important;height:4.651cqw!important;font-size:1.86cqw!important;}
+#sentence:after{left:2.326cqw!important;bottom:1.163cqw!important;font-size:1.628cqw!important;}
+.jpWord{min-height:5.581cqw!important}.jpWord .jpKanji{min-height:1.86cqw!important;font-size:1.395cqw!important}.jpWord .jpHira,.jpPunc{font-size:3.488cqw!important;}
+#sentenceProgress,#meaningLine{display:none!important;}
+#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important;}
+
+/* actions: global y566, only replay + save */
+#inlineActions{
+  position:absolute!important;top:17.674cqw!important;left:0!important;right:0!important;height:8.372cqw!important;
+  display:flex!important;align-items:center!important;gap:2.791cqw!important;pointer-events:auto!important;
+}
+#inlineActions:after{display:none!important;content:none!important;}
+#inlineActions .inlineAction{height:8.372cqw!important;border-radius:2.326cqw!important;font-size:2.326cqw!important;padding:0 2.326cqw!important;}
+#sentenceReplayBtn{display:block!important;flex:0 0 22.791cqw!important;}
+#sentenceSaveBtn{display:block!important;flex:0 0 20cqw!important;}
+#speedBtn,#meaningToggleBtn{display:none!important;}
+
+/* bottom nav: same hierarchy as PV; on tall phones it stays at the bottom */
+#nav{
+  position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:18.605cqw!important;min-height:64px!important;
+  border-top:1px solid #31353c!important;background:#08090b!important;padding-bottom:env(safe-area-inset-bottom)!important;
+  display:grid!important;grid-template-columns:repeat(4,1fr)!important;z-index:40!important;
+}
+.navBtn{height:18.605cqw!important;padding:2.791cqw 0 1.86cqw!important;gap:1.163cqw!important;}
+.navIcon{font-size:3.023cqw!important;line-height:5.581cqw!important;}.navText{font-size:2.093cqw!important;}
+
+/* remove old percentage/mobile geometry that stretched the feed */
+@media(max-width:699px){
+  #reelInfo{top:13.023cqw!important;height:96.744cqw!important;}
+  .playerSlot{top:29.767cqw!important;height:66.512cqw!important;}
+  #shade,#buffer{top:29.767cqw!important;height:66.512cqw!important;}
+  #gesture{top:13.023cqw!important;height:96.744cqw!important;}
+  #rail{top:98.837cqw!important;}
+  #sentenceWrap{top:100.93cqw!important;height:26.047cqw!important;}
+  #nav{height:18.605cqw!important;}
+}
+</style>
 </head>
 
 <body>
@@ -1920,6 +2145,13 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
         Follow
       </button>
 
+    </div>
+
+    <div id="videoProgressBar" aria-hidden="true">
+      <span id="videoProgressTrack"></span>
+      <span id="videoProgressFocus"></span>
+      <span id="videoProgressPlayed"></span>
+      <span id="videoProgressKnob"></span>
     </div>
 
     <div id="sentenceWrap">
@@ -2486,6 +2718,18 @@ const channelName =
 
 const followQuick =
   $('#followQuick');
+
+const videoProgressBar =
+  $('#videoProgressBar');
+
+const videoProgressFocus =
+  $('#videoProgressFocus');
+
+const videoProgressPlayed =
+  $('#videoProgressPlayed');
+
+const videoProgressKnob =
+  $('#videoProgressKnob');
 
 const sentenceEl =
   $('#sentence');
@@ -6076,6 +6320,43 @@ async function renderSentence(sentence, clip){
   void showSentenceMeaning(sentence,clip);
 }
 
+function clamp01(value){
+  return Math.max(0,Math.min(1,Number(value)||0));
+}
+
+function updateVideoProgress(time,clip){
+  if(!videoProgressBar || !clip){ return; }
+
+  const start = Number(clip.start)||0;
+  const end = Math.max(start+.05,Number(clip.end)||start+.05);
+  const duration = end-start;
+  const played = clamp01((Number(time)-start)/duration);
+
+  videoProgressPlayed.style.width = `${played*100}%`;
+  videoProgressKnob.style.left = `${played*100}%`;
+
+  const sentence = clip?.sentences?.[0];
+  if(sentence){
+    const focusStart = clamp01((Number(sentence.start)-start)/duration);
+    const focusEnd = clamp01((Number(sentence.end)-start)/duration);
+    videoProgressFocus.style.left = `${focusStart*100}%`;
+    videoProgressFocus.style.width = `${Math.max(.012,focusEnd-focusStart)*100}%`;
+    videoProgressFocus.classList.toggle(
+      'live',
+      Number(time) >= Number(sentence.start)-.04 && Number(time) <= Number(sentence.end)+.08
+    );
+  }else{
+    videoProgressFocus.style.left = '0%';
+    videoProgressFocus.style.width = '0%';
+    videoProgressFocus.classList.remove('live');
+  }
+}
+
+function resetVideoProgress(clip){
+  if(!videoProgressBar){ return; }
+  updateVideoProgress(Number(clip?.start)||0,clip);
+}
+
 function resetFocusCue(){
   focusCueActive = false;
   sentenceWrap.classList.remove('focus-soon','focus-live','focus-hit');
@@ -6213,6 +6494,7 @@ function renderCurrent(){
 
   setSubtitleLanguage('vi');
   resetFocusCue();
+  resetVideoProgress(clip);
   void prewarmLearning(clip);
 
   renderSentence(
@@ -6352,6 +6634,7 @@ function startMonitor(){
         );
 
         updateFocusCue(time,clip);
+        updateVideoProgress(time,clip);
 
         if(
           status
@@ -8320,13 +8603,13 @@ exactSetNav(homeNav);
 // Exact labels/actions shown in the approved preview.
 sentenceReplayBtn.textContent='↺ Nghe lại';
 sentenceSaveBtn.textContent=state.sentences ? '♡ Lưu' : '♡ Lưu';
-speedBtn.textContent='⋯';
+speedBtn.textContent='';
 
 // Save button stays functional in the second action slot.
 const exactSentenceSaveHandler=sentenceSaveBtn.onclick;
 sentenceSaveBtn.onclick=(event)=>{ exactSentenceSaveHandler?.(event); sentenceSaveBtn.textContent=sentenceSaveBtn.classList.contains('saved')?'♥ Đã lưu':'♡ Lưu'; };
 // Third small button is intentionally a compact more affordance; keep it non-disruptive.
-speedBtn.onclick=(event)=>{ event.stopPropagation(); toastMsg('Thêm tuỳ chọn sau.'); };
+speedBtn.onclick=(event)=>{ event.stopPropagation(); };
 
 // Video-left control replays the focus sentence; video-right cycles speed.
 soundBtn.textContent='↺';
@@ -8349,7 +8632,7 @@ const exactOldRenderCurrent=renderCurrent;
 renderCurrent=function(){
   const out=exactOldRenderCurrent.apply(this,arguments);
   sentenceReplayBtn.textContent='↺ Nghe lại';
-  speedBtn.textContent='⋯';
+  speedBtn.textContent='';
   soundBtn.textContent='↺';
   fullBtn.textContent=`${exactRate}×`;
   const clip=currentClip();
