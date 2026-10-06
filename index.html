@@ -2196,6 +2196,30 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
 }
 </style>
 
+
+<style id="xtp-quality-layout-v4">
+#reelInfo{overflow:visible!important;}
+/* sentenceWrap lives INSIDE reelInfo: place it just below the media card. */
+#sentenceWrap{
+  top:calc(100% + 4.2cqw)!important;
+  left:.93cqw!important;right:.93cqw!important;height:27cqw!important;
+}
+#sentenceTranslation,#sentence{height:13.5cqw!important;}
+#inlineActions{top:17.7cqw!important;height:8.37cqw!important;}
+#rail{top:101.9cqw!important;height:7.9cqw!important;}
+#videoProgressBar{height:1.4cqw!important;}
+#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{height:.46cqw!important;min-height:2px!important;}
+#videoProgressKnob{width:1.35cqw!important;height:1.35cqw!important;}
+#nav{height:18.1cqw!important;min-height:64px!important;}
+.navBtn{height:18.1cqw!important;min-height:64px!important;padding:2cqw 0 1.1cqw!important;}
+.playerSlot>div{aspect-ratio:16/9!important;width:100%!important;height:auto!important;top:50%!important;transform:translateY(-50%)!important;}
+.playerSlot iframe{object-fit:contain!important;}
+@media(max-width:699px){
+  #sentenceWrap{top:calc(100% + 4.2cqw)!important;height:27cqw!important;}
+  #nav{height:18.1cqw!important;min-height:64px!important;}
+}
+</style>
+
 </head>
 
 <body>
@@ -4368,80 +4392,105 @@ function buildSentences(blocks){
    BUILD REELS
    ========================================================= */
 
+function cleanFocusText(text){
+  return normalizeText(text || '').replace(/\s+/g,'').trim();
+}
+
+function isLowValueFocusSentence(text){
+  const raw = cleanFocusText(text);
+  const plain = raw.replace(/[。！？!?、,.…〜~・「」『』（）()\[\]【】]/g,'');
+  if(!plain){ return true; }
+
+  if(/^(?:うん+|うーん+|ん+|え+|ええ+|えー+|あ+|ああ+|あー+|はい+|へえ+|ほう+|まあ+|その+|あの+|えっと+|ええと+|なんか+|そう+|そうそう+|そうですね+|そうだね+|なるほど+|たしかに+|確かに+|ほんと+|本当+|まじ+|マジ+|オッケー+|OK+|おー+|おお+|わあ+|わー+|ふーん+|へー+)$/i.test(plain)){
+    return true;
+  }
+
+  if(/^(?:ね|よ|な|さ|ぞ|ぜ|か|が|で|に|を|は|も|と|へ|の|から|まで|だけ|でも|けど|けれど)$/i.test(plain)){
+    return true;
+  }
+
+  return false;
+}
+
 function focusSentenceInfo(sentences, index){
   const sentence = sentences[index];
-  const duration = Math.max(.01, sentence.end - sentence.start);
-  const chars = Array.from(normalizeText(sentence.text).replace(/[\s。！？!?、]/g,'')).length;
+  const text = normalizeText(sentence.text);
+  const compact = cleanFocusText(text);
+  const duration = Math.max(.01, Number(sentence.end) - Number(sentence.start));
+  const chars = Array.from(compact.replace(/[。！？!?、,.…〜~・「」『』（）()\[\]【】]/g,'')).length;
   const beforeGap = index > 0
-    ? Math.max(0, sentence.start - sentences[index-1].end)
-    : sentence.start;
+    ? Math.max(0, Number(sentence.start) - Number(sentences[index-1].end))
+    : Math.max(0, Number(sentence.start));
   const afterGap = index + 1 < sentences.length
-    ? Math.max(0, sentences[index+1].start - sentence.end)
+    ? Math.max(0, Number(sentences[index+1].start) - Number(sentence.end))
     : 1.2;
 
+  const lowValue = isLowValueFocusSentence(text);
+  const hasKanjiChar = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(compact);
+  const hasSentenceEnd = /[。！？!?]$/.test(compact);
+  const emphatic = /[！？!?]$/.test(compact);
+  const naturalEnding = /(?:です|ます|でした|ません|だ|だった|だよ|だね|ですね|ない|なかった|ないよ|ないね|する|した|してる|している|いる|ある|あるよ|かな|かも|よね|でしょう|でしょ|ください|ほしい|たい|と思う|と思います)[。！？!?]?$/.test(compact);
+  const fragmentEnding = /(?:、|,|けど|けれど|けれども|から|ので|のに|て|で|が|し|とか|って|という|ながら|つつ)$/.test(compact);
+  const meaningfulShort = hasKanjiChar && chars >= 3;
+
   let score = 0;
+  score += Math.max(0, 7 - Math.abs(duration - 2.7) * 2.0);
+  score += Math.max(0, 7 - Math.abs(chars - 13) * .38);
+  score += Math.min(1.4, beforeGap) * 4.6;
+  score += Math.min(1.4, afterGap) * 4.9;
 
-  /* short enough to hold in working memory */
-  score += Math.max(0, 5 - Math.abs(duration - 2.2) * 1.7);
-  score += Math.max(0, 5 - Math.abs(chars - 12) * .33);
+  if(emphatic){ score += 5.0; }
+  else if(hasSentenceEnd){ score += 2.6; }
+  if(naturalEnding){ score += 2.2; }
+  if(hasKanjiChar){ score += 1.0; }
+  if(fragmentEnding){ score -= 7.0; }
+  if(lowValue){ score -= 100; }
+  if(chars < 4){ score -= 10; }
+  if(duration < .9){ score -= 10; }
 
-  /* spoken on its own / with breathing room */
-  score += Math.min(1.2, beforeGap) * 4.0;
-  score += Math.min(1.2, afterGap) * 4.2;
-
-  /* sentence-final / emphatic delivery */
-  if(/[！？!?]$/.test(sentence.text)){ score += 4.5; }
-  else if(/[。]$/.test(sentence.text)){ score += 1.5; }
-
-  if(/(です|ます|だ|だよ|だね|ですね|ますね|ない|ません|だった|でした|する|した|いる|ある|よ|ね)[。！？!?]?$/.test(sentence.text)){
-    score += 1.5;
-  }
-
-  if(/^(えー|ええ|あー|ああ|うん|はい|まあ|その|あの|えっと|んー)[、。！？!?]*$/.test(sentence.text)){
-    score -= 30;
-  }
+  const isolated = (beforeGap >= .18 && afterGap >= .18) || (beforeGap + afterGap >= .62);
+  const completeEnough = hasSentenceEnd || naturalEnding || emphatic;
 
   const strong =
-    duration >= .75
-    && duration <= 4.6
-    && chars >= 4
-    && chars <= 24
-    && beforeGap >= .28
-    && afterGap >= .28;
+    !lowValue
+    && !fragmentEnding
+    && duration >= 1.15
+    && duration <= 5.2
+    && (chars >= 6 || meaningfulShort)
+    && chars <= 30
+    && isolated
+    && completeEnough;
 
-  const reasonable =
-    duration >= .55
-    && duration <= 5.8
-    && chars >= 3
-    && chars <= 32;
+  const acceptable =
+    !lowValue
+    && !fragmentEnding
+    && duration >= 1.0
+    && duration <= 6.2
+    && (chars >= 5 || meaningfulShort)
+    && chars <= 34
+    && (completeEnough || isolated)
+    && score >= 5.5;
 
-  return {sentence,index,duration,chars,beforeGap,afterGap,score,strong,reasonable};
+  return {sentence,index,duration,chars,beforeGap,afterGap,score,lowValue,strong,acceptable};
 }
 
 function chooseFocusSentence(sentences){
   if(!sentences?.length){ return null; }
 
   const infos = sentences.map((_,index)=>focusSentenceInfo(sentences,index));
-  const strong = infos.filter(item=>item.strong);
+  const strong = infos.filter(item=>item.strong).sort((a,b)=>b.score-a.score);
+  if(strong.length){ return strong[0]; }
 
-  if(strong.length){
-    strong.sort((a,b)=>b.score-a.score);
-    return strong[0];
-  }
-
-  /* Requirement: if there is no clean short/isolated sentence,
-     fall back to a random reasonable sentence. */
-  const reasonable = infos.filter(item=>item.reasonable);
-  const pool = reasonable.length ? reasonable : infos;
-  return pool[Math.floor(Math.random()*pool.length)] || infos[0];
+  const acceptable = infos.filter(item=>item.acceptable).sort((a,b)=>b.score-a.score);
+  return acceptable[0] || null;
 }
 
 function focusClipBounds(sentences, focusIndex, duration){
   const focus = sentences[focusIndex];
-  const PRE_TARGET = 2.7;
-  const POST_TARGET = 2.7;
-  const PRE_MIN = 2.0;
-  const POST_MIN = 2.0;
+  const PRE_TARGET = 2.8;
+  const POST_TARGET = 2.8;
+  const PRE_MIN = 2.2;
+  const POST_MIN = 2.2;
   const MAX = 12.5;
 
   let start = Math.max(0, focus.start - PRE_TARGET);
@@ -4454,7 +4503,7 @@ function focusClipBounds(sentences, focusIndex, duration){
     const candidate = Math.max(0, Number(sentences[i].start)||0);
     const lead = focus.start - candidate;
     if(lead > 4.0){ break; }
-    if(lead >= PRE_MIN && lead <= 3.5){
+    if(lead >= PRE_MIN && lead <= 3.6){
       start = candidate;
       break;
     }
@@ -4464,7 +4513,7 @@ function focusClipBounds(sentences, focusIndex, duration){
     const candidate = Math.min(duration, Number(sentences[i].end)||duration);
     const tail = candidate - focus.end;
     if(tail > 4.0){ break; }
-    if(tail >= POST_MIN && tail <= 3.5){
+    if(tail >= POST_MIN && tail <= 3.6){
       end = candidate;
       break;
     }
@@ -4537,26 +4586,23 @@ function buildClips(
     i = last + 1;
   }
 
-  return ranges.map((range,reelIndex)=>{
+  const clips = [];
+
+  for(let reelIndex=0; reelIndex<ranges.length; reelIndex++){
+    const range = ranges[reelIndex];
     const local = sentences.slice(range.first, range.last + 1);
-    const pickedLocal = chooseFocusSentence(local) || {
-      sentence:local[0],
-      index:0,
-      strong:false
-    };
+    const pickedLocal = chooseFocusSentence(local);
+    if(!pickedLocal){ continue; }
 
     const focusIndex = range.first + pickedLocal.index;
     const focus = sentences[focusIndex];
     const bounds = focusClipBounds(sentences, focusIndex, duration);
 
-    /* Keep the reel tight around the chosen sentence. The source video
-       still yields many reels because we choose once per sentence group. */
     let start = bounds.start;
     let end = bounds.end;
-
     if(end <= start + .5){
-      start = Math.max(0, focus.start - 2.7);
-      end = Math.min(duration, focus.end + 2.7);
+      start = Math.max(0, Number(focus.start) - 2.8);
+      end = Math.min(duration, Number(focus.end) + 2.8);
     }
 
     const focusSentence = {
@@ -4566,10 +4612,10 @@ function buildClips(
       text:focus.text
     };
 
-    return {
+    clips.push({
       id:`${videoId}:focus-reel:${reelIndex}:${focusIndex}`,
-      focusVersion:2,
-      focusReason:pickedLocal.strong ? 'short-isolated' : 'fallback-random',
+      focusVersion:3,
+      focusReason:pickedLocal.strong ? 'quality-isolated' : 'quality-acceptable',
       channelId,
       videoId,
       start,
@@ -4577,8 +4623,37 @@ function buildClips(
       sentences:[focusSentence],
       focusSentence,
       preview:focus.text
-    };
-  });
+    });
+  }
+
+  if(!clips.length){
+    const picked = chooseFocusSentence(sentences);
+    if(picked){
+      const focusIndex = picked.index;
+      const focus = sentences[focusIndex];
+      const bounds = focusClipBounds(sentences, focusIndex, duration);
+      const focusSentence = {
+        id:`${videoId}:focus:${focusIndex}`,
+        start:focus.start,
+        end:focus.end,
+        text:focus.text
+      };
+      clips.push({
+        id:`${videoId}:focus-reel:0:${focusIndex}`,
+        focusVersion:3,
+        focusReason:'quality-global-fallback',
+        channelId,
+        videoId,
+        start:bounds.start,
+        end:bounds.end,
+        sentences:[focusSentence],
+        focusSentence,
+        preview:focus.text
+      });
+    }
+  }
+
+  return clips;
 }
 
 async function upgradeChannelsToFocusReels(){
@@ -4591,7 +4666,7 @@ async function upgradeChannelsToFocusReels(){
     for(const video of (channel.videos || [])){
       const existing = oldClips.filter(clip =>
         clip.videoId === video.videoId
-        && clip.focusVersion === 2
+        && clip.focusVersion === 3
         && clip.sentences?.length === 1
       );
 
@@ -4610,7 +4685,7 @@ async function upgradeChannelsToFocusReels(){
 
     const same =
       nextClips.length === oldClips.length
-      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 2);
+      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 3);
 
     if(!same){
       channel.clips = nextClips;
@@ -4861,6 +4936,9 @@ async function importVideoId(videoId, options={}){
   channel.avatar = channel.avatar || metadata.thumbnail;
 
   const clips = buildClips(channel.id, videoId, sentences, parsed.duration);
+  if(!clips.length){
+    throw new Error('Video này không có câu focus đủ chất lượng để tạo reel.');
+  }
   const video = {
     videoId,
     url:videoUrl(videoId),
@@ -5775,7 +5853,7 @@ function prewarmNext(
   }
 
   loadedKey[index] = key;
-  warmUntil[index] = Date.now() + 1350;
+  warmUntil[index] = Date.now() + 950;
 
   try{
     players[index].mute();
@@ -5790,9 +5868,12 @@ function prewarmNext(
         && loadedKey[index] === key
       ){
         warmUntil[index] = 0;
-        try{ players[index].pauseVideo(); }catch{}
+        try{
+          players[index].pauseVideo();
+          players[index].seekTo(clipPreviewStart(clip), true);
+        }catch{}
       }
-    },1250);
+    },820);
   }catch{
     warmUntil[index] = 0;
   }
