@@ -2220,6 +2220,69 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
 }
 </style>
 
+
+<style id="xtp-v5-video-caption-final">
+/* v5: one compact media composition. Caption is inside video, not a separate card. */
+#phone{--v5-bg:#08090b;--v5-panel:#121419;--v5-line:#30343b;--v5-text:#f5f6f8;--v5-muted:#9ba0a8;--v5-focus:#ffd24c;--v5-live:#ff6754;background:var(--v5-bg)!important;}
+
+/* compact card geometry */
+#reelInfo{top:12.56cqw!important;left:3.26cqw!important;right:3.26cqw!important;height:96cqw!important;border:1px solid var(--v5-line)!important;border-radius:4.2cqw!important;background:var(--v5-panel)!important;overflow:visible!important;}
+#channelRow{top:2.1cqw!important;left:3.25cqw!important;right:3.25cqw!important;height:6.5cqw!important;}
+#videoProgressBar{top:10.05cqw!important;left:2.33cqw!important;right:2.33cqw!important;height:1.15cqw!important;}
+#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{height:.48cqw!important;min-height:2px!important;}
+#videoProgressKnob{width:1.25cqw!important;height:1.25cqw!important;min-width:5px!important;min-height:5px!important;}
+
+/* video = full picture contained in the assigned box, never zoom/crop */
+.playerSlot,#shade,#buffer,#videoPoster{left:5.58cqw!important;right:5.58cqw!important;top:25.0cqw!important;height:70.7cqw!important;border-radius:2.8cqw!important;background:#000!important;overflow:hidden!important;}
+.playerSlot>div{position:absolute!important;left:0!important;right:0!important;top:50%!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;transform:translateY(-50%)!important;background:#000!important;overflow:hidden!important;}
+.playerSlot iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;background:#000!important;pointer-events:none!important;}
+#videoPoster{object-fit:contain!important;object-position:center!important;}
+#gesture{left:5.58cqw!important;right:5.58cqw!important;top:25.0cqw!important;height:70.7cqw!important;border-radius:2.8cqw!important;}
+
+/* YouTube iframe does not expose a switch for every title/logo overlay.
+   Small opaque masks hide the native top/bottom chrome without zooming the video. */
+#shade{z-index:25!important;background:transparent!important;pointer-events:none!important;}
+#shade:before{display:block!important;content:""!important;position:absolute!important;left:0!important;right:0!important;top:0!important;height:9.8cqw!important;background:linear-gradient(#000 0 62%,rgba(0,0,0,.88) 78%,transparent 100%)!important;}
+#shade:after{display:block!important;content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:10.5cqw!important;background:linear-gradient(to top,#000 0 58%,rgba(0,0,0,.86) 76%,transparent 100%)!important;}
+
+/* replay/speed: tiny, at video bottom corners */
+#rail{top:88.5cqw!important;left:7cqw!important;right:7cqw!important;height:6.8cqw!important;z-index:38!important;}
+#soundBtn,#fullBtn{height:6.4cqw!important;min-width:7.9cqw!important;padding:0 2.3cqw!important;border-radius:3.2cqw!important;font-size:2.2cqw!important;}
+#likeBtn,#saveBtn,#ytBtn,.railLabel,#rail:before{display:none!important;}
+
+/* caption ON VIDEO: compact normal-caption treatment; tap still toggles VI/JP */
+#sentenceWrap{position:absolute!important;z-index:40!important;top:78.2cqw!important;left:8.4cqw!important;right:8.4cqw!important;height:27.3cqw!important;padding:0!important;margin:0!important;background:transparent!important;overflow:visible!important;pointer-events:auto!important;}
+#sentenceTranslation,#sentence{position:absolute!important;top:0!important;left:50%!important;right:auto!important;width:max-content!important;max-width:100%!important;height:auto!important;min-height:7.2cqw!important;transform:translateX(-50%)!important;margin:0!important;border:0!important;border-radius:1.7cqw!important;background:rgba(0,0,0,.78)!important;box-shadow:0 1px 8px rgba(0,0,0,.35)!important;color:#fff!important;}
+#sentenceTranslation{padding:1.4cqw 2.55cqw!important;font-size:3cqw!important;line-height:1.24!important;font-weight:800!important;text-align:center!important;white-space:normal!important;}
+#sentenceTranslation:before,#sentenceTranslation:after,#sentence:before,#sentence:after{display:none!important;content:none!important;}
+#sentence{padding:1.15cqw 2.2cqw 1.25cqw!important;display:none!important;flex-wrap:wrap!important;justify-content:center!important;align-items:flex-end!important;gap:.45cqw .35cqw!important;line-height:1!important;}
+#sentenceWrap.jp-mode #sentence{display:flex!important;}#sentenceWrap.jp-mode #sentenceTranslation{display:none!important;}
+.jpWord{min-height:5.7cqw!important;}.jpWord .jpKanji{min-height:1.75cqw!important;font-size:1.45cqw!important;color:#d5d8dd!important;}.jpWord .jpHira,.jpPunc{font-size:3.6cqw!important;color:#fff!important;font-weight:850!important;}
+#sentenceProgress,#meaningLine,#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important;}
+
+/* Focus moment = subtle but unmistakable, driven by actual player currentTime. */
+#sentenceWrap.focus-soon #sentenceTranslation,#sentenceWrap.focus-soon #sentence{box-shadow:0 0 0 1px rgba(255,210,76,.35),0 2px 10px rgba(0,0,0,.4)!important;}
+#sentenceWrap.focus-live #sentenceTranslation,#sentenceWrap.focus-live #sentence{transform:translateX(-50%)!important;background:rgba(16,16,12,.92)!important;box-shadow:0 0 0 2px var(--v5-focus),0 0 18px rgba(255,210,76,.26)!important;}
+#sentenceWrap.focus-live .jpHira{text-shadow:0 0 10px rgba(255,210,76,.28)!important;}
+
+/* real actions directly below the media card; no extra empty panel */
+#inlineActions{position:absolute!important;top:29.2cqw!important;left:-4.2cqw!important;right:-4.2cqw!important;height:8.4cqw!important;display:flex!important;align-items:center!important;gap:2.8cqw!important;}
+#inlineActions .inlineAction{height:8.4cqw!important;border:1px solid var(--v5-line)!important;border-radius:2.3cqw!important;background:#171a20!important;color:var(--v5-text)!important;font-size:2.25cqw!important;padding:0 2.3cqw!important;}
+#sentenceReplayBtn{display:block!important;flex:0 0 24cqw!important;}#sentenceSaveBtn{display:block!important;flex:0 0 20cqw!important;}#speedBtn,#meaningToggleBtn,#inlineActions:after{display:none!important;}
+
+/* nav remains pinned; no giant dead gap manufactured by content blocks */
+#nav{height:13.5cqw!important;min-height:58px!important;background:var(--v5-bg)!important;border-top:1px solid var(--v5-line)!important;}
+.navBtn{height:13.5cqw!important;min-height:58px!important;padding:1.4cqw 0 .9cqw!important;}
+
+@media(max-width:699px){
+  .playerSlot,#shade,#buffer,#videoPoster{top:25.0cqw!important;height:70.7cqw!important;}
+  #gesture{top:25.0cqw!important;height:70.7cqw!important;}
+  #rail{top:88.5cqw!important;}
+  #sentenceWrap{top:78.2cqw!important;height:27.3cqw!important;}
+  #nav{height:13.5cqw!important;min-height:58px!important;}
+}
+</style>
+
 </head>
 
 <body>
@@ -4388,6 +4451,58 @@ function buildSentences(blocks){
 
 }
 
+
+/* =========================================================
+   BLOCK-ALIGNED FOCUS SENTENCES
+   Focus timing must use real transcript block boundaries.
+   We merge whole blocks until a natural sentence ending; we do NOT
+   proportionally split a timed block for the focus/highlight path.
+   ========================================================= */
+function buildAlignedSentences(blocks){
+  const out=[];
+  let current=null;
+
+  const flush=()=>{
+    if(!current) return;
+    current.text=normalizeText(current.text);
+    if(current.text){
+      current.id=`a${out.length}`;
+      current.timingConfidence='block';
+      out.push(current);
+    }
+    current=null;
+  };
+
+  for(const block of (blocks||[])){
+    const text=normalizeText(block?.text||'');
+    if(!text) continue;
+
+    const start=Number(block.start)||0;
+    const end=Math.max(start+.05,Number(block.end)||start+.05);
+
+    if(!current){
+      current={start,end,text};
+    }else{
+      const gap=start-current.end;
+      const combined=normalizeText(current.text+text);
+      const duration=end-current.start;
+
+      if(gap>.95 || duration>6.4 || combined.length>38){
+        flush();
+        current={start,end,text};
+      }else{
+        current.text=combined;
+        current.end=end;
+      }
+    }
+
+    if(/[。！？!?]$/.test(text)) flush();
+  }
+
+  flush();
+  return out;
+}
+
 /* =========================================================
    BUILD REELS
    ========================================================= */
@@ -4614,7 +4729,7 @@ function buildClips(
 
     clips.push({
       id:`${videoId}:focus-reel:${reelIndex}:${focusIndex}`,
-      focusVersion:3,
+      focusVersion:4,
       focusReason:pickedLocal.strong ? 'quality-isolated' : 'quality-acceptable',
       channelId,
       videoId,
@@ -4640,7 +4755,7 @@ function buildClips(
       };
       clips.push({
         id:`${videoId}:focus-reel:0:${focusIndex}`,
-        focusVersion:3,
+        focusVersion:4,
         focusReason:'quality-global-fallback',
         channelId,
         videoId,
@@ -4664,18 +4779,50 @@ async function upgradeChannelsToFocusReels(){
     const nextClips = [];
 
     for(const video of (channel.videos || [])){
+      let blocks = Array.isArray(video.blocks) ? video.blocks : [];
+
+      /* One-time migration for old local videos: re-fetch transcript so the
+         focus/highlight uses real transcript block timestamps instead of the
+         old proportional intra-block estimates. Fail safely to stored data. */
+      if((video.timingVersion || 0) < 2 && video.videoId){
+        try{
+          const transcriptText = await fetchText(TRANSCRIPT_API(video.videoId));
+          const parsed = parseTranscript(transcriptText, video.videoId);
+          if(parsed.blocks?.length){
+            blocks = parsed.blocks;
+            video.blocks = parsed.blocks;
+            video.duration = parsed.duration || video.duration;
+            video.language = parsed.language || video.language;
+            video.timingVersion = 2;
+            changed = true;
+          }
+        }catch(error){
+          console.warn('Legacy timing refresh failed',video.videoId,error);
+        }
+      }
+
       const existing = oldClips.filter(clip =>
         clip.videoId === video.videoId
-        && clip.focusVersion === 3
+        && clip.focusVersion === 4
         && clip.sentences?.length === 1
+        && (video.timingVersion || 0) >= 2
       );
+
+      const migrationSentences = blocks.length
+        ? buildAlignedSentences(blocks)
+        : (video.sentences || []);
+
+      if(blocks.length){
+        video.sentences = migrationSentences;
+        video.timingVersion = 2;
+      }
 
       const clips = existing.length
         ? existing
         : buildClips(
             channel.id,
             video.videoId,
-            video.sentences || [],
+            migrationSentences,
             video.duration || 0
           );
 
@@ -4685,7 +4832,7 @@ async function upgradeChannelsToFocusReels(){
 
     const same =
       nextClips.length === oldClips.length
-      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 3);
+      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 4);
 
     if(!same){
       channel.clips = nextClips;
@@ -4898,7 +5045,9 @@ async function importVideoId(videoId, options={}){
   ]);
 
   const parsed = parseTranscript(transcriptText, videoId);
-  const sentences = buildSentences(parsed.blocks);
+  const fallbackSentences = buildSentences(parsed.blocks);
+  const alignedSentences = buildAlignedSentences(parsed.blocks);
+  const sentences = alignedSentences.length ? alignedSentences : fallbackSentences;
   if(!sentences.length){
     throw new Error('Không tạo được sentence timeline.');
   }
@@ -4947,6 +5096,8 @@ async function importVideoId(videoId, options={}){
     duration:parsed.duration,
     language:parsed.language,
     addedAt:Date.now(),
+    timingVersion:2,
+    blocks:parsed.blocks,
     sentences,
     clipIds:clips.map(clip=>clip.id)
   };
@@ -5106,7 +5257,7 @@ async function listLatestChannelVideos(source){
     playlistId:source.uploadsPlaylistId,
     maxResults:Math.max(1,Math.min(30,autoSources.maxVideos || 8))
   }));
-  return (data?.items || []).map(item=>({
+  const basic = (data?.items || []).map(item=>({
     videoId:item.contentDetails?.videoId || item.snippet?.resourceId?.videoId || '',
     title:item.snippet?.title || '',
     publishedAt:item.contentDetails?.videoPublishedAt || item.snippet?.publishedAt || '',
@@ -5115,6 +5266,28 @@ async function listLatestChannelVideos(source){
     channelName:source.title,
     channelUrl:source.channelUrl
   })).filter(item=>/^[A-Za-z0-9_-]{11}$/.test(item.videoId) && !/^private video$|^deleted video$/i.test(item.title));
+
+  if(!basic.length) return [];
+
+  try{
+    const details = await fetchJson(youtubeApiUrl('videos',{
+      part:'status,contentDetails,snippet',
+      id:basic.map(item=>item.videoId).join(',')
+    }));
+    const allowed = new Set((details?.items || []).filter(item=>{
+      const status=item.status||{};
+      const rating=item.contentDetails?.contentRating||{};
+      const live=item.snippet?.liveBroadcastContent||'none';
+      return status.privacyStatus === 'public'
+        && status.embeddable !== false
+        && rating.ytRating !== 'ytAgeRestricted'
+        && live === 'none';
+    }).map(item=>item.id));
+    return basic.filter(item=>allowed.has(item.videoId));
+  }catch(error){
+    console.warn('Embed filter unavailable; using playlist results',error);
+    return basic;
+  }
 }
 
 async function syncAutoSource(source,{background=false}={}){
@@ -5535,7 +5708,11 @@ function playerVars(){
 
     modestbranding:1,
 
-    fs:0
+    fs:0,
+
+    disablekb:1,
+
+    enablejsapi:1
 
   };
 
@@ -5853,7 +6030,7 @@ function prewarmNext(
   }
 
   loadedKey[index] = key;
-  warmUntil[index] = Date.now() + 950;
+  warmUntil[index] = Date.now() + 1450;
 
   try{
     players[index].mute();
@@ -5873,7 +6050,7 @@ function prewarmNext(
           players[index].seekTo(clipPreviewStart(clip), true);
         }catch{}
       }
-    },820);
+    },1250);
   }catch{
     warmUntil[index] = 0;
   }
@@ -5968,6 +6145,10 @@ function playCurrent(){
       player.mute();
 
     }
+
+    try{
+      player.setPlaybackRate(typeof exactRate !== 'undefined' ? exactRate : 1);
+    }catch{}
 
     player.playVideo();
 
@@ -6146,6 +6327,21 @@ function onPlayerError(
     ||
     `YouTube error ${code}`
   );
+
+  if([2,5,100,101,150,153].includes(code)){
+    const broken = currentClip();
+    if(broken){
+      for(const channel of channels){
+        for(const clip of (channel.clips||[])){
+          if(clip.videoId === broken.videoId){
+            state.hidden[clip.id] = true;
+          }
+        }
+      }
+      saveState();
+      setTimeout(()=>rebuildFeed({mode:feedMode}),120);
+    }
+  }
 
 }
 
@@ -6600,7 +6796,7 @@ function updateVideoProgress(time,clip){
     videoProgressFocus.style.width = `${Math.max(.012,focusEnd-focusStart)*100}%`;
     videoProgressFocus.classList.toggle(
       'live',
-      Number(time) >= Number(sentence.start)-.04 && Number(time) <= Number(sentence.end)+.08
+      Number(time) >= Number(sentence.start) && Number(time) <= Number(sentence.end)
     );
   }else{
     videoProgressFocus.style.left = '0%';
@@ -6623,8 +6819,8 @@ function updateFocusCue(time, clip){
   const sentence = clip?.sentences?.[0];
   if(!sentence){ resetFocusCue(); return; }
 
-  const soon = time >= sentence.start - .55 && time < sentence.start;
-  const live = time >= sentence.start - .04 && time <= sentence.end + .08;
+  const soon = time >= sentence.start - .40 && time < sentence.start;
+  const live = time >= sentence.start && time <= sentence.end;
 
   sentenceWrap.classList.toggle('focus-soon',soon);
   sentenceWrap.classList.toggle('focus-live',live);
@@ -6948,7 +7144,7 @@ function startMonitor(){
         }
 
       },
-      100
+      33
     );
 
 }
@@ -8884,12 +9080,12 @@ speedBtn.onclick=(event)=>{ event.stopPropagation(); };
 soundBtn.textContent='↺';
 soundBtn.title='Nghe lại câu';
 soundBtn.onclick=(event)=>{ event.stopPropagation(); sentenceReplayBtn.click(); };
-let exactRate=.8;
-fullBtn.textContent='0.8×';
+let exactRate=1;
+fullBtn.textContent='1×';
 fullBtn.title='Tốc độ';
 fullBtn.onclick=(event)=>{
   event.stopPropagation();
-  const rates=[.8,1,1.25];
+  const rates=[1,.8,1.25];
   const idx=rates.indexOf(exactRate);
   exactRate=rates[(idx+1)%rates.length];
   try{ players[role.current]?.setPlaybackRate(exactRate); }catch{}
