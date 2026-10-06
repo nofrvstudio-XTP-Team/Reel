@@ -2060,6 +2060,142 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
   #nav{height:18.605cqw!important;}
 }
 </style>
+
+<style id="xtp-layout-fixed-v3">
+/* NON-FINAL UI: geometry first. This block intentionally overrides the older visual passes. */
+#phone{
+  --wf-bg:#090a0c;
+  --wf-panel:#121419;
+  --wf-panel-2:#191c22;
+  --wf-line:#333841;
+  --wf-text:#f3f4f6;
+  --wf-muted:#9298a2;
+  --wf-focus:#ffd24c;
+  --wf-live:#ff6754;
+  background:var(--wf-bg)!important;
+  container-type:inline-size!important;
+}
+#app{background:#050607!important;}
+
+/* top 48px design band */
+#top{
+  top:0!important;left:0!important;right:0!important;height:11.16cqw!important;
+  min-height:48px!important;padding:1.86cqw 4.186cqw 0!important;
+  background:var(--wf-bg)!important;display:flex!important;align-items:flex-start!important;
+}
+#feedTabs{gap:7.4cqw!important;margin:0!important;}
+.feedTab{height:8.14cqw!important;padding:1.6cqw 0 2cqw!important;font-size:2.55cqw!important;text-shadow:none!important;color:var(--wf-text)!important;}
+.feedTab.active:after{height:.55cqw!important;width:10.5cqw!important;background:var(--wf-text)!important;}
+#brand{display:none!important;}
+#shuffleBtn{right:3.72cqw!important;top:2.09cqw!important;width:10.23cqw!important;height:7.44cqw!important;border:1px solid var(--wf-line)!important;background:var(--wf-panel-2)!important;backdrop-filter:none!important;}
+
+/* one compact media card */
+#reelInfo{
+  position:absolute!important;z-index:20!important;
+  top:12.56cqw!important;left:3.26cqw!important;right:3.26cqw!important;height:96.0cqw!important;
+  border:1px solid var(--wf-line)!important;border-radius:4.2cqw!important;
+  background:var(--wf-panel)!important;overflow:visible!important;padding:0!important;margin:0!important;
+  text-shadow:none!important;pointer-events:none!important;
+}
+#channelRow{
+  top:2.1cqw!important;left:3.25cqw!important;right:3.25cqw!important;height:6.5cqw!important;
+  display:flex!important;align-items:center!important;margin:0!important;padding:0!important;pointer-events:auto!important;
+}
+.avatar{display:none!important;}
+#channelName{font-size:2.32cqw!important;max-width:58cqw!important;color:var(--wf-text)!important;}
+.followPill{height:6.5cqw!important;padding:0 3.25cqw!important;border-radius:3.25cqw!important;font-size:2.05cqw!important;background:#fff!important;color:#15171b!important;border:0!important;backdrop-filter:none!important;}
+
+/* REAL video progress: one tiny rail immediately under channel/follow */
+#videoProgressBar{top:10.2cqw!important;left:2.33cqw!important;right:2.33cqw!important;height:1.86cqw!important;min-height:0!important;}
+#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{height:.55cqw!important;min-height:2px!important;}
+#videoProgressTrack{background:#4a5059!important;}
+#videoProgressPlayed{background:#e8eaed!important;}
+#videoProgressFocus{background:var(--wf-focus)!important;}
+#videoProgressKnob{width:1.55cqw!important;height:1.55cqw!important;min-width:6px!important;min-height:6px!important;background:var(--wf-live)!important;}
+#videoProgressFocus.live{box-shadow:0 0 1.6cqw rgba(255,210,76,.62)!important;}
+
+/* video viewport. Box is tall enough for the layout, but the YouTube frame itself is 16:9 and CENTERED: contain, never crop/zoom. */
+.playerSlot,#shade,#buffer,#videoPoster{
+  position:absolute!important;left:5.58cqw!important;right:5.58cqw!important;top:26.05cqw!important;height:74.42cqw!important;
+  border-radius:2.8cqw!important;background:#000!important;overflow:hidden!important;
+}
+.playerSlot{z-index:22!important;}
+.playerSlot>div{
+  position:absolute!important;left:0!important;right:0!important;top:50%!important;
+  width:100%!important;height:auto!important;aspect-ratio:16/9!important;
+  transform:translateY(-50%)!important;background:#000!important;overflow:hidden!important;border-radius:0!important;
+}
+.playerSlot iframe{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  transform:none!important;border:0!important;background:#000!important;
+}
+#shade{z-index:23!important;background:transparent!important;pointer-events:none!important;}
+#shade:before,#shade:after{display:none!important;content:none!important;}
+#buffer{z-index:27!important;pointer-events:none!important;background:transparent!important;}
+#buffer .spinner{display:none!important;}
+#videoPoster{
+  z-index:26!important;display:block!important;object-fit:contain!important;object-position:center!important;
+  opacity:0!important;transition:opacity .13s linear!important;pointer-events:none!important;
+}
+#videoPoster.show{opacity:1!important;}
+#gesture{top:12.56cqw!important;left:3.26cqw!important;right:3.26cqw!important;height:96cqw!important;border-radius:4.2cqw!important;}
+
+/* 34px-ish control strip: nothing else. */
+#rail{
+  top:101.9cqw!important;left:6.98cqw!important;right:7.44cqw!important;height:7.9cqw!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;pointer-events:none!important;
+}
+#rail:before{display:none!important;content:none!important;}
+#likeBtn,#saveBtn,#ytBtn,.railLabel{display:none!important;}
+#soundBtn,#fullBtn{height:7.44cqw!important;min-width:8.84cqw!important;padding:0 2.8cqw!important;border-radius:3.72cqw!important;font-size:2.3cqw!important;background:#f4f4f4!important;color:#15171b!important;pointer-events:auto!important;}
+
+/* one small subtitle row under the media card */
+#sentenceWrap{
+  position:absolute!important;z-index:32!important;top:110.7cqw!important;left:.93cqw!important;right:.93cqw!important;height:25.1cqw!important;
+  padding:0!important;margin:0!important;background:transparent!important;overflow:visible!important;pointer-events:auto!important;
+}
+#sentenceTranslation,#sentence{
+  position:absolute!important;left:0!important;right:0!important;top:0!important;width:100%!important;height:13.5cqw!important;
+  margin:0!important;border-radius:2.8cqw!important;background:var(--wf-panel)!important;border:1px solid var(--wf-line)!important;box-shadow:none!important;
+}
+#sentenceTranslation{padding:2.55cqw 3.25cqw 4.18cqw 14.88cqw!important;font-size:2.78cqw!important;line-height:1.22!important;text-align:left!important;color:var(--wf-text)!important;}
+#sentenceTranslation:before{left:2.33cqw!important;top:2.33cqw!important;min-width:9.3cqw!important;height:4.65cqw!important;padding:0 1.63cqw!important;border-radius:2.33cqw!important;font-size:1.86cqw!important;background:var(--wf-panel-2)!important;color:var(--wf-text)!important;}
+#sentenceTranslation:after{left:2.33cqw!important;bottom:1.4cqw!important;font-size:1.86cqw!important;color:var(--wf-muted)!important;}
+#sentence{padding:1.86cqw 3.25cqw 3.25cqw 13.95cqw!important;gap:.46cqw!important;align-content:center!important;color:var(--wf-text)!important;}
+#sentence:before{left:2.33cqw!important;top:2.33cqw!important;min-width:8.6cqw!important;height:4.65cqw!important;font-size:1.86cqw!important;background:var(--wf-panel-2)!important;color:var(--wf-text)!important;}
+#sentence:after{left:2.33cqw!important;bottom:1.16cqw!important;font-size:1.63cqw!important;color:var(--wf-muted)!important;}
+.jpWord{min-height:5.58cqw!important}.jpWord .jpKanji{min-height:1.86cqw!important;font-size:1.4cqw!important}.jpWord .jpHira,.jpPunc{font-size:3.48cqw!important;}
+#sentenceProgress,#meaningLine,#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important;}
+
+/* live focus gets ONE restrained attention cue */
+#sentenceWrap.focus-live #sentenceTranslation,#sentenceWrap.focus-live #sentence{border-color:var(--wf-focus)!important;transform:translateZ(0) scale(1.008)!important;box-shadow:0 0 0 1px rgba(255,210,76,.15)!important;}
+
+/* actions: only replay + save */
+#inlineActions{top:16.5cqw!important;left:0!important;right:0!important;height:8.37cqw!important;display:flex!important;align-items:center!important;gap:2.79cqw!important;}
+#inlineActions .inlineAction{height:8.37cqw!important;border-radius:2.33cqw!important;font-size:2.32cqw!important;padding:0 2.33cqw!important;background:var(--wf-panel-2)!important;border:1px solid var(--wf-line)!important;color:var(--wf-text)!important;}
+#sentenceReplayBtn{display:block!important;flex:0 0 24cqw!important;}
+#sentenceSaveBtn{display:block!important;flex:0 0 20cqw!important;}
+#speedBtn,#meaningToggleBtn,#inlineActions:after{display:none!important;content:none!important;}
+
+/* nav stays small and pinned; no huge visual chrome */
+#nav{left:0!important;right:0!important;bottom:0!important;height:13.49cqw!important;min-height:58px!important;border-top:1px solid var(--wf-line)!important;background:var(--wf-bg)!important;padding-bottom:env(safe-area-inset-bottom)!important;}
+.navBtn{height:13.49cqw!important;min-height:58px!important;padding:1.4cqw 0 .9cqw!important;gap:.7cqw!important;background:transparent!important;}
+.navIcon{font-size:2.8cqw!important;line-height:4.65cqw!important;}.navText{font-size:1.95cqw!important;}
+#homeNav.active .navIcon{width:auto!important;height:auto!important;border-radius:0!important;background:transparent!important;color:var(--wf-text)!important;}
+
+/* old visual decorations are explicitly neutralized */
+#reelInfo:before,#reelInfo:after{display:none!important;content:none!important;}
+
+@media(max-width:699px){
+  #reelInfo{top:12.56cqw!important;height:96cqw!important;}
+  .playerSlot,#shade,#buffer,#videoPoster{top:26.05cqw!important;height:74.42cqw!important;}
+  #gesture{top:12.56cqw!important;height:96cqw!important;}
+  #rail{top:101.9cqw!important;}
+  #sentenceWrap{top:110.7cqw!important;height:25.1cqw!important;}
+  #nav{height:13.49cqw!important;}
+}
+</style>
+
 </head>
 
 <body>
@@ -2081,6 +2217,7 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
   </div>
 
   <div id="shade"></div>
+  <img id="videoPoster" alt="" aria-hidden="true">
   <div id="gesture"></div>
 
   <div id="buffer">
@@ -2698,6 +2835,9 @@ const gesture =
 const buffer =
   $('#buffer');
 
+const videoPoster =
+  $('#videoPoster');
+
 const forYouTab =
   $('#forYouTab');
 
@@ -2964,6 +3104,16 @@ let loadedKey =
     null,
     null
   ];
+
+let warmUntil =
+  [
+    0,
+    0,
+    0
+  ];
+
+let feedAnimating =
+  false;
 
 let monitorTimer =
   null;
@@ -4288,50 +4438,50 @@ function chooseFocusSentence(sentences){
 
 function focusClipBounds(sentences, focusIndex, duration){
   const focus = sentences[focusIndex];
-  const PRE = 3.0;
-  const POST = 2.35;
-  const MIN = 6.8;
-  const MAX = 12.0;
+  const PRE_TARGET = 2.7;
+  const POST_TARGET = 2.7;
+  const PRE_MIN = 2.0;
+  const POST_MIN = 2.0;
+  const MAX = 12.5;
 
-  let start = Math.max(0, focus.start - PRE);
-  let end = Math.min(duration, focus.end + POST);
+  let start = Math.max(0, focus.start - PRE_TARGET);
+  let end = Math.min(duration, focus.end + POST_TARGET);
 
-  /* Prefer clean sentence boundaries near the desired in/out. */
-  const prev = sentences[focusIndex-1];
-  if(prev){
-    const prevStartDistance = focus.start - prev.start;
-    if(prevStartDistance >= 2.1 && prevStartDistance <= 4.4){
-      start = Math.max(0, prev.start);
+  /* Prefer a real sentence boundary near the 2-3s context target.
+     We never tighten the clip below the requested minimum context unless
+     the source itself begins/ends too close to the focus sentence. */
+  for(let i=focusIndex-1;i>=0;i--){
+    const candidate = Math.max(0, Number(sentences[i].start)||0);
+    const lead = focus.start - candidate;
+    if(lead > 4.0){ break; }
+    if(lead >= PRE_MIN && lead <= 3.5){
+      start = candidate;
+      break;
     }
   }
 
-  const next = sentences[focusIndex+1];
-  if(next){
-    const nextEndDistance = next.end - focus.end;
-    if(nextEndDistance >= 1.2 && nextEndDistance <= 3.6){
-      end = Math.min(duration, next.end);
+  for(let i=focusIndex+1;i<sentences.length;i++){
+    const candidate = Math.min(duration, Number(sentences[i].end)||duration);
+    const tail = candidate - focus.end;
+    if(tail > 4.0){ break; }
+    if(tail >= POST_MIN && tail <= 3.5){
+      end = candidate;
+      break;
     }
   }
 
-  /* Guarantee a useful reel even near the start/end of the source. */
-  if(end - start < MIN){
-    let missing = MIN - (end - start);
-    const addBefore = Math.min(start, missing * .55);
-    start -= addBefore;
-    missing -= addBefore;
-    end = Math.min(duration, end + missing);
-    if(end - start < MIN){
-      start = Math.max(0, end - MIN);
-    }
+  /* Hard minimum context, except when the source boundary makes it impossible. */
+  if(focus.start - start < PRE_MIN){
+    start = Math.max(0, focus.start - PRE_TARGET);
+  }
+  if(end - focus.end < POST_MIN){
+    end = Math.min(duration, focus.end + POST_TARGET);
   }
 
+  /* Keep reels tight enough to feel swipeable. */
   if(end - start > MAX){
-    start = Math.max(0, focus.start - PRE);
-    end = Math.min(duration, start + MAX);
-    if(end < focus.end + 1.25){
-      end = Math.min(duration, focus.end + 1.25);
-      start = Math.max(0, end - MAX);
-    }
+    start = Math.max(0, focus.start - PRE_TARGET);
+    end = Math.min(duration, focus.end + POST_TARGET);
   }
 
   return {
@@ -4401,17 +4551,12 @@ function buildClips(
 
     /* Keep the reel tight around the chosen sentence. The source video
        still yields many reels because we choose once per sentence group. */
-    let start = Math.max(range.start, bounds.start);
-    let end = Math.min(range.end, bounds.end);
-
-    if(end - start < 5.6){
-      start = Math.max(range.start, focus.start - 2.8);
-      end = Math.min(range.end, focus.end + 2.3);
-    }
+    let start = bounds.start;
+    let end = bounds.end;
 
     if(end <= start + .5){
-      start = range.start;
-      end = range.end;
+      start = Math.max(0, focus.start - 2.7);
+      end = Math.min(duration, focus.end + 2.7);
     }
 
     const focusSentence = {
@@ -5512,6 +5657,9 @@ function stopPlayer(
     loadedKey[index] =
       null;
 
+    warmUntil[index] =
+      0;
+
   }
 
 }
@@ -5617,64 +5765,37 @@ function prewarmNext(
     ||
     !clip
   ){
-
     return;
-
   }
 
-  const key =
-    clipKey(
-      clip
-    );
+  const key = clipKey(clip);
 
-  if(
-    loadedKey[index]
-    === key
-  ){
-
+  if(loadedKey[index] === key){
     return;
-
   }
 
-  loadedKey[index] =
-    key;
+  loadedKey[index] = key;
+  warmUntil[index] = Date.now() + 1350;
 
   try{
-
     players[index].mute();
-
     players[index].loadVideoById({
-
-      videoId:
-        clip.videoId,
-
-      startSeconds:
-        clipPreviewStart(clip)
-
+      videoId:clip.videoId,
+      startSeconds:clipPreviewStart(clip)
     });
 
-    setTimeout(
-      ()=>{
-
-        if(
-          index !== role.current
-          &&
-          loadedKey[index]
-            === key
-        ){
-
-          stopPlayer(
-            index
-          );
-
-        }
-
-      },
-      300
-    );
-
-  }catch{}
-
+    setTimeout(()=>{
+      if(
+        index !== role.current
+        && loadedKey[index] === key
+      ){
+        warmUntil[index] = 0;
+        try{ players[index].pauseVideo(); }catch{}
+      }
+    },1250);
+  }catch{
+    warmUntil[index] = 0;
+  }
 }
 
 /* =========================================================
@@ -5855,6 +5976,11 @@ function onPlayerState(
       === YT.PlayerState.PLAYING
     ){
 
+      if(Date.now() < (warmUntil[index] || 0)){
+        try{ players[index].mute(); }catch{}
+        return;
+      }
+
       stopPlayer(
         index
       );
@@ -5873,6 +5999,10 @@ function onPlayerState(
     buffer.classList.remove(
       'on'
     );
+
+    if(videoPoster){
+      videoPoster.classList.remove('show');
+    }
 
     if(
       audioOn
@@ -6066,6 +6196,52 @@ function goPrev(){
     )
   );
 
+}
+
+
+function feedMotionElements(){
+  const active = document.querySelector('.playerSlot.active');
+  return [active, videoPoster, reelInfo, rail].filter(Boolean);
+}
+
+async function animateFeedSwap(direction, commit){
+  if(feedAnimating){ return; }
+  feedAnimating = true;
+  const distance = direction > 0 ? -34 : 34;
+  const before = feedMotionElements();
+
+  try{
+    await Promise.all(before.map(el=>el.animate([
+      {transform:'translate3d(0,0,0)',opacity:1},
+      {transform:`translate3d(0,${distance}px,0)`,opacity:.18}
+    ],{duration:95,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'}).finished.catch(()=>{})));
+  }catch{}
+
+  commit();
+
+  const after = feedMotionElements();
+  for(const el of after){
+    try{ el.getAnimations().forEach(a=>a.cancel()); }catch{}
+  }
+
+  try{
+    await Promise.all(after.map(el=>el.animate([
+      {transform:`translate3d(0,${-distance}px,0)`,opacity:.2},
+      {transform:'translate3d(0,0,0)',opacity:1}
+    ],{duration:145,easing:'cubic-bezier(.16,1,.3,1)',fill:'both'}).finished.catch(()=>{})));
+  }catch{}
+
+  feedAnimating = false;
+}
+
+function goNextSmooth(){
+  if(feed.length < 2){ return; }
+  void animateFeedSwap(1,goNext);
+}
+
+function goPrevSmooth(){
+  if(feed.length < 2){ return; }
+  void animateFeedSwap(-1,goPrev);
 }
 
 /* =========================================================
@@ -6428,6 +6604,15 @@ function renderCurrent(){
     'hidden'
   );
 
+  if(videoPoster){
+    const posterUrl = thumb(clip.videoId,'hqdefault');
+    if(videoPoster.dataset.videoId !== clip.videoId){
+      videoPoster.dataset.videoId = clip.videoId;
+      videoPoster.src = posterUrl;
+    }
+    videoPoster.classList.add('show');
+  }
+
   const channel =
     channelById(
       clip.channelId
@@ -6496,6 +6681,9 @@ function renderCurrent(){
   resetFocusCue();
   resetVideoProgress(clip);
   void prewarmLearning(clip);
+
+  const nextLearningClip = clipForRole('next');
+  if(nextLearningClip){ void prewarmLearning(nextLearningClip); }
 
   renderSentence(
     clip.sentences?.[0]
@@ -7615,11 +7803,11 @@ function gestureEnd(
       dy < 0
     ){
 
-      goNext();
+      goNextSmooth();
 
     }else{
 
-      goPrev();
+      goPrevSmooth();
 
     }
 
@@ -7738,11 +7926,11 @@ phone.addEventListener(
       event.deltaY > 0
     ){
 
-      goNext();
+      goNextSmooth();
 
     }else{
 
-      goPrev();
+      goPrevSmooth();
 
     }
 
@@ -7784,7 +7972,7 @@ document.addEventListener(
 
       event.preventDefault();
 
-      goNext();
+      goNextSmooth();
 
     }
 
@@ -7794,7 +7982,7 @@ document.addEventListener(
 
       event.preventDefault();
 
-      goPrev();
+      goPrevSmooth();
 
     }
 
