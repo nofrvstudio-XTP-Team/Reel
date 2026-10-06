@@ -1720,6 +1720,121 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
 }
 </style>
 
+
+<style id="xtp-ui-fix-20261006">
+/* Production layout fix: keep the approved 430x764 composition on real phones.
+   All feed geometry is scaled from phone WIDTH (cqw), not viewport/percentage height,
+   so browser DPR/toolbar/aspect-ratio cannot stretch the video over the subtitle UI. */
+#phone{container-type:inline-size!important;}
+
+/* 430px reference -> 100cqw. */
+#top{
+  height:12.093cqw!important;
+  padding:1.86cqw 4.186cqw 0!important;
+}
+#feedTabs{gap:7.907cqw!important;}
+.feedTab{height:8.372cqw!important;padding:1.628cqw 0 2.093cqw!important;font-size:2.791cqw!important;}
+.feedTab.active:after{width:12.558cqw!important;height:.698cqw!important;}
+#shuffleBtn{right:4.186cqw!important;top:2.791cqw!important;width:10cqw!important;height:7.442cqw!important;border-radius:3.721cqw!important;}
+#shuffleBtn:after{font-size:3.953cqw!important;}
+
+/* Video card: 14,58 -> 416,472 on the approved reference. */
+.playerSlot,#shade,#gesture,#buffer{
+  top:13.488cqw!important;
+  left:3.256cqw!important;
+  right:3.256cqw!important;
+  bottom:auto!important;
+  height:96.279cqw!important;
+  border-radius:5.116cqw!important;
+}
+.playerSlot>div{border-radius:5.116cqw!important;}
+
+/* Give YouTube's unavoidable native chrome nowhere visible to sit.
+   The app's own source row and focus controls are above these masks. */
+#shade{overflow:hidden!important;}
+#shade:before{
+  content:"";position:absolute;z-index:2;left:0;right:0;top:0;height:16.75cqw;
+  background:linear-gradient(to bottom,#0d1118 0 68%,rgba(13,17,24,.96) 78%,rgba(13,17,24,0) 100%);
+}
+#shade:after{
+  content:"";position:absolute;z-index:2;left:0;right:0;bottom:0;height:20.5cqw;
+  background:linear-gradient(to top,#080b10 0 60%,rgba(8,11,16,.92) 72%,rgba(8,11,16,0) 100%);
+}
+
+#channelRow{
+  top:16.047cqw!important;left:6.512cqw!important;right:6.512cqw!important;height:6.977cqw!important;
+}
+#channelName{font-size:2.326cqw!important;max-width:58.14cqw!important;}
+.followPill{height:6.977cqw!important;padding:0 3.256cqw!important;border-radius:3.488cqw!important;font-size:2.093cqw!important;}
+
+#reelInfo:before{
+  top:93.488cqw!important;font-size:2.093cqw!important;
+}
+#reelInfo:after{
+  top:99.07cqw!important;left:26.047cqw!important;right:23.488cqw!important;height:4.186cqw!important;border-radius:2.093cqw!important;
+}
+#rail{
+  top:97.209cqw!important;left:6.512cqw!important;right:7.442cqw!important;
+}
+#soundBtn,#fullBtn{
+  height:7.907cqw!important;min-width:8.837cqw!important;padding:0 2.791cqw!important;border-radius:3.953cqw!important;font-size:2.558cqw!important;
+}
+#rail:before{left:44.419cqw!important;top:1.395cqw!important;width:1.86cqw!important;height:5.116cqw!important;border-radius:.93cqw!important;}
+
+/* Subtitle/actions remain BELOW the video exactly like the approved preview. */
+#sentenceWrap{
+  top:113.953cqw!important;left:4.186cqw!important;right:4.186cqw!important;height:38.605cqw!important;
+}
+#sentenceTranslation,#sentence{
+  height:14.419cqw!important;border-radius:3.721cqw!important;
+}
+#sentenceTranslation{
+  padding:2.558cqw 3.256cqw 4.419cqw 16.279cqw!important;
+  font-size:3.023cqw!important;line-height:1.28!important;
+}
+#sentenceTranslation:before{
+  left:2.558cqw!important;top:2.093cqw!important;min-width:10.93cqw!important;height:4.884cqw!important;padding:0 1.86cqw!important;border-radius:2.558cqw!important;font-size:2.093cqw!important;
+}
+#sentenceTranslation:after{left:2.558cqw!important;bottom:1.395cqw!important;font-size:2.093cqw!important;}
+#sentence{
+  padding:2.093cqw 3.256cqw 3.488cqw 14.884cqw!important;gap:.698cqw .465cqw!important;font-size:3.953cqw!important;
+}
+#sentence:before{
+  left:2.558cqw!important;top:2.093cqw!important;min-width:9.767cqw!important;height:4.884cqw!important;padding:0 1.86cqw!important;border-radius:2.558cqw!important;font-size:2.093cqw!important;
+}
+#sentence:after{left:2.558cqw!important;bottom:1.163cqw!important;font-size:1.86cqw!important;}
+.jpWord{min-height:6.279cqw!important;}
+.jpWord .jpKanji{min-height:2.093cqw!important;font-size:1.628cqw!important;}
+.jpWord .jpHira,.jpPunc{font-size:3.953cqw!important;}
+#sentenceWrap:before{top:20.465cqw!important;font-size:2.326cqw!important;}
+#sentenceWrap:after{right:1.628cqw!important;top:18.372cqw!important;width:6.977cqw!important;height:5.581cqw!important;border-radius:2.791cqw!important;}
+#inlineActions{
+  top:27.442cqw!important;height:8.837cqw!important;
+  grid-template-columns:22.791cqw 19.767cqw 11.628cqw 28.837cqw!important;gap:2.326cqw!important;
+}
+#inlineActions .inlineAction{height:8.837cqw!important;padding:0 1.86cqw!important;border-radius:2.791cqw!important;font-size:2.326cqw!important;}
+#inlineActions:after{height:8.837cqw!important;border-radius:2.791cqw!important;font-size:2.326cqw!important;}
+
+/* Bottom navigation is always the last layer and never covers the subtitle/actions. */
+#nav{
+  height:18.14cqw!important;min-height:64px!important;padding-bottom:env(safe-area-inset-bottom)!important;
+}
+.navBtn{height:18.14cqw!important;padding:2.326cqw 0 1.86cqw!important;gap:1.163cqw!important;}
+.navIcon{font-size:3.488cqw!important;line-height:6.512cqw!important;}
+.navText{font-size:2.093cqw!important;}
+#homeNav.active .navIcon{width:7.907cqw!important;height:6.744cqw!important;border-radius:3.256cqw!important;}
+
+/* Remove the old mobile percentage-height overrides that caused the giant video. */
+@media(max-width:699px){
+  .playerSlot,#shade,#gesture,#buffer{height:96.279cqw!important;}
+  #reelInfo:before{top:93.488cqw!important;}
+  #reelInfo:after{top:99.07cqw!important;}
+  #rail{top:97.209cqw!important;}
+  #sentenceWrap{top:113.953cqw!important;}
+  #nav{height:18.14cqw!important;}
+}
+</style>
+
 </head>
 
 <body>
@@ -8189,6 +8304,18 @@ channelsNav.onclick=()=>{ exactCloseAllScreens(); exactRenderSearch(); openScree
 libraryNav.onclick=()=>{ exactCloseAllScreens(); exactRenderReview(); openScreen(exactReviewScreen); exactSetNav(libraryNav); };
 addNav.onclick=()=>{ exactCloseAllScreens(); libraryMode='saved'; renderLibrary(); openScreen(libraryScreen); exactSetNav(addNav); };
 exactSearchInput.addEventListener('input',exactRenderSearch);
+
+// Closing any utility returns to the visible Feed, so the nav cannot stay stuck on Saved/Search/Review.
+document.querySelectorAll('[data-close]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    requestAnimationFrame(()=>{
+      const anyUtilityOpen=[addScreen,channelsScreen,channelScreen,libraryScreen,wordScreen,exactSearchScreen,exactReviewScreen]
+        .some(screen=>screen?.classList.contains('open'));
+      if(!anyUtilityOpen){ exactSetNav(homeNav); }
+    });
+  });
+});
+exactSetNav(homeNav);
 
 // Exact labels/actions shown in the approved preview.
 sentenceReplayBtn.textContent='↺ Nghe lại';
