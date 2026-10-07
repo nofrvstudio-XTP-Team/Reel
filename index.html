@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#08090b">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<!-- XTP native media v9 stable: no missing-media carousel loop -->
+<!-- XTP v10: GitHub-Pages native video via Piped/Invidious stream resolver -->
 <title>XTP jp</title>
 <style>
 :root{
@@ -2672,7 +2672,7 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
     <div class="sourceBox">
       <div class="sourceHero">
         <h2>Chỉ lấy đúng channel đã chọn</h2>
-        <p>App tự check video mới từ whitelist này. Playback dùng file MP4/HLS đã ingest vào media backend riêng; không dùng YouTube iframe.</p>
+        <p>App tự check video mới từ whitelist này. Playback dùng native <video> và tự resolve stream qua Piped → Invidious; không dùng YouTube iframe.</p>
       </div>
 
       <div class="sourceSection">
@@ -2685,12 +2685,12 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
       </div>
 
       <div class="sourceSection">
-        <div class="sourceLabel">Native media backend</div>
+        <div class="sourceLabel">Piped API tuỳ chọn</div>
         <div class="sourceRow">
-          <input id="mediaBaseInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="https://your-worker.example.workers.dev">
+          <input id="mediaBaseInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="để trống = tự chọn public instance">
           <button id="saveMediaBaseBtn" class="sourceBtn">Lưu</button>
         </div>
-        <div class="sourceHint">Player dùng MP4/HLS của chính backend này; không dùng YouTube iframe nên không có title/logo/controls YouTube.</div>
+        <div class="sourceHint">Không bắt buộc. Để trống thì app tự thử nhiều Piped instance rồi fallback Invidious. Player vẫn là native <video>, không có chrome YouTube.</div>
       </div>
 
       <div class="sourceSection">
@@ -3013,11 +3013,33 @@ const MAX_SENTENCE_SECONDS =
 const AUTO_SOURCE_KEY =
   'xtp-youtube-sources-v1';
 
-const MEDIA_BASE_KEY = 'xtp-native-media-base-v1';
+const MEDIA_BASE_KEY = 'xtp-stream-resolver-base-v1';
+/* Optional custom Piped API. Empty = automatic public-instance rotation. */
 let mediaBaseUrl = (localStorage.getItem(MEDIA_BASE_KEY) || '').trim().replace(/\/$/,'');
 const mediaReadyCache = new Map();
 const nativeReadyVideoIds = new Set();
 const nativeMissingVideoIds = new Set();
+const streamProviderFailures = new Map();
+const STREAM_CACHE_MS = 10 * 60 * 1000;
+
+/* Current public-instance candidates. They are intentionally redundant because
+   public alternative frontends can be rate-limited or temporarily unavailable. */
+const PIPED_APIS = [
+  'https://pipedapi.kavin.rocks',
+  'https://pipedapi.leptons.xyz',
+  'https://api.piped.private.coffee',
+  'https://pipedapi.adminforge.de',
+  'https://api.piped.yt',
+  'https://pipedapi.drgns.space',
+  'https://pipedapi.owo.si'
+];
+const INVIDIOUS_APIS = [
+  'https://inv.nadeko.net',
+  'https://invidious.nerdvpn.de',
+  'https://yt.chocolatemoo53.com',
+  'https://invidious.tiekoetter.com',
+  'https://invidious.f5.si'
+];
 
 const AUTO_SYNC_INTERVAL =
   3 * 60 * 60 * 1000;
@@ -5238,7 +5260,7 @@ async function syncAutoSource(source,{background=false}={}){
   renderFollowingList();
   await refreshNativeMediaAvailability({showStatus:false});
   rebuildFeed({ mode:feedMode === 'following' ? 'following' : 'for-you' });
-  if(!background) sourceStatus.textContent = `${source.title}: +${imported} video · ${skipped} đã có · ${failed} bỏ qua · ${nativeReadyVideoIds.size} video có media`;
+  if(!background) sourceStatus.textContent = `${source.title}: +${imported} video · ${skipped} đã có · ${failed} bỏ qua`;
   return {imported,skipped,failed};
 }
 
@@ -5616,9 +5638,10 @@ function updateFeedTabs(){
 }
 
 /* =========================================================
-   NATIVE MEDIA RESOLVER
-   YouTube is discovery/metadata only. Playback is MP4 from the
-   configured backend, e.g. GET /media/<youtubeVideoId>.
+   STREAM RESOLVER — GitHub Pages only
+   Discovery still uses YouTube Data API. Playback uses native <video>.
+   Resolution order: custom Piped (if set) -> public Piped -> Invidious.
+   No YouTube iframe is created anywhere in this player path.
    ========================================================= */
 
 function findVideoRecord(videoId){
@@ -5629,76 +5652,210 @@ function findVideoRecord(videoId){
   return null;
 }
 
-function nativeMediaUrl(videoId){
-  const record=findVideoRecord(videoId);
-  if(record?.mediaUrl) return record.mediaUrl;
-  if(!mediaBaseUrl) return '';
-  return `${mediaBaseUrl}/media/${encodeURIComponent(videoId)}`;
+function resolverBases(custom, defaults){
+  const out=[];
+  const add=value=>{
+    value=(value || '').trim().replace(/\/$/,'');
+    if(value && !out.includes(value)) out.push(value);
+  };
+  add(custom);
+  defaults.forEach(add);
+  return out;
+}
+
+async function fetchJsonTimeout(url, timeout=4800){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeout);
+  try{
+    const response=await fetch(url,{
+      cache:'no-store',
+      signal:controller.signal,
+      headers:{'Accept':'application/json'}
+    });
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
+function streamHeight(value){
+  const direct=Number(value?.height);
+  if(Number.isFinite(direct) && direct>0) return direct;
+  const text=String(value?.quality || value?.qualityLabel || value?.resolution || '');
+  const match=text.match(/(\d{3,4})p/i);
+  return match ? Number(match[1]) : 0;
+}
+
+function streamCodecScore(value){
+  const text=`${value?.mimeType || ''} ${value?.type || ''} ${value?.codec || ''} ${value?.encoding || ''}`.toLowerCase();
+  let score=0;
+  if(text.includes('video/mp4')) score+=40;
+  if(text.includes('avc1') || text.includes('h264')) score+=35;
+  if(text.includes('mp4a') || text.includes('aac')) score+=15;
+  if(text.includes('webm') || text.includes('vp9') || text.includes('av01')) score-=15;
+  return score;
+}
+
+function chooseProgressiveStream(items){
+  const candidates=(items || [])
+    .filter(item=>item && item.url && item.videoOnly !== true)
+    .map(item=>({item,height:streamHeight(item),codec:streamCodecScore(item)}))
+    .filter(row=>row.codec>=0)
+    .sort((a,b)=>{
+      const aFit=a.height>0 && a.height<=720 ? 1 : 0;
+      const bFit=b.height>0 && b.height<=720 ? 1 : 0;
+      if(aFit!==bFit) return bFit-aFit;
+      if(a.codec!==b.codec) return b.codec-a.codec;
+      if(aFit && bFit && a.height!==b.height) return b.height-a.height;
+      if(!aFit && !bFit && a.height!==b.height) return a.height-b.height;
+      return Number(b.item?.bitrate||0)-Number(a.item?.bitrate||0);
+    });
+  return candidates[0]?.item || null;
+}
+
+function failedProviders(videoId){
+  if(!streamProviderFailures.has(videoId)) streamProviderFailures.set(videoId,new Set());
+  return streamProviderFailures.get(videoId);
+}
+
+function markProviderFailed(videoId, provider){
+  if(provider) failedProviders(videoId).add(provider);
+  const cached=mediaReadyCache.get(videoId);
+  if(cached?.provider===provider) mediaReadyCache.delete(videoId);
+}
+
+function clearStreamFailure(videoId){
+  streamProviderFailures.delete(videoId);
+  nativeMissingVideoIds.delete(videoId);
+}
+
+async function firstResolved(jobs){
+  if(!jobs.length) return null;
+  return await new Promise(resolve=>{
+    let pending=jobs.length;
+    let settled=false;
+    jobs.forEach(job=>{
+      Promise.resolve().then(job).then(value=>{
+        if(settled) return;
+        if(value){ settled=true; resolve(value); return; }
+        pending--;
+        if(pending===0){ settled=true; resolve(null); }
+      }).catch(()=>{
+        if(settled) return;
+        pending--;
+        if(pending===0){ settled=true; resolve(null); }
+      });
+    });
+  });
+}
+
+async function resolveFromPiped(base, videoId){
+  const provider=`piped:${base}`;
+  if(failedProviders(videoId).has(provider)) return null;
+  try{
+    const data=await fetchJsonTimeout(`${base}/streams/${encodeURIComponent(videoId)}`);
+    if(data?.livestream) return null;
+    const stream=chooseProgressiveStream(data?.videoStreams);
+    if(!stream?.url) return null;
+    return {
+      url:stream.url,
+      provider,
+      kind:'piped',
+      quality:stream.quality || `${streamHeight(stream) || ''}p`,
+      expiresAt:Date.now()+STREAM_CACHE_MS
+    };
+  }catch{
+    return null;
+  }
+}
+
+async function resolveFromInvidious(base, videoId){
+  const provider=`invidious:${base}`;
+  if(failedProviders(videoId).has(provider)) return null;
+  try{
+    const data=await fetchJsonTimeout(`${base}/api/v1/videos/${encodeURIComponent(videoId)}?local=true&region=JP`);
+    const stream=chooseProgressiveStream(data?.formatStreams);
+    if(!stream?.url) return null;
+    const url=new URL(stream.url,base).href;
+    return {
+      url,
+      provider,
+      kind:'invidious',
+      quality:stream.qualityLabel || stream.quality || stream.resolution || '',
+      expiresAt:Date.now()+STREAM_CACHE_MS
+    };
+  }catch{
+    return null;
+  }
+}
+
+async function resolveMedia(videoId,{force=false}={}){
+  if(!videoId) return null;
+
+  const cached=mediaReadyCache.get(videoId);
+  if(!force && cached?.url && cached.expiresAt>Date.now()) return cached;
+  if(force) mediaReadyCache.delete(videoId);
+
+  const piped=resolverBases(mediaBaseUrl,PIPED_APIS)
+    .filter(base=>!failedProviders(videoId).has(`piped:${base}`));
+
+  /* Race a few instances at once so a dead public instance does not stall swipe. */
+  let resolved=await firstResolved(
+    piped.slice(0,4).map(base=>()=>resolveFromPiped(base,videoId))
+  );
+  if(!resolved && piped.length>4){
+    resolved=await firstResolved(
+      piped.slice(4).map(base=>()=>resolveFromPiped(base,videoId))
+    );
+  }
+
+  if(!resolved){
+    const inv=INVIDIOUS_APIS.filter(base=>!failedProviders(videoId).has(`invidious:${base}`));
+    resolved=await firstResolved(
+      inv.slice(0,3).map(base=>()=>resolveFromInvidious(base,videoId))
+    );
+    if(!resolved && inv.length>3){
+      resolved=await firstResolved(
+        inv.slice(3).map(base=>()=>resolveFromInvidious(base,videoId))
+      );
+    }
+  }
+
+  if(resolved){
+    mediaReadyCache.set(videoId,resolved);
+    nativeReadyVideoIds.add(videoId);
+    nativeMissingVideoIds.delete(videoId);
+    return resolved;
+  }
+
+  nativeReadyVideoIds.delete(videoId);
+  nativeMissingVideoIds.add(videoId);
+  return null;
 }
 
 async function mediaAssetReady(videoId){
-  const direct=nativeMediaUrl(videoId);
-  if(!direct) return false;
-  if(mediaReadyCache.has(videoId)) return mediaReadyCache.get(videoId);
-  let ok=false;
-  try{
-    const response=await fetch(direct,{method:'HEAD',cache:'no-store'});
-    ok=response.ok;
-  }catch{}
-  mediaReadyCache.set(videoId,ok);
-  if(ok){
-    nativeReadyVideoIds.add(videoId);
-    nativeMissingVideoIds.delete(videoId);
-  }else{
-    nativeReadyVideoIds.delete(videoId);
-    nativeMissingVideoIds.add(videoId);
-  }
-  return ok;
+  return !!(await resolveMedia(videoId));
 }
 
+/* Do not resolve every imported video during startup; that would hammer public
+   instances and delay the feed. Current/prev/next are resolved lazily. */
 async function refreshNativeMediaAvailability({force=false,showStatus=false}={}){
   if(force){
     mediaReadyCache.clear();
     nativeReadyVideoIds.clear();
     nativeMissingVideoIds.clear();
+    streamProviderFailures.clear();
   }
-
-  const ids=[...new Set(
-    channels.flatMap(channel=>(channel.clips||[]).map(clip=>clip.videoId)).filter(Boolean)
-  )];
-
-  if(!ids.length){
-    nativeReadyVideoIds.clear();
-    nativeMissingVideoIds.clear();
-    return {ready:0,missing:0,total:0};
-  }
-
-  if(!mediaBaseUrl && !ids.some(id=>findVideoRecord(id)?.mediaUrl)){
-    nativeReadyVideoIds.clear();
-    nativeMissingVideoIds.clear();
-    if(showStatus && sourceStatus){
-      sourceStatus.textContent='Chưa cấu hình native media backend.';
-    }
-    return {ready:0,missing:ids.length,total:ids.length};
-  }
-
-  let cursor=0;
-  const workers=Array.from({length:Math.min(6,ids.length)},async()=>{
-    while(cursor<ids.length){
-      const id=ids[cursor++];
-      await mediaAssetReady(id);
-    }
-  });
-  await Promise.all(workers);
-
+  const ids=[...new Set(channels.flatMap(channel=>(channel.clips||[]).map(clip=>clip.videoId)).filter(Boolean))];
   if(showStatus && sourceStatus){
-    sourceStatus.textContent=`Media sẵn sàng: ${nativeReadyVideoIds.size}/${ids.length} video.`;
+    sourceStatus.textContent=`Stream resolver sẵn sàng · ${ids.length} video nguồn · resolve khi phát.`;
   }
   return {ready:nativeReadyVideoIds.size,missing:nativeMissingVideoIds.size,total:ids.length};
 }
 
 function clipHasNativeMedia(clip){
-  return !!clip?.videoId && nativeReadyVideoIds.has(clip.videoId);
+  return !!clip?.videoId && !nativeMissingVideoIds.has(clip.videoId);
 }
 
 const NATIVE_STATE={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};
@@ -5720,46 +5877,78 @@ class NativePlayer{
     this.state=NATIVE_STATE.UNSTARTED;
     this.generation=0;
     this.pendingSeek=0;
-    this.video.addEventListener('playing',()=>this.emitState(NATIVE_STATE.PLAYING));
+    this.lastRequest=null;
+    this.activeProvider='';
+    this.retryCount=0;
+
+    this.video.addEventListener('playing',()=>{
+      this.retryCount=0;
+      this.emitState(NATIVE_STATE.PLAYING);
+    });
     this.video.addEventListener('pause',()=>{ if(!this.video.ended) this.emitState(NATIVE_STATE.PAUSED); });
     this.video.addEventListener('waiting',()=>this.emitState(NATIVE_STATE.BUFFERING));
     this.video.addEventListener('stalled',()=>this.emitState(NATIVE_STATE.BUFFERING));
     this.video.addEventListener('ended',()=>this.emitState(NATIVE_STATE.ENDED));
-    this.video.addEventListener('error',()=>{
-      this.state=NATIVE_STATE.UNSTARTED;
-      this.events.onError?.({data:4,target:this});
-    });
+    this.video.addEventListener('error',()=>this.handleMediaError());
     queueMicrotask(()=>this.events.onReady?.({target:this}));
   }
+
   emitState(state){
     if(this.state===state) return;
     this.state=state;
     this.events.onStateChange?.({data:state,target:this});
   }
-  async setSource({videoId,startSeconds=0,autoplay=false}){
+
+  async handleMediaError(){
+    const req=this.lastRequest;
+    if(req?.videoId && this.retryCount<1){
+      this.retryCount++;
+      markProviderFailed(req.videoId,this.activeProvider);
+      try{
+        await this.setSource({...req,forceResolve:true,keepRetryCount:true});
+        return;
+      }catch{}
+    }
+    this.state=NATIVE_STATE.UNSTARTED;
+    this.events.onError?.({data:4,target:this});
+  }
+
+  async setSource({videoId,startSeconds=0,autoplay=false,forceResolve=false,keepRetryCount=false}){
     const gen=++this.generation;
-    const url=nativeMediaUrl(videoId);
-    if(!url){ this.events.onError?.({data:404,target:this}); return; }
-    if(!(await mediaAssetReady(videoId)) || gen!==this.generation){
+    const newVideo=this.video.dataset.videoId!==videoId;
+    if(newVideo && !keepRetryCount) this.retryCount=0;
+    this.lastRequest={videoId,startSeconds,autoplay};
+
+    const resolved=await resolveMedia(videoId,{force:forceResolve});
+    if(!resolved || gen!==this.generation){
       if(gen===this.generation) this.events.onError?.({data:404,target:this});
       return;
     }
-    const same=this.video.dataset.videoId===videoId && this.video.src;
+
+    const url=resolved.url;
+    const same=this.video.dataset.videoId===videoId && this.video.src===url;
+    this.activeProvider=resolved.provider || '';
     this.video.dataset.videoId=videoId;
     this.pendingSeek=Math.max(0,Number(startSeconds)||0);
-    if(!same){
+
+    if(!same || forceResolve){
       this.video.pause();
+      this.video.removeAttribute('src');
+      this.video.load();
       this.video.src=url;
       this.video.load();
     }
+
     const seekAndMaybePlay=()=>{
       if(gen!==this.generation) return;
       try{ this.video.currentTime=this.pendingSeek; }catch{}
       if(autoplay){ this.playVideo(); } else { this.emitState(NATIVE_STATE.CUED); }
     };
+
     if(this.video.readyState>=1) seekAndMaybePlay();
     else this.video.addEventListener('loadedmetadata',seekAndMaybePlay,{once:true});
   }
+
   cueVideoById(args){ return this.setSource({...args,autoplay:false}); }
   loadVideoById(args){ return this.setSource({...args,autoplay:true}); }
   playVideo(){
@@ -6274,10 +6463,10 @@ function onPlayerError(
       'YouTube từ chối embed/referrer.',
 
     4:
-      'File video không phát được.',
+      'Stream hiện tại không phát được; đã thử resolver khác.',
 
     404:
-      'Video chưa có trên media backend.'
+      'Không resolve được stream qua Piped/Invidious.'
 
   };
 
@@ -6288,16 +6477,14 @@ function onPlayerError(
   );
 
   if([4,404,100,101,150,153].includes(Number(code))){
-    const bad = currentClip();
+    const bad=currentClip();
     if(bad?.videoId){
-      mediaReadyCache.set(bad.videoId,false);
+      mediaReadyCache.delete(bad.videoId);
       nativeReadyVideoIds.delete(bad.videoId);
       nativeMissingVideoIds.add(bad.videoId);
-      /* Do not permanently hide the reel: media may be uploaded later. */
-      setTimeout(()=>{
-        rebuildFeed({mode:feedMode});
-        if(!feed.length){ renderCurrent(); }
-      },80);
+      /* Do NOT auto-advance/rebuild here. A failed public resolver must never
+         turn into a fake fast-scrolling carousel. User can retry or swipe. */
+      if(videoPoster) videoPoster.classList.add('show');
     }
   }
 
@@ -6820,13 +7007,7 @@ function renderCurrent(){
     );
 
     if(emptyText){
-      if(!mediaBaseUrl){
-        emptyText.textContent='Native playback chưa có backend media. App sẽ không tự lật qua các reel rỗng.';
-      }else if(nativeReadyVideoIds.size===0){
-        emptyText.textContent='Backend chưa có file video tương ứng. Feed chỉ hiện video có media thật, nên không còn vòng lặp reel ảo.';
-      }else{
-        emptyText.textContent='Không có reel khả dụng trong bộ lọc hiện tại.';
-      }
+      emptyText.textContent='Không có reel khả dụng trong bộ lọc hiện tại.';
     }
 
     channelName.textContent =
@@ -8376,10 +8557,11 @@ if(saveMediaBaseBtn){
   saveMediaBaseBtn.onclick=async()=>{
     mediaBaseUrl=(mediaBaseInput.value || '').trim().replace(/\/$/,'');
     localStorage.setItem(MEDIA_BASE_KEY,mediaBaseUrl);
-    sourceStatus.textContent=mediaBaseUrl ? 'Đang kiểm tra media backend…' : 'Đã xoá native media backend.';
-    await refreshNativeMediaAvailability({force:true,showStatus:true});
+    await refreshNativeMediaAvailability({force:true,showStatus:false});
+    sourceStatus.textContent=mediaBaseUrl
+      ? 'Đã lưu Piped API tuỳ chọn. App vẫn fallback sang public Piped/Invidious khi cần.'
+      : 'Đã bật auto resolver: Piped → Invidious.';
     rebuildFeed({mode:feedMode});
-    if(feed.length) syncPlayers(true); else renderCurrent();
   };
 }
 
@@ -8852,7 +9034,7 @@ async function boot(){
 
   renderFollowingList();
 
-  /* Native mode: build the feed only from media that really exists. */
+  /* Resolver mode: resolve only current/prev/next lazily for fast startup. */
   await refreshNativeMediaAvailability({showStatus:false});
 
   feed =
