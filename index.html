@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#08090b">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<!-- XTP v10: GitHub-Pages native video via Piped/Invidious stream resolver -->
+<!-- XTP v11: GitHub-Pages native video via Invidious proxied playback -->
 <title>XTP jp</title>
 <style>
 :root{
@@ -2672,7 +2672,7 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
     <div class="sourceBox">
       <div class="sourceHero">
         <h2>Chỉ lấy đúng channel đã chọn</h2>
-        <p>App tự check video mới từ whitelist này. Playback dùng native <video> và tự resolve stream qua Piped → Invidious; không dùng YouTube iframe.</p>
+        <p>App tự check video mới từ whitelist này. Playback dùng native <video> qua Invidious proxy; không dùng YouTube iframe.</p>
       </div>
 
       <div class="sourceSection">
@@ -2685,12 +2685,12 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
       </div>
 
       <div class="sourceSection">
-        <div class="sourceLabel">Piped API tuỳ chọn</div>
+        <div class="sourceLabel">Invidious instance tuỳ chọn</div>
         <div class="sourceRow">
-          <input id="mediaBaseInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="để trống = tự chọn public instance">
+          <input id="mediaBaseInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="để trống = tự xoay public instance">
           <button id="saveMediaBaseBtn" class="sourceBtn">Lưu</button>
         </div>
-        <div class="sourceHint">Không bắt buộc. Để trống thì app tự thử nhiều Piped instance rồi fallback Invidious. Player vẫn là native <video>, không có chrome YouTube.</div>
+        <div class="sourceHint">Không bắt buộc. Để trống thì app tự xoay các Invidious instance public. Video đi qua /latest_version?local=true để instance proxy stream cho <video>.</div>
       </div>
 
       <div class="sourceSection">
@@ -3013,32 +3013,23 @@ const MAX_SENTENCE_SECONDS =
 const AUTO_SOURCE_KEY =
   'xtp-youtube-sources-v1';
 
-const MEDIA_BASE_KEY = 'xtp-stream-resolver-base-v1';
-/* Optional custom Piped API. Empty = automatic public-instance rotation. */
+const MEDIA_BASE_KEY = 'xtp-invidious-playback-base-v2';
+/* Optional custom Invidious origin. Empty = rotate maintained public instances. */
 let mediaBaseUrl = (localStorage.getItem(MEDIA_BASE_KEY) || '').trim().replace(/\/$/,'');
 const mediaReadyCache = new Map();
 const nativeReadyVideoIds = new Set();
 const nativeMissingVideoIds = new Set();
 const streamProviderFailures = new Map();
-const STREAM_CACHE_MS = 10 * 60 * 1000;
+const STREAM_CACHE_MS = 30 * 60 * 1000;
+const MAX_STREAM_RETRIES = 8;
 
-/* Current public-instance candidates. They are intentionally redundant because
-   public alternative frontends can be rate-limited or temporarily unavailable. */
-const PIPED_APIS = [
-  'https://pipedapi.kavin.rocks',
-  'https://pipedapi.leptons.xyz',
-  'https://api.piped.private.coffee',
-  'https://pipedapi.adminforge.de',
-  'https://api.piped.yt',
-  'https://pipedapi.drgns.space',
-  'https://pipedapi.owo.si'
-];
+/* Current maintained public Invidious instances. Playback uses latest_version
+   with local=true so the instance proxies the media and handles Range/CORS. */
 const INVIDIOUS_APIS = [
   'https://inv.nadeko.net',
   'https://invidious.nerdvpn.de',
   'https://yt.chocolatemoo53.com',
-  'https://invidious.tiekoetter.com',
-  'https://invidious.f5.si'
+  'https://invidious.tiekoetter.com'
 ];
 
 const AUTO_SYNC_INTERVAL =
@@ -5640,8 +5631,10 @@ function updateFeedTabs(){
 /* =========================================================
    STREAM RESOLVER — GitHub Pages only
    Discovery still uses YouTube Data API. Playback uses native <video>.
-   Resolution order: custom Piped (if set) -> public Piped -> Invidious.
-   No YouTube iframe is created anywhere in this player path.
+   We do NOT fetch stream JSON in the browser anymore. Public Piped/API
+   resolution proved too brittle. Instead <video> points at Invidious'
+   /latest_version endpoint with local=true so the instance itself resolves
+   and proxies the current YouTube media URL (including Range requests).
    ========================================================= */
 
 function findVideoRecord(videoId){
@@ -5663,57 +5656,6 @@ function resolverBases(custom, defaults){
   return out;
 }
 
-async function fetchJsonTimeout(url, timeout=4800){
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),timeout);
-  try{
-    const response=await fetch(url,{
-      cache:'no-store',
-      signal:controller.signal,
-      headers:{'Accept':'application/json'}
-    });
-    if(!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  }finally{
-    clearTimeout(timer);
-  }
-}
-
-function streamHeight(value){
-  const direct=Number(value?.height);
-  if(Number.isFinite(direct) && direct>0) return direct;
-  const text=String(value?.quality || value?.qualityLabel || value?.resolution || '');
-  const match=text.match(/(\d{3,4})p/i);
-  return match ? Number(match[1]) : 0;
-}
-
-function streamCodecScore(value){
-  const text=`${value?.mimeType || ''} ${value?.type || ''} ${value?.codec || ''} ${value?.encoding || ''}`.toLowerCase();
-  let score=0;
-  if(text.includes('video/mp4')) score+=40;
-  if(text.includes('avc1') || text.includes('h264')) score+=35;
-  if(text.includes('mp4a') || text.includes('aac')) score+=15;
-  if(text.includes('webm') || text.includes('vp9') || text.includes('av01')) score-=15;
-  return score;
-}
-
-function chooseProgressiveStream(items){
-  const candidates=(items || [])
-    .filter(item=>item && item.url && item.videoOnly !== true)
-    .map(item=>({item,height:streamHeight(item),codec:streamCodecScore(item)}))
-    .filter(row=>row.codec>=0)
-    .sort((a,b)=>{
-      const aFit=a.height>0 && a.height<=720 ? 1 : 0;
-      const bFit=b.height>0 && b.height<=720 ? 1 : 0;
-      if(aFit!==bFit) return bFit-aFit;
-      if(a.codec!==b.codec) return b.codec-a.codec;
-      if(aFit && bFit && a.height!==b.height) return b.height-a.height;
-      if(!aFit && !bFit && a.height!==b.height) return a.height-b.height;
-      return Number(b.item?.bitrate||0)-Number(a.item?.bitrate||0);
-    });
-  return candidates[0]?.item || null;
-}
-
 function failedProviders(videoId){
   if(!streamProviderFailures.has(videoId)) streamProviderFailures.set(videoId,new Set());
   return streamProviderFailures.get(videoId);
@@ -5728,118 +5670,58 @@ function markProviderFailed(videoId, provider){
 function clearStreamFailure(videoId){
   streamProviderFailures.delete(videoId);
   nativeMissingVideoIds.delete(videoId);
+  mediaReadyCache.delete(videoId);
 }
 
-async function firstResolved(jobs){
-  if(!jobs.length) return null;
-  return await new Promise(resolve=>{
-    let pending=jobs.length;
-    let settled=false;
-    jobs.forEach(job=>{
-      Promise.resolve().then(job).then(value=>{
-        if(settled) return;
-        if(value){ settled=true; resolve(value); return; }
-        pending--;
-        if(pending===0){ settled=true; resolve(null); }
-      }).catch(()=>{
-        if(settled) return;
-        pending--;
-        if(pending===0){ settled=true; resolve(null); }
-      });
+function buildInvidiousCandidates(videoId){
+  const bases=resolverBases(mediaBaseUrl,INVIDIOUS_APIS);
+  const id=encodeURIComponent(videoId);
+  const out=[];
+  for(const base of bases){
+    /* no itag lets Invidious select an available progressive stream;
+       itag 18 is a reliable H.264/AAC fallback on many videos. */
+    out.push({
+      url:`${base}/latest_version?id=${id}&local=true&region=JP`,
+      provider:`invidious:${base}:auto`,
+      kind:'invidious-proxy'
     });
-  });
-}
-
-async function resolveFromPiped(base, videoId){
-  const provider=`piped:${base}`;
-  if(failedProviders(videoId).has(provider)) return null;
-  try{
-    const data=await fetchJsonTimeout(`${base}/streams/${encodeURIComponent(videoId)}`);
-    if(data?.livestream) return null;
-    const stream=chooseProgressiveStream(data?.videoStreams);
-    if(!stream?.url) return null;
-    return {
-      url:stream.url,
-      provider,
-      kind:'piped',
-      quality:stream.quality || `${streamHeight(stream) || ''}p`,
-      expiresAt:Date.now()+STREAM_CACHE_MS
-    };
-  }catch{
-    return null;
+    out.push({
+      url:`${base}/latest_version?id=${id}&itag=18&local=true&region=JP`,
+      provider:`invidious:${base}:18`,
+      kind:'invidious-proxy'
+    });
   }
-}
-
-async function resolveFromInvidious(base, videoId){
-  const provider=`invidious:${base}`;
-  if(failedProviders(videoId).has(provider)) return null;
-  try{
-    const data=await fetchJsonTimeout(`${base}/api/v1/videos/${encodeURIComponent(videoId)}?local=true&region=JP`);
-    const stream=chooseProgressiveStream(data?.formatStreams);
-    if(!stream?.url) return null;
-    const url=new URL(stream.url,base).href;
-    return {
-      url,
-      provider,
-      kind:'invidious',
-      quality:stream.qualityLabel || stream.quality || stream.resolution || '',
-      expiresAt:Date.now()+STREAM_CACHE_MS
-    };
-  }catch{
-    return null;
-  }
+  return out;
 }
 
 async function resolveMedia(videoId,{force=false}={}){
   if(!videoId) return null;
-
   const cached=mediaReadyCache.get(videoId);
   if(!force && cached?.url && cached.expiresAt>Date.now()) return cached;
   if(force) mediaReadyCache.delete(videoId);
 
-  const piped=resolverBases(mediaBaseUrl,PIPED_APIS)
-    .filter(base=>!failedProviders(videoId).has(`piped:${base}`));
-
-  /* Race a few instances at once so a dead public instance does not stall swipe. */
-  let resolved=await firstResolved(
-    piped.slice(0,4).map(base=>()=>resolveFromPiped(base,videoId))
-  );
-  if(!resolved && piped.length>4){
-    resolved=await firstResolved(
-      piped.slice(4).map(base=>()=>resolveFromPiped(base,videoId))
-    );
+  const failed=failedProviders(videoId);
+  const candidate=buildInvidiousCandidates(videoId).find(x=>!failed.has(x.provider));
+  if(!candidate){
+    nativeReadyVideoIds.delete(videoId);
+    nativeMissingVideoIds.add(videoId);
+    return null;
   }
 
-  if(!resolved){
-    const inv=INVIDIOUS_APIS.filter(base=>!failedProviders(videoId).has(`invidious:${base}`));
-    resolved=await firstResolved(
-      inv.slice(0,3).map(base=>()=>resolveFromInvidious(base,videoId))
-    );
-    if(!resolved && inv.length>3){
-      resolved=await firstResolved(
-        inv.slice(3).map(base=>()=>resolveFromInvidious(base,videoId))
-      );
-    }
-  }
-
-  if(resolved){
-    mediaReadyCache.set(videoId,resolved);
-    nativeReadyVideoIds.add(videoId);
-    nativeMissingVideoIds.delete(videoId);
-    return resolved;
-  }
-
-  nativeReadyVideoIds.delete(videoId);
-  nativeMissingVideoIds.add(videoId);
-  return null;
+  const resolved={...candidate,expiresAt:Date.now()+STREAM_CACHE_MS};
+  mediaReadyCache.set(videoId,resolved);
+  nativeReadyVideoIds.add(videoId);
+  nativeMissingVideoIds.delete(videoId);
+  return resolved;
 }
 
 async function mediaAssetReady(videoId){
+  /* A candidate URL can be formed synchronously; actual health is verified by
+     the media element. Do not preflight with fetch because that reintroduces
+     CORS/API failures and doubles network work. */
   return !!(await resolveMedia(videoId));
 }
 
-/* Do not resolve every imported video during startup; that would hammer public
-   instances and delay the feed. Current/prev/next are resolved lazily. */
 async function refreshNativeMediaAvailability({force=false,showStatus=false}={}){
   if(force){
     mediaReadyCache.clear();
@@ -5883,6 +5765,8 @@ class NativePlayer{
 
     this.video.addEventListener('playing',()=>{
       this.retryCount=0;
+      const id=this.video.dataset.videoId;
+      if(id){ nativeMissingVideoIds.delete(id); nativeReadyVideoIds.add(id); }
       this.emitState(NATIVE_STATE.PLAYING);
     });
     this.video.addEventListener('pause',()=>{ if(!this.video.ended) this.emitState(NATIVE_STATE.PAUSED); });
@@ -5901,7 +5785,7 @@ class NativePlayer{
 
   async handleMediaError(){
     const req=this.lastRequest;
-    if(req?.videoId && this.retryCount<1){
+    if(req?.videoId && this.retryCount<MAX_STREAM_RETRIES){
       this.retryCount++;
       markProviderFailed(req.videoId,this.activeProvider);
       try{
@@ -6466,7 +6350,7 @@ function onPlayerError(
       'Stream hiện tại không phát được; đã thử resolver khác.',
 
     404:
-      'Không resolve được stream qua Piped/Invidious.'
+      'Không có Invidious playback instance nào phát được video này.'
 
   };
 
@@ -8559,8 +8443,8 @@ if(saveMediaBaseBtn){
     localStorage.setItem(MEDIA_BASE_KEY,mediaBaseUrl);
     await refreshNativeMediaAvailability({force:true,showStatus:false});
     sourceStatus.textContent=mediaBaseUrl
-      ? 'Đã lưu Piped API tuỳ chọn. App vẫn fallback sang public Piped/Invidious khi cần.'
-      : 'Đã bật auto resolver: Piped → Invidious.';
+      ? 'Đã lưu Invidious instance tuỳ chọn. App vẫn fallback sang public Invidious khi cần.'
+      : 'Đã bật auto resolver: Invidious.';
     rebuildFeed({mode:feedMode});
   };
 }
