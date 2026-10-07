@@ -1,0 +1,7 @@
+name = "xtp-native-media"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "xtp-native-media"
