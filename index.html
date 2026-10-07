@@ -1547,6 +1547,17 @@ input{background:#0f1115!important;color:#fff!important;border-color:var(--xtp-l
 .sourceDivider{height:1px;background:var(--exact-line,rgba(255,255,255,.10));margin:14px 0}
 .sourceManual summary{cursor:pointer;color:var(--exact-muted,#91969f);font-size:11px;font-weight:800}
 
+
+/* =========================================================
+   NATIVE VIDEO PLAYER — no YouTube iframe/chrome
+   ========================================================= */
+.playerSlot>div{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background:#000!important;overflow:hidden!important;}
+.playerSlot video.nativeVideo{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center center!important;background:#000!important;
+  border:0!important;border-radius:0!important;pointer-events:none!important;
+}
+
 </style>
 
 <style id="xtp-approved-dark-final">
@@ -2221,66 +2232,159 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
 </style>
 
 
-<style id="xtp-v5-video-caption-final">
-/* v5: one compact media composition. Caption is inside video, not a separate card. */
-#phone{--v5-bg:#08090b;--v5-panel:#121419;--v5-line:#30343b;--v5-text:#f5f6f8;--v5-muted:#9ba0a8;--v5-focus:#ffd24c;--v5-live:#ff6754;background:var(--v5-bg)!important;}
-
-/* compact card geometry */
-#reelInfo{top:12.56cqw!important;left:3.26cqw!important;right:3.26cqw!important;height:96cqw!important;border:1px solid var(--v5-line)!important;border-radius:4.2cqw!important;background:var(--v5-panel)!important;overflow:visible!important;}
-#channelRow{top:2.1cqw!important;left:3.25cqw!important;right:3.25cqw!important;height:6.5cqw!important;}
-#videoProgressBar{top:10.05cqw!important;left:2.33cqw!important;right:2.33cqw!important;height:1.15cqw!important;}
-#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{height:.48cqw!important;min-height:2px!important;}
-#videoProgressKnob{width:1.25cqw!important;height:1.25cqw!important;min-width:5px!important;min-height:5px!important;}
-
-/* video = full picture contained in the assigned box, never zoom/crop */
-.playerSlot,#shade,#buffer,#videoPoster{left:5.58cqw!important;right:5.58cqw!important;top:25.0cqw!important;height:70.7cqw!important;border-radius:2.8cqw!important;background:#000!important;overflow:hidden!important;}
-.playerSlot>div{position:absolute!important;left:0!important;right:0!important;top:50%!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;transform:translateY(-50%)!important;background:#000!important;overflow:hidden!important;}
-.playerSlot iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;background:#000!important;pointer-events:none!important;}
-#videoPoster{object-fit:contain!important;object-position:center!important;}
-#gesture{left:5.58cqw!important;right:5.58cqw!important;top:25.0cqw!important;height:70.7cqw!important;border-radius:2.8cqw!important;}
-
-/* YouTube iframe does not expose a switch for every title/logo overlay.
-   Small opaque masks hide the native top/bottom chrome without zooming the video. */
-#shade{z-index:25!important;background:transparent!important;pointer-events:none!important;}
-#shade:before{display:block!important;content:""!important;position:absolute!important;left:0!important;right:0!important;top:0!important;height:9.8cqw!important;background:linear-gradient(#000 0 62%,rgba(0,0,0,.88) 78%,transparent 100%)!important;}
-#shade:after{display:block!important;content:""!important;position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:10.5cqw!important;background:linear-gradient(to top,#000 0 58%,rgba(0,0,0,.86) 76%,transparent 100%)!important;}
-
-/* replay/speed: tiny, at video bottom corners */
-#rail{top:88.5cqw!important;left:7cqw!important;right:7cqw!important;height:6.8cqw!important;z-index:38!important;}
-#soundBtn,#fullBtn{height:6.4cqw!important;min-width:7.9cqw!important;padding:0 2.3cqw!important;border-radius:3.2cqw!important;font-size:2.2cqw!important;}
-#likeBtn,#saveBtn,#ytBtn,.railLabel,#rail:before{display:none!important;}
-
-/* caption ON VIDEO: compact normal-caption treatment; tap still toggles VI/JP */
-#sentenceWrap{position:absolute!important;z-index:40!important;top:78.2cqw!important;left:8.4cqw!important;right:8.4cqw!important;height:27.3cqw!important;padding:0!important;margin:0!important;background:transparent!important;overflow:visible!important;pointer-events:auto!important;}
-#sentenceTranslation,#sentence{position:absolute!important;top:0!important;left:50%!important;right:auto!important;width:max-content!important;max-width:100%!important;height:auto!important;min-height:7.2cqw!important;transform:translateX(-50%)!important;margin:0!important;border:0!important;border-radius:1.7cqw!important;background:rgba(0,0,0,.78)!important;box-shadow:0 1px 8px rgba(0,0,0,.35)!important;color:#fff!important;}
-#sentenceTranslation{padding:1.4cqw 2.55cqw!important;font-size:3cqw!important;line-height:1.24!important;font-weight:800!important;text-align:center!important;white-space:normal!important;}
-#sentenceTranslation:before,#sentenceTranslation:after,#sentence:before,#sentence:after{display:none!important;content:none!important;}
-#sentence{padding:1.15cqw 2.2cqw 1.25cqw!important;display:none!important;flex-wrap:wrap!important;justify-content:center!important;align-items:flex-end!important;gap:.45cqw .35cqw!important;line-height:1!important;}
-#sentenceWrap.jp-mode #sentence{display:flex!important;}#sentenceWrap.jp-mode #sentenceTranslation{display:none!important;}
-.jpWord{min-height:5.7cqw!important;}.jpWord .jpKanji{min-height:1.75cqw!important;font-size:1.45cqw!important;color:#d5d8dd!important;}.jpWord .jpHira,.jpPunc{font-size:3.6cqw!important;color:#fff!important;font-weight:850!important;}
-#sentenceProgress,#meaningLine,#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important;}
-
-/* Focus moment = subtle but unmistakable, driven by actual player currentTime. */
-#sentenceWrap.focus-soon #sentenceTranslation,#sentenceWrap.focus-soon #sentence{box-shadow:0 0 0 1px rgba(255,210,76,.35),0 2px 10px rgba(0,0,0,.4)!important;}
-#sentenceWrap.focus-live #sentenceTranslation,#sentenceWrap.focus-live #sentence{transform:translateX(-50%)!important;background:rgba(16,16,12,.92)!important;box-shadow:0 0 0 2px var(--v5-focus),0 0 18px rgba(255,210,76,.26)!important;}
-#sentenceWrap.focus-live .jpHira{text-shadow:0 0 10px rgba(255,210,76,.28)!important;}
-
-/* real actions directly below the media card; no extra empty panel */
-#inlineActions{position:absolute!important;top:29.2cqw!important;left:-4.2cqw!important;right:-4.2cqw!important;height:8.4cqw!important;display:flex!important;align-items:center!important;gap:2.8cqw!important;}
-#inlineActions .inlineAction{height:8.4cqw!important;border:1px solid var(--v5-line)!important;border-radius:2.3cqw!important;background:#171a20!important;color:var(--v5-text)!important;font-size:2.25cqw!important;padding:0 2.3cqw!important;}
-#sentenceReplayBtn{display:block!important;flex:0 0 24cqw!important;}#sentenceSaveBtn{display:block!important;flex:0 0 20cqw!important;}#speedBtn,#meaningToggleBtn,#inlineActions:after{display:none!important;}
-
-/* nav remains pinned; no giant dead gap manufactured by content blocks */
-#nav{height:13.5cqw!important;min-height:58px!important;background:var(--v5-bg)!important;border-top:1px solid var(--v5-line)!important;}
-.navBtn{height:13.5cqw!important;min-height:58px!important;padding:1.4cqw 0 .9cqw!important;}
-
-@media(max-width:699px){
-  .playerSlot,#shade,#buffer,#videoPoster{top:25.0cqw!important;height:70.7cqw!important;}
-  #gesture{top:25.0cqw!important;height:70.7cqw!important;}
-  #rail{top:88.5cqw!important;}
-  #sentenceWrap{top:78.2cqw!important;height:27.3cqw!important;}
-  #nav{height:13.5cqw!important;min-height:58px!important;}
+<style id="xtp-redone-v6-layout">
+/* Authoritative non-final layout. Geometry + behavior only. */
+#phone{
+  --v6-bg:#08090b;--v6-panel:#111318;--v6-line:#30343b;--v6-text:#f5f5f6;--v6-muted:#969ba4;--v6-focus:#ffd34e;
+  background:var(--v6-bg)!important;container-type:inline-size!important;
 }
+#app{background:#050607!important;}
+#brand{display:none!important;}
+#top{
+  top:0!important;left:0!important;right:0!important;height:11.2cqw!important;min-height:48px!important;
+  padding:1.8cqw 4.2cqw 0!important;background:var(--v6-bg)!important;display:flex!important;align-items:flex-start!important;
+}
+#feedTabs{display:flex!important;gap:7cqw!important;}
+#followingTab{order:0!important}#forYouTab{order:1!important}
+.feedTab{height:8.2cqw!important;padding:1.5cqw 0 2cqw!important;font-size:2.6cqw!important;color:var(--v6-text)!important;text-shadow:none!important;}
+.feedTab.active:after{height:.45cqw!important;width:9.5cqw!important;background:var(--v6-text)!important;}
+#shuffleBtn{position:absolute!important;right:3.8cqw!important;top:2cqw!important;width:9.8cqw!important;height:7.2cqw!important;border-radius:3.6cqw!important;border:1px solid var(--v6-line)!important;background:#17191e!important;backdrop-filter:none!important;font-size:0!important;}
+#shuffleBtn:after{content:"＋";font-size:3.5cqw;color:var(--v6-text);}
+
+/* The overlay layer owns channel/progress/caption/actions. */
+#reelInfo{position:absolute!important;z-index:60!important;inset:0!important;border:0!important;background:transparent!important;overflow:visible!important;padding:0!important;margin:0!important;text-shadow:none!important;pointer-events:none!important;}
+#channelRow{position:absolute!important;top:12.8cqw!important;left:4.2cqw!important;right:4.2cqw!important;height:7.4cqw!important;margin:0!important;display:flex!important;align-items:center!important;gap:2cqw!important;pointer-events:auto!important;}
+.avatar{display:none!important;}
+#channelButton{min-width:0!important;}
+#channelName{font-size:2.55cqw!important;font-weight:800!important;max-width:65cqw!important;color:var(--v6-text)!important;}
+.followPill{height:6.5cqw!important;padding:0 3cqw!important;border-radius:3.2cqw!important;border:1px solid var(--v6-line)!important;background:#f3f3f4!important;color:#111!important;backdrop-filter:none!important;font-size:2.1cqw!important;}
+
+/* Single thin real video progress directly below channel/follow. */
+#videoProgressBar{position:absolute!important;z-index:64!important;top:21.5cqw!important;left:4.2cqw!important;right:4.2cqw!important;height:1.3cqw!important;min-height:0!important;pointer-events:none!important;}
+#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{position:absolute!important;top:50%!important;left:0;height:.48cqw!important;min-height:2px!important;transform:translateY(-50%)!important;border-radius:999px!important;}
+#videoProgressTrack{right:0!important;background:#363a41!important;}
+#videoProgressPlayed{width:0;background:#e8e9eb!important;z-index:2!important;}
+#videoProgressFocus{width:0;background:var(--v6-focus)!important;z-index:3!important;}
+#videoProgressFocus.live{box-shadow:0 0 2cqw rgba(255,211,78,.85)!important;animation:v6FocusRail .42s ease-in-out infinite alternate!important;}
+#videoProgressKnob{position:absolute!important;z-index:4!important;top:50%!important;left:0;width:1.35cqw!important;height:1.35cqw!important;min-width:6px!important;min-height:6px!important;border-radius:50%!important;background:#fff!important;transform:translate(-50%,-50%)!important;box-shadow:0 0 0 1px #08090b!important;}
+@keyframes v6FocusRail{from{opacity:.72}to{opacity:1}}
+
+/* Tall media region, but the actual YouTube frame remains 16:9 and CONTAINED. No zoom/crop. */
+.playerSlot,#shade,#buffer,#videoPoster{position:absolute!important;left:3.3cqw!important;right:3.3cqw!important;top:24.2cqw!important;height:113cqw!important;border-radius:3cqw!important;background:#000!important;overflow:hidden!important;}
+.playerSlot{z-index:20!important;opacity:0!important;}
+.playerSlot.active{opacity:1!important;}
+.playerSlot>div{position:absolute!important;left:0!important;right:0!important;top:50%!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;transform:translateY(-50%)!important;background:#000!important;overflow:hidden!important;}
+.playerSlot iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;transform:none!important;background:#000!important;pointer-events:none!important;}
+#shade{z-index:21!important;background:transparent!important;pointer-events:none!important;}
+#shade:before,#shade:after{display:none!important;content:none!important;}
+#buffer{z-index:24!important;background:transparent!important;pointer-events:none!important;}
+#buffer .spinner{width:5.5cqw!important;height:5.5cqw!important;border-width:2px!important;}
+#videoPoster{z-index:23!important;display:block!important;object-fit:contain!important;object-position:center!important;opacity:0!important;transition:opacity .11s linear!important;pointer-events:none!important;}
+#videoPoster.show{opacity:1!important;}
+
+/* Gesture layer sits over YouTube so native hover/click chrome is not the interaction surface. */
+#gesture{position:absolute!important;z-index:50!important;left:3.3cqw!important;right:3.3cqw!important;top:24.2cqw!important;height:113cqw!important;border-radius:3cqw!important;touch-action:none!important;}
+
+/* Only speed survives as a tiny media control; replay/save live below. */
+#rail{position:absolute!important;z-index:66!important;top:27cqw!important;right:5.5cqw!important;left:auto!important;bottom:auto!important;width:auto!important;height:auto!important;display:block!important;pointer-events:none!important;}
+#likeBtn,#saveBtn,#soundBtn,#ytBtn,.railLabel{display:none!important;}
+#fullBtn{display:flex!important;align-items:center!important;justify-content:center!important;height:6.5cqw!important;min-width:9.2cqw!important;padding:0 2.2cqw!important;border-radius:3.25cqw!important;border:1px solid rgba(255,255,255,.18)!important;background:rgba(0,0,0,.72)!important;color:#fff!important;backdrop-filter:none!important;font-size:2.2cqw!important;pointer-events:auto!important;}
+
+/* Caption is INSIDE the media region. Vietnamese default, tap swaps to Japanese. */
+#sentenceWrap{position:absolute!important;z-index:70!important;top:97.2cqw!important;left:7cqw!important;right:7cqw!important;height:15.5cqw!important;margin:0!important;padding:0!important;background:transparent!important;overflow:visible!important;pointer-events:auto!important;}
+#sentenceTranslation,#sentence{position:absolute!important;left:0!important;right:0!important;top:0!important;width:100%!important;min-height:10.5cqw!important;height:auto!important;max-height:15.5cqw!important;margin:0!important;padding:2.2cqw 3cqw!important;border:0!important;border-radius:2cqw!important;background:rgba(0,0,0,.76)!important;color:#fff!important;box-shadow:none!important;text-align:center!important;line-height:1.3!important;transition:transform .12s ease,background .12s ease,box-shadow .12s ease!important;}
+#sentenceTranslation{font-size:3.05cqw!important;font-weight:750!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+#sentenceTranslation:before,#sentenceTranslation:after,#sentence:before,#sentence:after{display:none!important;content:none!important;}
+#sentence{display:none!important;align-items:flex-end!important;justify-content:center!important;flex-wrap:wrap!important;gap:.25cqw 1.1cqw!important;}
+#sentenceWrap.jp-mode #sentence{display:flex!important;}#sentenceWrap.jp-mode #sentenceTranslation{display:none!important;}
+.jpWord{display:inline-flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;min-height:7.8cqw!important;border:0!important;}
+.jpWord .jpKanji{display:block!important;min-height:2.2cqw!important;font-size:1.7cqw!important;line-height:1.1!important;color:#b7bbc2!important;}
+.jpWord .jpHira,.jpPunc{font-size:3.45cqw!important;line-height:1.1!important;font-weight:850!important;color:#fff!important;}
+#sentenceProgress,#meaningLine,#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important;}
+#sentenceWrap.focus-live #sentenceTranslation,#sentenceWrap.focus-live #sentence{background:rgba(20,20,16,.94)!important;box-shadow:0 0 0 .45cqw var(--v6-focus),0 0 4cqw rgba(255,211,78,.28)!important;transform:scale(1.025)!important;}
+#sentenceWrap.focus-hit #sentenceTranslation,#sentenceWrap.focus-hit #sentence{animation:v6CaptionHit .34s ease-out 1!important;}
+@keyframes v6CaptionHit{0%{transform:scale(1)}45%{transform:scale(1.045)}100%{transform:scale(1.025)}}
+
+/* Two useful actions only, outside the video. */
+#inlineActions{position:absolute!important;top:44.3cqw!important;left:0!important;right:0!important;height:8.8cqw!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3cqw!important;pointer-events:auto!important;}
+#inlineActions .inlineAction{height:8.8cqw!important;border-radius:2.4cqw!important;border:1px solid var(--v6-line)!important;background:#15171b!important;color:var(--v6-text)!important;padding:0 3.2cqw!important;font-size:2.35cqw!important;}
+#sentenceReplayBtn{display:block!important;min-width:25cqw!important;}#sentenceSaveBtn{display:block!important;min-width:20cqw!important;}
+#speedBtn,#meaningToggleBtn,#inlineActions:after{display:none!important;content:none!important;}
+
+#nav{position:absolute!important;z-index:90!important;left:0!important;right:0!important;bottom:0!important;height:14.9cqw!important;min-height:62px!important;padding:0 0 env(safe-area-inset-bottom)!important;border-top:1px solid var(--v6-line)!important;background:var(--v6-bg)!important;}
+.navBtn{height:14.9cqw!important;min-height:62px!important;padding:2cqw 0 1cqw!important;gap:.7cqw!important;background:transparent!important;}
+.navIcon{font-size:2.9cqw!important;line-height:4.6cqw!important;}.navText{font-size:2cqw!important;color:var(--v6-muted)!important;}
+.navBtn.active .navText,.navBtn.active .navIcon{color:var(--v6-text)!important;}
+#homeNav.active .navIcon{width:auto!important;height:auto!important;border-radius:0!important;background:transparent!important;}
+
+/* Kill all older decorative geometry. */
+#reelInfo:before,#reelInfo:after{display:none!important;content:none!important;}
+</style>
+
+
+<style id="xtp-v7-tiktok-focus">
+/* V7 — non-final UI. Priority: focus + timing, not decoration. */
+#phone{--v7-bg:#060708;--v7-line:#26292f;--v7-text:#f7f7f8;--v7-muted:#969aa3;--v7-hi:#ffd34e;background:var(--v7-bg)!important;container-type:inline-size!important;}
+#app{background:var(--v7-bg)!important;}
+
+/* compact header */
+#top{height:11.2cqw!important;min-height:48px!important;padding:1.8cqw 4.2cqw 0!important;background:var(--v7-bg)!important;}
+#feedTabs{gap:7cqw!important}.feedTab{font-size:2.65cqw!important}.feedTab.active:after{background:#ff6255!important;height:.6cqw!important}
+#shuffleBtn{right:3.8cqw!important;top:1.8cqw!important;width:9.8cqw!important;height:7.5cqw!important;background:#17191d!important;border:1px solid #30343b!important;}
+
+/* channel + one real progress rail */
+#channelRow{top:12.1cqw!important;left:3.3cqw!important;right:3.3cqw!important;height:7cqw!important;}
+#channelName{font-size:2.5cqw!important}.followPill{height:6.2cqw!important;padding:0 3cqw!important;}
+#videoProgressBar{top:19.4cqw!important;left:3.3cqw!important;right:3.3cqw!important;height:1.25cqw!important;}
+#videoProgressTrack,#videoProgressPlayed,#videoProgressFocus{height:.45cqw!important;min-height:2px!important}
+#videoProgressKnob{width:1.15cqw!important;height:1.15cqw!important;min-width:5px!important;min-height:5px!important;}
+
+/* One tall media viewport. YouTube keeps the source video contained itself. */
+.playerSlot,#shade,#buffer,#videoPoster,#gesture{left:0!important;right:0!important;top:21.5cqw!important;height:108cqw!important;border-radius:0!important;background:#000!important;overflow:hidden!important;}
+.playerSlot>div{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;transform:none!important;background:#000!important;}
+.playerSlot iframe{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border:0!important;transform:none!important;background:#000!important;pointer-events:none!important;}
+#videoPoster{object-fit:contain!important;object-position:center!important;background:#000!important;}
+#shade{background:transparent!important}#shade:before,#shade:after{display:none!important}
+
+/* No extra "focus" panel. Caption lives IN the media like TikTok auto-captions. */
+#sentenceWrap{z-index:72!important;top:108cqw!important;left:7cqw!important;right:7cqw!important;height:17cqw!important;pointer-events:auto!important;}
+#sentenceTranslation,#sentence{
+  top:0!important;left:0!important;right:0!important;width:100%!important;min-height:0!important;max-height:17cqw!important;
+  padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  text-align:center!important;line-height:1.22!important;text-shadow:0 .45cqw 1.15cqw #000,0 0 .65cqw #000!important;
+  transition:opacity .12s ease!important;transform:none!important;
+}
+#sentenceTranslation{font-size:4.15cqw!important;font-weight:900!important;color:#fff!important;opacity:.86!important;display:block!important;}
+#sentence{align-items:flex-end!important;justify-content:center!important;gap:.15cqw .7cqw!important;}
+.jpWord{min-height:7.8cqw!important}.jpWord .jpKanji{font-size:1.75cqw!important;color:#d2d3d6!important;text-shadow:0 .25cqw .7cqw #000!important}.jpWord .jpHira,.jpPunc{font-size:4.05cqw!important;font-weight:900!important;color:#fff!important;text-shadow:0 .45cqw 1.15cqw #000,0 0 .65cqw #000!important}
+
+/* Caption is visible BEFORE the line is spoken. During speech, a karaoke color wipe runs across it. */
+#sentenceWrap.focus-live #sentenceTranslation{
+  opacity:1!important;box-shadow:none!important;transform:none!important;
+  background:linear-gradient(90deg,var(--v7-hi) 0 var(--spoken,0%),#fff var(--spoken,0%) 100%)!important;
+  -webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;
+}
+#sentenceWrap.focus-live .jpHira,#sentenceWrap.focus-live .jpPunc{color:var(--v7-hi)!important;}
+#sentenceWrap.focus-hit #sentenceTranslation,#sentenceWrap.focus-hit #sentence{animation:v7CapHit .22s ease-out 1!important;}
+@keyframes v7CapHit{0%{filter:brightness(1)}45%{filter:brightness(1.45)}100%{filter:brightness(1)}}
+#sentenceWrap.focus-soon #sentenceTranslation{opacity:1!important}
+#sentenceWrap.focus-live #sentenceTranslation,#sentenceWrap.focus-live #sentence{border:0!important;background-color:transparent!important;}
+#sentenceProgress,#meaningLine,#sentenceWrap:before,#sentenceWrap:after{display:none!important;content:none!important}
+
+/* Minimal actions, no dead controls. */
+#inlineActions{top:132.5cqw!important;left:4.2cqw!important;right:4.2cqw!important;height:8.4cqw!important;justify-content:flex-start!important;gap:2.2cqw!important;}
+#inlineActions .inlineAction{height:8.4cqw!important;border-radius:2cqw!important;background:#14161a!important;border:1px solid #30343b!important;font-size:2.35cqw!important;padding:0 3cqw!important;}
+#sentenceReplayBtn{min-width:23cqw!important}#sentenceSaveBtn{min-width:18cqw!important}#speedBtn,#meaningToggleBtn{display:none!important}
+
+/* Speed is the only tiny overlay control. Default remains 1×. */
+#rail{top:24.5cqw!important;right:3.7cqw!important;z-index:76!important}#fullBtn{height:6.4cqw!important;min-width:9.2cqw!important;background:rgba(0,0,0,.72)!important;border:1px solid rgba(255,255,255,.2)!important;font-size:2.15cqw!important;}
+#likeBtn,#saveBtn,#soundBtn,#ytBtn,.railLabel{display:none!important}
+
+/* bottom navigation */
+#nav{height:14.5cqw!important;min-height:60px!important;background:var(--v7-bg)!important;border-top:1px solid var(--v7-line)!important}.navBtn{height:14.5cqw!important;min-height:60px!important;padding:1.9cqw 0 1cqw!important}.navIcon{font-size:3.2cqw!important}.navText{font-size:2cqw!important}
+
+/* No giant outer card/frame around the reel. */
+#reelInfo{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;}
 </style>
 
 </head>
@@ -2567,7 +2671,7 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
     <div class="sourceBox">
       <div class="sourceHero">
         <h2>Chỉ lấy đúng channel đã chọn</h2>
-        <p>App tự check video mới từ whitelist này, lấy transcript Nhật và tự tạo nhiều reel. Mỗi reel vẫn chỉ có đúng 1 câu focus.</p>
+        <p>App tự check video mới từ whitelist này. Playback dùng file MP4/HLS đã ingest vào media backend riêng; không dùng YouTube iframe.</p>
       </div>
 
       <div class="sourceSection">
@@ -2577,6 +2681,15 @@ html,body,#app,#phone{background:var(--exact-bg)!important;color:var(--exact-tex
           <button id="saveYtApiKey" class="sourceBtn">Lưu</button>
         </div>
         <div class="sourceHint">Với app GitHub Pages cá nhân: dùng browser key đã giới hạn HTTP referrer + chỉ bật YouTube Data API v3.</div>
+      </div>
+
+      <div class="sourceSection">
+        <div class="sourceLabel">Native media backend</div>
+        <div class="sourceRow">
+          <input id="mediaBaseInput" class="sourceInput" autocomplete="off" spellcheck="false" placeholder="https://your-worker.example.workers.dev">
+          <button id="saveMediaBaseBtn" class="sourceBtn">Lưu</button>
+        </div>
+        <div class="sourceHint">Player dùng MP4/HLS của chính backend này; không dùng YouTube iframe nên không có title/logo/controls YouTube.</div>
       </div>
 
       <div class="sourceSection">
@@ -2899,6 +3012,10 @@ const MAX_SENTENCE_SECONDS =
 const AUTO_SOURCE_KEY =
   'xtp-youtube-sources-v1';
 
+const MEDIA_BASE_KEY = 'xtp-native-media-base-v1';
+let mediaBaseUrl = (localStorage.getItem(MEDIA_BASE_KEY) || '').trim().replace(/\/$/,'');
+const mediaReadyCache = new Map();
+
 const AUTO_SYNC_INTERVAL =
   3 * 60 * 60 * 1000;
 
@@ -2912,6 +3029,9 @@ const $ =
 
 const phone =
   $('#phone');
+
+const mediaBaseInput = $('#mediaBaseInput');
+const saveMediaBaseBtn = $('#saveMediaBaseBtn');
 
 const empty =
   $('#empty');
@@ -3929,7 +4049,7 @@ function parseTranscript(
     [];
 
   const regex =
-    /^\[([0-9:]+)\]\s+(.+)$/gm;
+    /^\[([0-9:.]+)\]\s+(.+)$/gm;
 
   let match;
 
@@ -4271,236 +4391,47 @@ function splitBlockIntoTimedPieces(
 }
 
 function buildSentences(blocks){
+  /*
+    TikTok-style focus timing rule:
+    the .txt transcript source timestamps PARAGRAPH/BLOCK starts, not every
+    reconstructed sentence. Therefore we only use the FIRST sentence in a
+    timestamped block as a focus candidate. Its onset is anchored to a real
+    timestamp instead of a guessed proportional split.
+  */
+  const output=[];
 
-  const atoms =
-    blocks.flatMap(
-      splitBlockIntoTimedPieces
-    );
+  for(let i=0;i<(blocks||[]).length;i++){
+    const block=blocks[i]||{};
+    const text=normalizeText(block.text||'');
+    if(!text){ continue; }
 
-  const sentences =
-    [];
+    const parts=splitByJapanesePunctuation(text).map(normalizeText).filter(Boolean);
+    const first=parts[0]||text;
+    if(!first){ continue; }
 
-  let current =
-    null;
+    const start=Math.max(0,Number(block.start)||0);
+    const blockEnd=Math.max(start+.25,Number(block.end)||(start+6));
+    const compact=first.replace(/\s/g,'').replace(/[。！？!?、,.…〜~・「」『』（）()\[\]【】]/g,'');
+    const chars=Math.max(1,Array.from(compact).length);
 
-  const flush =
-    ()=>{
+    /* Japanese conversational speech is usually around 5–7 mora/s.
+       Use this only to estimate END; START stays on the real block timestamp. */
+    const estimated=Math.max(1.05,Math.min(5.2,chars*.17+.20));
+    const end=Math.min(blockEnd,start+estimated);
 
-      if(
-        !current
-      ){
-
-        return;
-
-      }
-
-      current.text =
-        normalizeText(
-          current.text
-        );
-
-      if(
-        current.text
-      ){
-
-        current.id =
-          `s${sentences.length}`;
-
-        sentences.push(
-          current
-        );
-
-      }
-
-      current =
-        null;
-
-    };
-
-  for(
-    const atom
-    of atoms
-  ){
-
-    const atomText =
-      normalizeText(
-        atom.text
-      );
-
-    if(
-      !atomText
-    ){
-
-      continue;
-
-    }
-
-    if(
-      !current
-    ){
-
-      current = {
-        start:
-          atom.start,
-
-        end:
-          atom.end,
-
-        text:
-          atomText
-      };
-
-    }else{
-
-      const gap =
-        atom.start
-        - current.end;
-
-      const nextText =
-        normalizeText(
-          current.text
-          + atomText
-        );
-
-      const nextDuration =
-        atom.end
-        - current.start;
-
-      if(
-        gap > 1.1
-        ||
-        nextText.length
-          > MAX_SENTENCE_CHARS
-        ||
-        nextDuration
-          > MAX_SENTENCE_SECONDS
-      ){
-
-        flush();
-
-        current = {
-          start:
-            atom.start,
-
-          end:
-            atom.end,
-
-          text:
-            atomText
-        };
-
-      }else{
-
-        current.text =
-          nextText;
-
-        current.end =
-          atom.end;
-
-      }
-
-    }
-
-    if(
-      /[。！？!?]$/.test(
-        atomText
-      )
-    ){
-
-      flush();
-
-    }
-
+    output.push({
+      id:`b${i}`,
+      start,
+      end:Math.max(start+.45,end),
+      text:first,
+      blockStart:start,
+      blockEnd,
+      timingAnchor:'block-start',
+      timingExactStart:true
+    });
   }
 
-  flush();
-
-  for(
-    let i=0;
-    i<sentences.length;
-    i++
-  ){
-
-    if(
-      i+1 < sentences.length
-      &&
-      sentences[i].end
-      >
-      sentences[i+1].start
-    ){
-
-      sentences[i].end =
-        sentences[i+1].start;
-
-    }
-
-    if(
-      sentences[i].end
-      <= sentences[i].start
-    ){
-
-      sentences[i].end =
-        sentences[i].start
-        + .25;
-
-    }
-
-  }
-
-  return sentences;
-
-}
-
-
-/* =========================================================
-   BLOCK-ALIGNED FOCUS SENTENCES
-   Focus timing must use real transcript block boundaries.
-   We merge whole blocks until a natural sentence ending; we do NOT
-   proportionally split a timed block for the focus/highlight path.
-   ========================================================= */
-function buildAlignedSentences(blocks){
-  const out=[];
-  let current=null;
-
-  const flush=()=>{
-    if(!current) return;
-    current.text=normalizeText(current.text);
-    if(current.text){
-      current.id=`a${out.length}`;
-      current.timingConfidence='block';
-      out.push(current);
-    }
-    current=null;
-  };
-
-  for(const block of (blocks||[])){
-    const text=normalizeText(block?.text||'');
-    if(!text) continue;
-
-    const start=Number(block.start)||0;
-    const end=Math.max(start+.05,Number(block.end)||start+.05);
-
-    if(!current){
-      current={start,end,text};
-    }else{
-      const gap=start-current.end;
-      const combined=normalizeText(current.text+text);
-      const duration=end-current.start;
-
-      if(gap>.95 || duration>6.4 || combined.length>38){
-        flush();
-        current={start,end,text};
-      }else{
-        current.text=combined;
-        current.end=end;
-      }
-    }
-
-    if(/[。！？!?]$/.test(text)) flush();
-  }
-
-  flush();
-  return out;
+  return output;
 }
 
 /* =========================================================
@@ -4546,47 +4477,58 @@ function focusSentenceInfo(sentences, index){
   const emphatic = /[！？!?]$/.test(compact);
   const naturalEnding = /(?:です|ます|でした|ません|だ|だった|だよ|だね|ですね|ない|なかった|ないよ|ないね|する|した|してる|している|いる|ある|あるよ|かな|かも|よね|でしょう|でしょ|ください|ほしい|たい|と思う|と思います)[。！？!?]?$/.test(compact);
   const fragmentEnding = /(?:、|,|けど|けれど|けれども|から|ので|のに|て|で|が|し|とか|って|という|ながら|つつ)$/.test(compact);
-  const meaningfulShort = hasKanjiChar && chars >= 3;
+  const meaningfulShort = hasKanjiChar && chars >= 4;
+  const endMarks = (compact.match(/[。！？!?]/g) || []).length;
+
+  /* Old stored timelines may contain proportional sub-block timings.
+     Whole-second boundaries are a strong signal that the sentence still sits on real transcript blocks. */
+  const startFraction = Math.abs(Number(sentence.start) - Math.round(Number(sentence.start)));
+  const endFraction = Math.abs(Number(sentence.end) - Math.round(Number(sentence.end)));
+  const timingAligned = sentence.timingExact === true || (startFraction < .06 && endFraction < .06);
 
   let score = 0;
-  score += Math.max(0, 7 - Math.abs(duration - 2.7) * 2.0);
-  score += Math.max(0, 7 - Math.abs(chars - 13) * .38);
-  score += Math.min(1.4, beforeGap) * 4.6;
-  score += Math.min(1.4, afterGap) * 4.9;
-
-  if(emphatic){ score += 5.0; }
-  else if(hasSentenceEnd){ score += 2.6; }
+  score += Math.max(0, 8 - Math.abs(duration - 2.8) * 2.1);
+  score += Math.max(0, 7 - Math.abs(chars - 14) * .34);
+  score += Math.min(1.6, beforeGap) * 4.3;
+  score += Math.min(1.6, afterGap) * 4.6;
+  if(timingAligned){ score += 5.5; } else { score -= 2.5; }
+  if(emphatic){ score += 4.5; }
+  else if(hasSentenceEnd){ score += 2.5; }
   if(naturalEnding){ score += 2.2; }
   if(hasKanjiChar){ score += 1.0; }
-  if(fragmentEnding){ score -= 7.0; }
-  if(lowValue){ score -= 100; }
-  if(chars < 4){ score -= 10; }
-  if(duration < .9){ score -= 10; }
+  if(endMarks > 1){ score -= 5.0; }
+  if(fragmentEnding){ score -= 9.0; }
+  if(lowValue){ score -= 200; }
+  if(chars < 5){ score -= 14; }
+  if(duration < 1.05){ score -= 14; }
 
-  const isolated = (beforeGap >= .18 && afterGap >= .18) || (beforeGap + afterGap >= .62);
+  const isolated = (beforeGap >= .16 && afterGap >= .16) || (beforeGap + afterGap >= .55);
   const completeEnough = hasSentenceEnd || naturalEnding || emphatic;
 
   const strong =
     !lowValue
     && !fragmentEnding
-    && duration >= 1.15
+    && endMarks <= 1
+    && duration >= 1.2
     && duration <= 5.2
-    && (chars >= 6 || meaningfulShort)
+    && (chars >= 7 || meaningfulShort)
     && chars <= 30
     && isolated
-    && completeEnough;
+    && completeEnough
+    && timingAligned;
 
   const acceptable =
     !lowValue
     && !fragmentEnding
-    && duration >= 1.0
-    && duration <= 6.2
-    && (chars >= 5 || meaningfulShort)
-    && chars <= 34
-    && (completeEnough || isolated)
-    && score >= 5.5;
+    && endMarks <= 1
+    && duration >= 1.15
+    && duration <= 5.8
+    && (chars >= 6 || meaningfulShort)
+    && chars <= 32
+    && completeEnough
+    && score >= 8.0;
 
-  return {sentence,index,duration,chars,beforeGap,afterGap,score,lowValue,strong,acceptable};
+  return {sentence,index,duration,chars,beforeGap,afterGap,score,lowValue,strong,acceptable,timingAligned};
 }
 
 function chooseFocusSentence(sentences){
@@ -4729,7 +4671,7 @@ function buildClips(
 
     clips.push({
       id:`${videoId}:focus-reel:${reelIndex}:${focusIndex}`,
-      focusVersion:4,
+      focusVersion:5,
       focusReason:pickedLocal.strong ? 'quality-isolated' : 'quality-acceptable',
       channelId,
       videoId,
@@ -4755,8 +4697,8 @@ function buildClips(
       };
       clips.push({
         id:`${videoId}:focus-reel:0:${focusIndex}`,
-        focusVersion:4,
-        focusReason:'quality-global-fallback',
+        focusVersion:5,
+        focusReason:'quality-global-best',
         channelId,
         videoId,
         start:bounds.start,
@@ -4779,50 +4721,27 @@ async function upgradeChannelsToFocusReels(){
     const nextClips = [];
 
     for(const video of (channel.videos || [])){
-      let blocks = Array.isArray(video.blocks) ? video.blocks : [];
-
-      /* One-time migration for old local videos: re-fetch transcript so the
-         focus/highlight uses real transcript block timestamps instead of the
-         old proportional intra-block estimates. Fail safely to stored data. */
-      if((video.timingVersion || 0) < 2 && video.videoId){
-        try{
-          const transcriptText = await fetchText(TRANSCRIPT_API(video.videoId));
-          const parsed = parseTranscript(transcriptText, video.videoId);
-          if(parsed.blocks?.length){
-            blocks = parsed.blocks;
-            video.blocks = parsed.blocks;
-            video.duration = parsed.duration || video.duration;
-            video.language = parsed.language || video.language;
-            video.timingVersion = 2;
-            changed = true;
-          }
-        }catch(error){
-          console.warn('Legacy timing refresh failed',video.videoId,error);
-        }
+      if(video.timelineVersion !== 5){
+        const timingSource = Array.isArray(video.blocks) && video.blocks.length
+          ? video.blocks
+          : (video.sentences || []);
+        video.sentences = buildSentences(timingSource);
+        video.timelineVersion = 5;
+        changed = true;
       }
 
       const existing = oldClips.filter(clip =>
         clip.videoId === video.videoId
-        && clip.focusVersion === 4
+        && clip.focusVersion === 5
         && clip.sentences?.length === 1
-        && (video.timingVersion || 0) >= 2
       );
-
-      const migrationSentences = blocks.length
-        ? buildAlignedSentences(blocks)
-        : (video.sentences || []);
-
-      if(blocks.length){
-        video.sentences = migrationSentences;
-        video.timingVersion = 2;
-      }
 
       const clips = existing.length
         ? existing
         : buildClips(
             channel.id,
             video.videoId,
-            migrationSentences,
+            video.sentences || [],
             video.duration || 0
           );
 
@@ -4832,7 +4751,7 @@ async function upgradeChannelsToFocusReels(){
 
     const same =
       nextClips.length === oldClips.length
-      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 4);
+      && nextClips.every((clip,index)=>clip.id === oldClips[index]?.id && oldClips[index]?.focusVersion === 5);
 
     if(!same){
       channel.clips = nextClips;
@@ -5045,9 +4964,7 @@ async function importVideoId(videoId, options={}){
   ]);
 
   const parsed = parseTranscript(transcriptText, videoId);
-  const fallbackSentences = buildSentences(parsed.blocks);
-  const alignedSentences = buildAlignedSentences(parsed.blocks);
-  const sentences = alignedSentences.length ? alignedSentences : fallbackSentences;
+  const sentences = buildSentences(parsed.blocks);
   if(!sentences.length){
     throw new Error('Không tạo được sentence timeline.');
   }
@@ -5095,9 +5012,9 @@ async function importVideoId(videoId, options={}){
     thumbnail:metadata.thumbnail || thumb(videoId),
     duration:parsed.duration,
     language:parsed.language,
-    addedAt:Date.now(),
-    timingVersion:2,
     blocks:parsed.blocks,
+    timelineVersion:5,
+    addedAt:Date.now(),
     sentences,
     clipIds:clips.map(clip=>clip.id)
   };
@@ -5198,6 +5115,7 @@ function channelAllowedBySources(channel){
 function renderAutoSourceManager(){
   if(!sourceList) return;
   ytApiKeyInput.value = autoSources.apiKey || '';
+  if(mediaBaseInput) mediaBaseInput.value = mediaBaseUrl || '';
   autoSyncToggle.checked = !!autoSources.autoSync;
   sourceMaxVideos.value = autoSources.maxVideos || 8;
   sourceList.innerHTML = '';
@@ -5252,12 +5170,14 @@ async function listLatestChannelVideos(source){
     Object.assign(source,fresh);
     saveAutoSources();
   }
+
   const data = await fetchJson(youtubeApiUrl('playlistItems',{
     part:'snippet,contentDetails',
     playlistId:source.uploadsPlaylistId,
     maxResults:Math.max(1,Math.min(30,autoSources.maxVideos || 8))
   }));
-  const basic = (data?.items || []).map(item=>({
+
+  const raw = (data?.items || []).map(item=>({
     videoId:item.contentDetails?.videoId || item.snippet?.resourceId?.videoId || '',
     title:item.snippet?.title || '',
     publishedAt:item.contentDetails?.videoPublishedAt || item.snippet?.publishedAt || '',
@@ -5267,26 +5187,25 @@ async function listLatestChannelVideos(source){
     channelUrl:source.channelUrl
   })).filter(item=>/^[A-Za-z0-9_-]{11}$/.test(item.videoId) && !/^private video$|^deleted video$/i.test(item.title));
 
-  if(!basic.length) return [];
+  if(!raw.length){ return raw; }
 
   try{
     const details = await fetchJson(youtubeApiUrl('videos',{
-      part:'status,contentDetails,snippet',
-      id:basic.map(item=>item.videoId).join(',')
+      part:'status,contentDetails',
+      id:raw.map(item=>item.videoId).join(',')
     }));
     const allowed = new Set((details?.items || []).filter(item=>{
-      const status=item.status||{};
-      const rating=item.contentDetails?.contentRating||{};
-      const live=item.snippet?.liveBroadcastContent||'none';
+      const status = item.status || {};
+      const details = item.contentDetails || {};
       return status.privacyStatus === 'public'
         && status.embeddable !== false
-        && rating.ytRating !== 'ytAgeRestricted'
-        && live === 'none';
+        && status.uploadStatus !== 'rejected'
+        && details.contentRating?.ytRating !== 'ytAgeRestricted';
     }).map(item=>item.id));
-    return basic.filter(item=>allowed.has(item.videoId));
+    return raw.filter(item=>allowed.has(item.videoId));
   }catch(error){
-    console.warn('Embed filter unavailable; using playlist results',error);
-    return basic;
+    console.warn('Video status filter unavailable; using playlist result', error);
+    return raw;
   }
 }
 
@@ -5687,157 +5606,145 @@ function updateFeedTabs(){
 }
 
 /* =========================================================
+   NATIVE MEDIA RESOLVER
+   YouTube is discovery/metadata only. Playback is MP4 from the
+   configured backend, e.g. GET /media/<youtubeVideoId>.
+   ========================================================= */
+
+function findVideoRecord(videoId){
+  for(const channel of channels){
+    const video=(channel.videos || []).find(v=>v.videoId===videoId);
+    if(video) return video;
+  }
+  return null;
+}
+
+function nativeMediaUrl(videoId){
+  const record=findVideoRecord(videoId);
+  if(record?.mediaUrl) return record.mediaUrl;
+  if(!mediaBaseUrl) return '';
+  return `${mediaBaseUrl}/media/${encodeURIComponent(videoId)}`;
+}
+
+async function mediaAssetReady(videoId){
+  const direct=nativeMediaUrl(videoId);
+  if(!direct) return false;
+  if(findVideoRecord(videoId)?.mediaUrl) return true;
+  if(mediaReadyCache.has(videoId)) return mediaReadyCache.get(videoId);
+  let ok=false;
+  try{
+    const response=await fetch(direct,{method:'HEAD',cache:'no-store'});
+    ok=response.ok;
+  }catch{}
+  mediaReadyCache.set(videoId,ok);
+  return ok;
+}
+
+const NATIVE_STATE={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};
+window.YT={PlayerState:NATIVE_STATE};
+
+class NativePlayer{
+  constructor(containerId,index,events={}){
+    this.index=index;
+    this.events=events;
+    this.container=document.getElementById(containerId);
+    this.video=document.createElement('video');
+    this.video.className='nativeVideo';
+    this.video.playsInline=true;
+    this.video.preload='auto';
+    this.video.controls=false;
+    this.video.disablePictureInPicture=true;
+    this.video.setAttribute('webkit-playsinline','');
+    this.container.replaceChildren(this.video);
+    this.state=NATIVE_STATE.UNSTARTED;
+    this.generation=0;
+    this.pendingSeek=0;
+    this.video.addEventListener('playing',()=>this.emitState(NATIVE_STATE.PLAYING));
+    this.video.addEventListener('pause',()=>{ if(!this.video.ended) this.emitState(NATIVE_STATE.PAUSED); });
+    this.video.addEventListener('waiting',()=>this.emitState(NATIVE_STATE.BUFFERING));
+    this.video.addEventListener('stalled',()=>this.emitState(NATIVE_STATE.BUFFERING));
+    this.video.addEventListener('ended',()=>this.emitState(NATIVE_STATE.ENDED));
+    this.video.addEventListener('error',()=>{
+      this.state=NATIVE_STATE.UNSTARTED;
+      this.events.onError?.({data:4,target:this});
+    });
+    queueMicrotask(()=>this.events.onReady?.({target:this}));
+  }
+  emitState(state){
+    if(this.state===state) return;
+    this.state=state;
+    this.events.onStateChange?.({data:state,target:this});
+  }
+  async setSource({videoId,startSeconds=0,autoplay=false}){
+    const gen=++this.generation;
+    const url=nativeMediaUrl(videoId);
+    if(!url){ this.events.onError?.({data:404,target:this}); return; }
+    if(!(await mediaAssetReady(videoId)) || gen!==this.generation){
+      if(gen===this.generation) this.events.onError?.({data:404,target:this});
+      return;
+    }
+    const same=this.video.dataset.videoId===videoId && this.video.src;
+    this.video.dataset.videoId=videoId;
+    this.pendingSeek=Math.max(0,Number(startSeconds)||0);
+    if(!same){
+      this.video.pause();
+      this.video.src=url;
+      this.video.load();
+    }
+    const seekAndMaybePlay=()=>{
+      if(gen!==this.generation) return;
+      try{ this.video.currentTime=this.pendingSeek; }catch{}
+      if(autoplay){ this.playVideo(); } else { this.emitState(NATIVE_STATE.CUED); }
+    };
+    if(this.video.readyState>=1) seekAndMaybePlay();
+    else this.video.addEventListener('loadedmetadata',seekAndMaybePlay,{once:true});
+  }
+  cueVideoById(args){ return this.setSource({...args,autoplay:false}); }
+  loadVideoById(args){ return this.setSource({...args,autoplay:true}); }
+  playVideo(){
+    const p=this.video.play();
+    if(p?.catch) p.catch(()=>this.emitState(NATIVE_STATE.PAUSED));
+  }
+  pauseVideo(){ this.video.pause(); }
+  stopVideo(){
+    this.generation++;
+    this.video.pause();
+    try{ this.video.currentTime=0; }catch{}
+    this.emitState(NATIVE_STATE.PAUSED);
+  }
+  seekTo(seconds){
+    this.pendingSeek=Math.max(0,Number(seconds)||0);
+    try{ this.video.currentTime=this.pendingSeek; }catch{}
+  }
+  getCurrentTime(){ return Number(this.video.currentTime)||0; }
+  getDuration(){ return Number(this.video.duration)||0; }
+  getPlayerState(){ return this.state; }
+  mute(){ this.video.muted=true; }
+  unMute(){ this.video.muted=false; }
+  setPlaybackRate(rate){ this.video.playbackRate=Math.max(.5,Math.min(2,Number(rate)||1)); }
+  getIframe(){ return this.video; }
+}
+
+/* =========================================================
    YOUTUBE PLAYER RING
    ========================================================= */
 
-function playerVars(){
-
-  const vars = {
-
-    autoplay:0,
-
-    controls:0,
-
-    playsinline:1,
-
-    rel:0,
-
-    iv_load_policy:3,
-
-    cc_load_policy:0,
-
-    modestbranding:1,
-
-    fs:0,
-
-    disablekb:1,
-
-    enablejsapi:1
-
-  };
-
-  if(
-    location.protocol === 'http:'
-    ||
-    location.protocol === 'https:'
-  ){
-
-    vars.origin =
-      location.origin;
-
-  }
-
-  return vars;
-
-}
-
 function createPlayers(){
-
-  if(
-    !window.YT
-    ||
-    !YT.Player
-  ){
-
-    return;
-
-  }
-
-  [
-    0,
-    1,
-    2
-  ].forEach(
-    index=>{
-
-      players[index] =
-        new YT.Player(
-          `yt${index}`,
-          {
-
-            width:
-              '100%',
-
-            height:
-              '100%',
-
-            playerVars:
-              playerVars(),
-
-            events:{
-
-              onReady:
-                ()=>{
-
-                  const ready =
-                    players.every(Boolean)
-                    &&
-                    players.every(
-                      player=>{
-
-                        try{
-
-                          return !!player
-                            .getIframe();
-
-                        }catch{
-
-                          return false;
-
-                        }
-
-                      }
-                    );
-
-                  if(
-                    ready
-                    &&
-                    !ytReady
-                  ){
-
-                    ytReady =
-                      true;
-
-                    syncPlayers(
-                      true
-                    );
-
-                  }
-
-                },
-
-              onStateChange:
-                event=>{
-
-                  onPlayerState(
-                    index,
-                    event.data
-                  );
-
-                },
-
-              onError:
-                event=>{
-
-                  onPlayerError(
-                    index,
-                    event.data
-                  );
-
-                }
-
-            }
-
-          }
-        );
-
-    }
-  );
-
+  if(ytReady) return;
+  [0,1,2].forEach(index=>{
+    players[index]=new NativePlayer(`yt${index}`,index,{
+      onReady:()=>{
+        const ready=players.every(Boolean);
+        if(ready && !ytReady){
+          ytReady=true;
+          syncPlayers(true);
+        }
+      },
+      onStateChange:event=>onPlayerState(index,event.data),
+      onError:event=>onPlayerError(index,event.data)
+    });
+  });
 }
-
-window.onYouTubeIframeAPIReady =
-  createPlayers;
 
 /* =========================================================
    PLAYER LIFECYCLE
@@ -6013,44 +5920,30 @@ function prewarmNext(
   clip
 ){
 
-  if(
-    !ytReady
-    ||
-    !players[index]
-    ||
-    !clip
-  ){
-    return;
-  }
+  if(!ytReady || !players[index] || !clip){ return; }
 
   const key = clipKey(clip);
-
-  if(loadedKey[index] === key){
-    return;
-  }
+  if(loadedKey[index] === key){ return; }
 
   loadedKey[index] = key;
-  warmUntil[index] = Date.now() + 1450;
+  warmUntil[index] = Date.now() + 1500;
 
   try{
-    players[index].mute();
-    players[index].loadVideoById({
+    const player = players[index];
+    player.mute();
+    player.loadVideoById({
       videoId:clip.videoId,
       startSeconds:clipPreviewStart(clip)
     });
 
     setTimeout(()=>{
-      if(
-        index !== role.current
-        && loadedKey[index] === key
-      ){
-        warmUntil[index] = 0;
-        try{
-          players[index].pauseVideo();
-          players[index].seekTo(clipPreviewStart(clip), true);
-        }catch{}
-      }
-    },1250);
+      if(index === role.current || loadedKey[index] !== key){ return; }
+      warmUntil[index] = 0;
+      try{
+        player.pauseVideo();
+        player.seekTo(clipPreviewStart(clip), true);
+      }catch{}
+    },1100);
   }catch{
     warmUntil[index] = 0;
   }
@@ -6146,10 +6039,7 @@ function playCurrent(){
 
     }
 
-    try{
-      player.setPlaybackRate(typeof exactRate !== 'undefined' ? exactRate : 1);
-    }catch{}
-
+    try{ player.setPlaybackRate(typeof exactRate === 'number' ? exactRate : 1); }catch{}
     player.playVideo();
 
   }catch{}
@@ -6262,6 +6152,8 @@ function onPlayerState(
       'on'
     );
 
+    try{ players[index].setPlaybackRate(typeof exactRate === 'number' ? exactRate : 1); }catch{}
+
     if(videoPoster){
       videoPoster.classList.remove('show');
     }
@@ -6318,26 +6210,26 @@ function onPlayerError(
       'Video chặn embed.',
 
     153:
-      'YouTube từ chối embed/referrer.'
+      'YouTube từ chối embed/referrer.',
+
+    4:
+      'File video không phát được.',
+
+    404:
+      'Video chưa có trên media backend.'
 
   };
 
   toastMsg(
     messages[code]
     ||
-    `YouTube error ${code}`
+    `Media error ${code}`
   );
 
-  if([2,5,100,101,150,153].includes(code)){
-    const broken = currentClip();
-    if(broken){
-      for(const channel of channels){
-        for(const clip of (channel.clips||[])){
-          if(clip.videoId === broken.videoId){
-            state.hidden[clip.id] = true;
-          }
-        }
-      }
+  if([4,404,100,101,150,153].includes(Number(code))){
+    const bad = currentClip();
+    if(bad){
+      state.hidden[bad.id] = true;
       saveState();
       setTimeout(()=>rebuildFeed({mode:feedMode}),120);
     }
@@ -6796,7 +6688,7 @@ function updateVideoProgress(time,clip){
     videoProgressFocus.style.width = `${Math.max(.012,focusEnd-focusStart)*100}%`;
     videoProgressFocus.classList.toggle(
       'live',
-      Number(time) >= Number(sentence.start) && Number(time) <= Number(sentence.end)
+      Number(time) >= Number(sentence.start)-.04 && Number(time) <= Number(sentence.end)+.08
     );
   }else{
     videoProgressFocus.style.left = '0%';
@@ -6816,26 +6708,31 @@ function resetFocusCue(){
 }
 
 function updateFocusCue(time, clip){
-  const sentence = clip?.sentences?.[0];
+  const sentence=clip?.sentences?.[0];
   if(!sentence){ resetFocusCue(); return; }
 
-  const soon = time >= sentence.start - .40 && time < sentence.start;
-  const live = time >= sentence.start && time <= sentence.end;
+  const start=Number(sentence.start)||0;
+  const end=Math.max(start+.12,Number(sentence.end)||(start+.12));
+  const now=Number(time)||0;
+  const soon=now >= start-.35 && now < start;
+  const live=now >= start && now <= end;
+  const spoken=live ? clamp01((now-start)/(end-start)) : 0;
 
+  sentenceWrap.style.setProperty('--spoken',`${(spoken*100).toFixed(2)}%`);
   sentenceWrap.classList.toggle('focus-soon',soon);
   sentenceWrap.classList.toggle('focus-live',live);
 
   if(live && !focusCueActive){
-    focusCueActive = true;
+    focusCueActive=true;
     sentenceWrap.classList.remove('focus-hit');
-    sentenceWrap.style.setProperty('--focus-spoken',`${Math.max(.45,sentence.end-sentence.start)}s`);
     void sentenceWrap.offsetWidth;
     sentenceWrap.classList.add('focus-hit');
   }
 
-  if(!live && focusCueActive && time > sentence.end + .15){
-    focusCueActive = false;
+  if(!live && focusCueActive && now > end+.08){
+    focusCueActive=false;
     sentenceWrap.classList.remove('focus-hit');
+    sentenceWrap.style.setProperty('--spoken','0%');
   }
 }
 
@@ -7030,123 +6927,42 @@ function markCurrentSeen(){
    ========================================================= */
 
 function startMonitor(){
+  try{ clearInterval(monitorTimer); }catch{}
+  try{ cancelAnimationFrame(monitorTimer); }catch{}
 
-  clearInterval(
-    monitorTimer
-  );
+  const tick=()=>{
+    monitorTimer=requestAnimationFrame(tick);
+    if(!ytReady || !feed.length){ return; }
 
-  monitorTimer =
-    setInterval(
-      ()=>{
+    const player=players[role.current];
+    const clip=currentClip();
+    if(!player || !clip){ return; }
 
-        if(
-          !ytReady
-          ||
-          !feed.length
-        ){
+    let time=0;
+    let status=-1;
+    try{
+      time=player.getCurrentTime()||0;
+      status=player.getPlayerState();
+    }catch{return;}
 
-          return;
+    /* Caption is present from clip-in. Only the highlight follows speech. */
+    renderSentence(clip.sentences?.[0]||null,clip);
+    updateFocusCue(time,clip);
+    updateVideoProgress(time,clip);
 
-        }
+    if(status===YT.PlayerState.PLAYING && time>=clip.start+3){ markCurrentSeen(); }
 
-        const player =
-          players[
-            role.current
-          ];
+    if(status===YT.PlayerState.PLAYING && time>=clip.end-.06){
+      try{
+        player.seekTo(clipPreviewStart(clip),true);
+        player.playVideo();
+      }catch{}
+      renderedSentenceId=null;
+      resetFocusCue();
+    }
+  };
 
-        const clip =
-          currentClip();
-
-        if(
-          !player
-          ||
-          !clip
-        ){
-
-          return;
-
-        }
-
-        let time =
-          0;
-
-        let status =
-          -1;
-
-        try{
-
-          time =
-            player.getCurrentTime()
-            || 0;
-
-          status =
-            player.getPlayerState();
-
-        }catch{
-
-          return;
-
-        }
-
-        /*
-          ONE focus sentence only. It is already visible from clip-in;
-          this monitor merely marks the exact moment it is spoken.
-        */
-
-        renderSentence(
-          clip.sentences?.[0] || null,
-          clip
-        );
-
-        updateFocusCue(time,clip);
-        updateVideoProgress(time,clip);
-
-        if(
-          status
-          === YT.PlayerState.PLAYING
-          &&
-          time
-          >= clip.start + 3
-        ){
-
-          markCurrentSeen();
-
-        }
-
-        /*
-          Loop đúng range của reel.
-        */
-
-        if(
-          status
-          === YT.PlayerState.PLAYING
-          &&
-          time
-          >= clip.end - .08
-        ){
-
-          try{
-
-            player.seekTo(
-              clipPreviewStart(clip),
-              true
-            );
-
-            player.playVideo();
-
-          }catch{}
-
-          renderedSentenceId =
-            null;
-
-          resetFocusCue();
-
-        }
-
-      },
-      33
-    );
-
+  tick();
 }
 
 /* =========================================================
@@ -8475,6 +8291,17 @@ urlInput.addEventListener(
   }
 );
 
+if(mediaBaseInput) mediaBaseInput.value=mediaBaseUrl;
+if(saveMediaBaseBtn){
+  saveMediaBaseBtn.onclick=()=>{
+    mediaBaseUrl=(mediaBaseInput.value || '').trim().replace(/\/$/,'');
+    localStorage.setItem(MEDIA_BASE_KEY,mediaBaseUrl);
+    mediaReadyCache.clear();
+    sourceStatus.textContent=mediaBaseUrl ? 'Đã lưu native media backend.' : 'Đã xoá native media backend.';
+    if(feed.length) syncPlayers(true);
+  };
+}
+
 saveYtApiKey.onclick = ()=>{
   autoSources.apiKey = (ytApiKeyInput.value || '').trim();
   saveAutoSources();
@@ -8961,17 +8788,7 @@ async function boot(){
     setTimeout(()=>syncAllAutoSources({background:true}), 900);
   }
 
-  const api =
-    document.createElement(
-      'script'
-    );
-
-  api.src =
-    'https://www.youtube.com/iframe_api';
-
-  document.head.appendChild(
-    api
-  );
+  createPlayers();
 
 }
 
@@ -9108,6 +8925,31 @@ renderCurrent=function(){
   }
   return out;
 };
+
+/* =========================================================
+   V7 TIMING MIGRATION
+   Existing videos may have paragraph-derived sentences from older builds.
+   Rebuild them once with block-start anchored candidates when raw blocks exist.
+   ========================================================= */
+const v7UpgradeBase=upgradeChannelsToFocusReels;
+upgradeChannelsToFocusReels=async function(){
+  let touched=false;
+  for(const channel of channels){
+    for(const video of (channel.videos||[])){
+      if(video.timelineVersion!==5){
+        const source=(Array.isArray(video.blocks)&&video.blocks.length)?video.blocks:(video.sentences||[]);
+        video.sentences=buildSentences(source);
+        video.timelineVersion=5;
+        touched=true;
+      }
+    }
+  }
+  await v7UpgradeBase();
+  if(touched){
+    for(const channel of channels){ try{ await dbPut(channel); }catch{} }
+  }
+};
+
 
 boot();
 
