@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#08090b">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- XTP native media v9 stable: no missing-media carousel loop -->
 <title>XTP jp</title>
 <style>
 :root{
@@ -3015,6 +3016,8 @@ const AUTO_SOURCE_KEY =
 const MEDIA_BASE_KEY = 'xtp-native-media-base-v1';
 let mediaBaseUrl = (localStorage.getItem(MEDIA_BASE_KEY) || '').trim().replace(/\/$/,'');
 const mediaReadyCache = new Map();
+const nativeReadyVideoIds = new Set();
+const nativeMissingVideoIds = new Set();
 
 const AUTO_SYNC_INTERVAL =
   3 * 60 * 60 * 1000;
@@ -3035,6 +3038,8 @@ const saveMediaBaseBtn = $('#saveMediaBaseBtn');
 
 const empty =
   $('#empty');
+
+const emptyText = empty?.querySelector('p');
 
 const gesture =
   $('#gesture');
@@ -5025,6 +5030,7 @@ async function importVideoId(videoId, options={}){
 
   if(!silent){
     renderFollowingList();
+    await refreshNativeMediaAvailability({showStatus:false});
     rebuildFeed({ mode:feedMode === 'following' ? 'following' : 'for-you' });
   }
 
@@ -5230,8 +5236,9 @@ async function syncAutoSource(source,{background=false}={}){
     }
   }
   renderFollowingList();
+  await refreshNativeMediaAvailability({showStatus:false});
   rebuildFeed({ mode:feedMode === 'following' ? 'following' : 'for-you' });
-  if(!background) sourceStatus.textContent = `${source.title}: +${imported} video · ${skipped} đã có · ${failed} bỏ qua`;
+  if(!background) sourceStatus.textContent = `${source.title}: +${imported} video · ${skipped} đã có · ${failed} bỏ qua · ${nativeReadyVideoIds.size} video có media`;
   return {imported,skipped,failed};
 }
 
@@ -5283,6 +5290,9 @@ function allClips(){
         !state.hidden[
           clip.id
         ]
+    )
+    .filter(
+      clip => clipHasNativeMedia(clip)
     );
 
 }
@@ -5629,7 +5639,6 @@ function nativeMediaUrl(videoId){
 async function mediaAssetReady(videoId){
   const direct=nativeMediaUrl(videoId);
   if(!direct) return false;
-  if(findVideoRecord(videoId)?.mediaUrl) return true;
   if(mediaReadyCache.has(videoId)) return mediaReadyCache.get(videoId);
   let ok=false;
   try{
@@ -5637,7 +5646,59 @@ async function mediaAssetReady(videoId){
     ok=response.ok;
   }catch{}
   mediaReadyCache.set(videoId,ok);
+  if(ok){
+    nativeReadyVideoIds.add(videoId);
+    nativeMissingVideoIds.delete(videoId);
+  }else{
+    nativeReadyVideoIds.delete(videoId);
+    nativeMissingVideoIds.add(videoId);
+  }
   return ok;
+}
+
+async function refreshNativeMediaAvailability({force=false,showStatus=false}={}){
+  if(force){
+    mediaReadyCache.clear();
+    nativeReadyVideoIds.clear();
+    nativeMissingVideoIds.clear();
+  }
+
+  const ids=[...new Set(
+    channels.flatMap(channel=>(channel.clips||[]).map(clip=>clip.videoId)).filter(Boolean)
+  )];
+
+  if(!ids.length){
+    nativeReadyVideoIds.clear();
+    nativeMissingVideoIds.clear();
+    return {ready:0,missing:0,total:0};
+  }
+
+  if(!mediaBaseUrl && !ids.some(id=>findVideoRecord(id)?.mediaUrl)){
+    nativeReadyVideoIds.clear();
+    nativeMissingVideoIds.clear();
+    if(showStatus && sourceStatus){
+      sourceStatus.textContent='Chưa cấu hình native media backend.';
+    }
+    return {ready:0,missing:ids.length,total:ids.length};
+  }
+
+  let cursor=0;
+  const workers=Array.from({length:Math.min(6,ids.length)},async()=>{
+    while(cursor<ids.length){
+      const id=ids[cursor++];
+      await mediaAssetReady(id);
+    }
+  });
+  await Promise.all(workers);
+
+  if(showStatus && sourceStatus){
+    sourceStatus.textContent=`Media sẵn sàng: ${nativeReadyVideoIds.size}/${ids.length} video.`;
+  }
+  return {ready:nativeReadyVideoIds.size,missing:nativeMissingVideoIds.size,total:ids.length};
+}
+
+function clipHasNativeMedia(clip){
+  return !!clip?.videoId && nativeReadyVideoIds.has(clip.videoId);
 }
 
 const NATIVE_STATE={UNSTARTED:-1,ENDED:0,PLAYING:1,PAUSED:2,BUFFERING:3,CUED:5};
@@ -6228,10 +6289,15 @@ function onPlayerError(
 
   if([4,404,100,101,150,153].includes(Number(code))){
     const bad = currentClip();
-    if(bad){
-      state.hidden[bad.id] = true;
-      saveState();
-      setTimeout(()=>rebuildFeed({mode:feedMode}),120);
+    if(bad?.videoId){
+      mediaReadyCache.set(bad.videoId,false);
+      nativeReadyVideoIds.delete(bad.videoId);
+      nativeMissingVideoIds.add(bad.videoId);
+      /* Do not permanently hide the reel: media may be uploaded later. */
+      setTimeout(()=>{
+        rebuildFeed({mode:feedMode});
+        if(!feed.length){ renderCurrent(); }
+      },80);
     }
   }
 
@@ -6753,6 +6819,16 @@ function renderCurrent(){
       'hidden'
     );
 
+    if(emptyText){
+      if(!mediaBaseUrl){
+        emptyText.textContent='Native playback chưa có backend media. App sẽ không tự lật qua các reel rỗng.';
+      }else if(nativeReadyVideoIds.size===0){
+        emptyText.textContent='Backend chưa có file video tương ứng. Feed chỉ hiện video có media thật, nên không còn vòng lặp reel ảo.';
+      }else{
+        emptyText.textContent='Không có reel khả dụng trong bộ lọc hiện tại.';
+      }
+    }
+
     channelName.textContent =
       '—';
 
@@ -6765,6 +6841,10 @@ function renderCurrent(){
     followQuick.classList.add(
       'hidden'
     );
+
+    try{ stopBackgroundPlayers(); }catch{}
+    try{ stopPlayer(role.current,{hard:true}); }catch{}
+    buffer.classList.remove('on');
 
     return;
 
@@ -8293,12 +8373,13 @@ urlInput.addEventListener(
 
 if(mediaBaseInput) mediaBaseInput.value=mediaBaseUrl;
 if(saveMediaBaseBtn){
-  saveMediaBaseBtn.onclick=()=>{
+  saveMediaBaseBtn.onclick=async()=>{
     mediaBaseUrl=(mediaBaseInput.value || '').trim().replace(/\/$/,'');
     localStorage.setItem(MEDIA_BASE_KEY,mediaBaseUrl);
-    mediaReadyCache.clear();
-    sourceStatus.textContent=mediaBaseUrl ? 'Đã lưu native media backend.' : 'Đã xoá native media backend.';
-    if(feed.length) syncPlayers(true);
+    sourceStatus.textContent=mediaBaseUrl ? 'Đang kiểm tra media backend…' : 'Đã xoá native media backend.';
+    await refreshNativeMediaAvailability({force:true,showStatus:true});
+    rebuildFeed({mode:feedMode});
+    if(feed.length) syncPlayers(true); else renderCurrent();
   };
 }
 
@@ -8770,6 +8851,9 @@ async function boot(){
   }
 
   renderFollowingList();
+
+  /* Native mode: build the feed only from media that really exists. */
+  await refreshNativeMediaAvailability({showStatus:false});
 
   feed =
     buildWeightedFeed(
