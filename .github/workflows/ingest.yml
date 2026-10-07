@@ -1,1 +1,74 @@
+name: Ingest YouTube media
 
+on:
+  workflow_dispatch:
+    inputs:
+      max_new:
+        description: "Max new videos this run"
+        required: false
+        default: "2"
+  schedule:
+    - cron: "17 */2 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xtp-youtube-ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_BUCKET: ${{ vars.R2_BUCKET || 'xtp-native-media' }}
+      YOUTUBE_COOKIES_B64: ${{ secrets.YOUTUBE_COOKIES_B64 }}
+      YTDLP_PROXY: ${{ secrets.YTDLP_PROXY }}
+      MAX_NEW_PER_RUN: ${{ inputs.max_new || '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install media tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install -U "yt-dlp[default]" "bgutil-ytdlp-pot-provider==2.0.0" boto3
+          yt-dlp --version
+          node --version
+          ffmpeg -version | head -1
+
+      - name: Start YouTube PO-token provider
+        run: |
+          docker run --name bgutil-provider -d --init \
+            -p 127.0.0.1:4416:4416 \
+            brainicism/bgutil-ytdlp-pot-provider:2.0.0
+          sleep 3
+          docker ps --filter name=bgutil-provider
+
+      - name: Optional YouTube cookies
+        shell: bash
+        run: |
+          if [ -n "$YOUTUBE_COOKIES_B64" ]; then
+            printf '%s' "$YOUTUBE_COOKIES_B64" | base64 -d > "$RUNNER_TEMP/youtube-cookies.txt"
+            echo "YOUTUBE_COOKIES_FILE=$RUNNER_TEMP/youtube-cookies.txt" >> "$GITHUB_ENV"
+          fi
+
+      - name: Ingest missing videos to R2
+        run: python scripts/ingest.py
+
+      - name: Provider logs on failure
+        if: failure()
+        run: docker logs --tail 200 bgutil-provider || true
