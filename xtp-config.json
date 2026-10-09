@@ -1,5 +1,5 @@
 {
-  "mediaBaseUrl": "https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev",
+  "mediaBaseUrl": "https://nofrvstudio.workers.dev",
   "youtubeApiKey": "",
   "channels": [
     "https://www.youtube.com/@AttackonTitan_OfficialChannel"
