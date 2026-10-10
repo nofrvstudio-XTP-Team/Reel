@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07090c">
+  <meta name="description" content="XTP JP - học tiếng Nhật qua reel từ video của bạn trên Cloudflare R2">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="app.css">
+  <title>XTP JP · Video học tiếng Nhật</title>
+</head>
+<body>
+<div id="phone" class="phone">
+  <main id="stage" class="stage" aria-label="Video reels">
+    <div id="panels" class="panels"></div>
+    <div class="video-shade"></div>
+    <div id="gesture" class="gesture" aria-label="Vuốt lên xuống để đổi reel, chạm để tạm dừng"></div>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">X</span> XTP <span class="mint">JP</span></div>
+      <div class="top-tabs"><button class="tab active" id="allTab" type="button">Dành cho bạn</button><button class="tab" id="savedTab" type="button">Đã lưu</button></div>
+      <button id="libraryBtn" class="icon-btn" title="Thư viện video" aria-label="Mở thư viện" type="button">▦</button>
+    </header>
+    <div id="loadingIndicator" class="loading-status hidden" aria-live="polite">Đang chuẩn bị video…</div>
+    <div id="notice" class="notice hidden" role="alert"><div id="noticeText"></div><button id="noticeRetry" class="notice-btn" type="button">Thử lại</button></div>
+    <div id="empty" class="empty hidden"><div class="empty-logo">▶</div><h1 id="emptyTitle">Chưa có video</h1><p id="emptyText">Đưa MP4 vào thư mục videos/ trên Cloudflare R2 và tải lại thư viện.</p><button id="emptyRefresh" class="primary" type="button">Tải lại thư viện</button></div>
+    <section id="reelOverlay" class="reel-overlay hidden" aria-label="Thông tin reel">
+      <div class="channel-row">
+        <div class="channel-main"><span class="channel-avatar">日</span><div class="channel-meta"><span id="channelName" class="channel-name">XTP JP</span><span id="clipTitle" class="clip-title"></span></div></div>
+        <button id="followBtn" class="follow-btn" type="button">Follow</button>
+      </div>
+      <button id="caption" class="caption" type="button" aria-label="Chuyển ngôn ngữ caption">
+        <span id="captionTag" class="caption-tag">VI</span>
+        <span id="captionBody" class="caption-body">...</span>
+        <span id="captionHint" class="caption-hint">Chạm để xem 日本語</span>
+      </button>
+      <div class="actions">
+        <button id="replayBtn" class="action" type="button" aria-label="Phát lại"><span class="action-icon">↺</span><span>Phát lại</span></button>
+        <button id="saveBtn" class="action" type="button" aria-label="Lưu reel"><span id="saveIcon" class="action-icon">♡</span><span id="saveText">Lưu</span></button>
+        <button id="speedBtn" class="action" type="button" aria-label="Đổi tốc độ phát"><span id="speedIcon" class="action-icon speed-icon">1×</span><span>Tốc độ</span></button>
+        <button id="soundBtn" class="action" type="button" aria-label="Bật hoặc tắt âm thanh"><span id="soundIcon" class="action-icon">♪</span><span id="soundText">Bật tiếng</span></button>
+      </div>
+      <div class="bottom-row"><span id="reelCount">1 / 1</span><span id="timeLabel">00:00 / 00:00</span></div>
+      <div id="progressTrack" class="progress-track" role="slider" tabindex="0" aria-label="Thanh tiến trình" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="focusBand" class="focus-band hidden"></div>
+        <div id="progressFill" class="progress-fill"></div>
+        <div id="progressThumb" class="progress-thumb"></div>
+      </div>
+    </section>
+    <div id="tapPlay" class="tap-play hidden"><button id="tapPlayBtn" type="button">▶ Phát video</button></div>
+  </main>
+  <div id="toast" role="status" class="toast hidden"></div>
+  <section id="library" class="library hidden" aria-label="Thư viện video">
+    <div class="library-head"><div><h2>Thư viện video</h2><p id="librarySummary">Cloudflare R2</p></div><button type="button" class="close-btn" id="libraryClose" aria-label="Đóng thư viện">✕</button></div>
+    <div class="library-actions"><input type="search" id="searchInput" placeholder="Tìm video..." aria-label="Tìm video"><button id="refreshBtn" type="button">Làm mới</button></div>
+    <div id="libraryList" class="library-list"></div>
+    <p class="library-foot">Chỉ quản lý file qua Cloudflare Dashboard. App không có quyền upload hoặc xóa.</p>
+  </section>
+</div>
+<script src="app.js" defer></script>
+</body>
+</html>

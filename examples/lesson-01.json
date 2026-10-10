@@ -1,0 +1,34 @@
+{
+  "title": "Hội thoại ở cửa hàng",
+  "channel": "XTP JP",
+  "reels": [
+    {
+      "start": 8.0,
+      "end": 17.0,
+      "focusStart": 10.2,
+      "focusEnd": 13.4,
+      "vi": "Tôi muốn mua cái này.",
+      "ja": "これを買いたいです。",
+      "tokens": [
+        {"hira": "これを", "kanji": "", "start": 10.2, "end": 10.9},
+        {"hira": "か", "kanji": "買", "start": 10.9, "end": 11.35},
+        {"hira": "いたいです", "kanji": "", "start": 11.35, "end": 13.4},
+        {"hira": "。", "kanji": "", "start": null, "end": null}
+      ]
+    },
+    {
+      "start": 39.0,
+      "end": 47.5,
+      "focusStart": 41.1,
+      "focusEnd": 43.9,
+      "vi": "Cho tôi xem cái này được không?",
+      "ja": "これを見せてもらえますか。",
+      "tokens": [
+        {"hira": "これを", "kanji": "", "start": 41.1, "end": 41.7},
+        {"hira": "み", "kanji": "見", "start": 41.7, "end": 42.2},
+        {"hira": "せてもらえますか", "kanji": "", "start": 42.2, "end": 43.9},
+        {"hira": "。", "kanji": "", "start": null, "end": null}
+      ]
+    }
+  ]
+}

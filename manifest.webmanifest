@@ -1,0 +1,10 @@
+{
+  "name":"XTP JP — Học tiếng Nhật qua video",
+  "short_name":"XTP JP",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#07090c",
+  "theme_color":"#07090c",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
