@@ -1,7 +1,7 @@
 
-/* XTP JP v13.7
- * Native video, sequential preload,
- * startup diagnostics, Cloudflare R2.
+/* XTP JP v13.11
+ * Clock-verified preload and bounded decoder recovery.
+ * Media: Cloudflare R2 via Worker.
  */
 (() => {
 'use strict';
@@ -11,15 +11,14 @@ const $ = id => document.getElementById(id);
 const els = Object.fromEntries([
  'panels','gesture','reelOverlay','loadingIndicator',
  'notice','noticeText','noticeRetry','empty',
- 'emptyTitle','emptyText','emptyRefresh',
- 'channelName','clipTitle','followBtn',
- 'caption','captionTag','captionBody','captionHint',
- 'replayBtn','saveBtn','saveIcon','saveText',
- 'speedBtn','speedIcon','soundBtn','soundIcon',
- 'soundText','progressTrack','progressFill',
- 'progressThumb','focusBand','reelCount',
- 'timeLabel','tapPlay','tapPlayBtn','toast',
- 'allTab','savedTab','library','libraryBtn',
+ 'emptyTitle','emptyText','emptyRefresh','channelName',
+ 'clipTitle','followBtn','caption','captionTag',
+ 'captionBody','captionHint','replayBtn','saveBtn',
+ 'saveIcon','saveText','speedBtn','speedIcon',
+ 'soundBtn','soundIcon','soundText','progressTrack',
+ 'progressFill','progressThumb','focusBand',
+ 'reelCount','timeLabel','tapPlay','tapPlayBtn',
+ 'toast','allTab','savedTab','library','libraryBtn',
  'libraryClose','librarySummary','libraryList',
  'refreshBtn','searchInput'
 ].map(k => [k, $(k)]));
@@ -35,26 +34,39 @@ let expandPromise = null;
 let loadGeneration = 0;
 let initialised = false;
 let muted = true;
+let speed = 1;
+let lang = 'vi';
 
 let activeEpoch = 0;
 let resumeOnShow = false;
 let nextPreloadTimer = null;
 let wantsPlayback = true;
 
-const isiOS =
- /iPad|iPhone|iPod/.test(navigator.userAgent) ||
- (navigator.platform === 'MacIntel' &&
-  navigator.maxTouchPoints > 1);
-
-let speed = 1;
-let lang = 'vi';
 let loadingTimer = null;
 let loadingFor = null;
 let toastTimer = null;
 
+const isiOS =
+ /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+ (
+  navigator.platform === 'MacIntel' &&
+  navigator.maxTouchPoints > 1
+ );
+
+const rates = [0.75, 1, 1.25, 1.5];
+
 const saved = readSet('xtp-jp-saved-v13');
 const following = readSet('xtp-jp-follow-v13');
-const rates = [0.75, 1, 1.25, 1.5];
+
+/* ========================================
+   VIDEO STATE AND RECOVERY
+======================================== */
+
+const clockRetries = new Map();
+const MEDIA_STALL_MS = 5200;
+const CLOCK_STEP = 0.07;
+
+let recoveryBusy = false;
 
 function cancelNextPreload() {
  clearTimeout(nextPreloadTimer);
@@ -62,11 +74,13 @@ function cancelNextPreload() {
 }
 
 function isCurrentPanel(panel) {
- return panel &&
+ return Boolean(
+  panel &&
   panels.get(panel.reel.key) === panel &&
   activeReel()?.key === panel.reel.key &&
   els.library.classList.contains('hidden') &&
-  !document.hidden;
+  !document.hidden
+ );
 }
 
 function stopOtherVideos(except = null) {
@@ -83,298 +97,272 @@ function stopAllVideos() {
  stopOtherVideos();
 }
 
-/* ---------------------------------------
-   STARTUP AND DIAGNOSTICS
---------------------------------------- */
+function clearClock(panel) {
+ if (!panel) return;
 
-const diagnostic = {
- phase: 'boot',
- events: [],
- error: ''
-};
-
-let bootScreen;
-let bootStatus;
-let bootButton;
-let bootInfo;
-let bootTimeout;
-let bootDone = false;
-
-function note(event, detail = '') {
- diagnostic.phase = event;
-
- diagnostic.events.push(
-  event + (detail ? ' ' + detail : '')
- );
-
- if (diagnostic.events.length > 8) {
-  diagnostic.events.shift();
- }
-
- if (!bootDone) updateBootInfo();
+ panel.clockTime = null;
+ panel.clockAt = performance.now();
+ panel.progressSteps = 0;
 }
 
-function mediaDetails() {
- const reel = activeReel();
- const p = reel && panels.get(reel.key);
- const v = p?.video;
-
- return (
-  `reel=${reel?.key || '-'} / ` +
-  `ready=${v?.readyState ?? '-'} / ` +
-  `network=${v?.networkState ?? '-'} / ` +
-  `paused=${v?.paused ?? '-'} / ` +
-  `error=${v?.error?.code ?? '-'} / ` +
-  `online=${navigator.onLine} / ` +
-  `visible=${document.visibilityState}`
- );
+function logRecovery(message) {
+ console.warn('[XTP JP v13.11]', message);
+ toast(message);
 }
 
-function updateBootInfo() {
- if (!bootInfo) return;
+function disposePanel(panel) {
+ if (!panel) return;
 
- bootInfo.textContent =
-  'v13.7 | ' +
-  mediaDetails() +
-  '\n' +
-  diagnostic.events.slice(-3).join(' → ') +
-  (diagnostic.error
-   ? '\n' + diagnostic.error
-   : '');
+ try {
+  panel.video.pause();
+  panel.video.removeAttribute('src');
+  panel.video.load();
+ } catch {}
+
+ panel.node.remove();
+ panels.delete(panel.reel.key);
 }
 
-function setBoot(message, button = false) {
- if (bootDone) return;
+function releaseOtherPreloads(active) {
+ cancelNextPreload();
 
- bootStatus.textContent = message;
-
- bootButton.style.display =
-  button ? 'block' : 'none';
-
- updateBootInfo();
-}
-
-function bootComplete() {
- if (bootDone) return;
-
- bootDone = true;
- clearTimeout(bootTimeout);
-
- bootScreen.style.display = 'none';
-
- note('boot complete');
-}
-
-function bootProblem(message) {
- diagnostic.error = message;
-
- note('boot issue', message);
-
- setBoot(
-  message + ' — Chạm để thử lại.',
-  true
- );
-}
-
-function bootBegin() {
- bootDone = false;
- diagnostic.error = '';
-
- if (bootScreen) {
-  bootScreen.style.display = 'flex';
- }
-
- setBoot('Đang tải thư viện video...');
-
- clearTimeout(bootTimeout);
-
- bootTimeout = setTimeout(() => {
-  if (!bootDone) {
-   bootProblem(
-    'Khởi động quá 15 giây. ' +
-    mediaDetails()
-   );
+ for (const p of [...panels.values()]) {
+  if (p !== active) {
+   disposePanel(p);
   }
- }, 15000);
+ }
 }
 
-function createBoot() {
- const style = document.createElement('style');
+/*
+ Recovery sequence:
 
- style.textContent = `
- #xtpBoot {
-  position: fixed !important;
-  inset: 0 !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999 !important;
-  background: #081015 !important;
-  color: #fff !important;
-  font-family: system-ui, sans-serif;
+ 1. Free speculative preload and wake
+    the existing decoder.
+
+ 2. If clock is still frozen, replace
+    the native video element and retry
+    the media URL with a cache-busting
+    query parameter.
+
+ Never retry indefinitely.
+*/
+
+function recoverClock(panel) {
+ if (
+  recoveryBusy ||
+  !isCurrentPanel(panel) ||
+  document.hidden ||
+  !wantsPlayback
+ ) {
+  return;
  }
 
- #xtpBoot .boot-inner {
-  width: min(390px, 92vw);
-  text-align: center;
-  padding: 20px;
- }
+ const key = panel.reel.key;
+ const count = clockRetries.get(key) || 0;
 
- #xtpBoot .boot-symbol {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 14px;
-  border-radius: 20px;
-  display: grid;
-  place-items: center;
-  background: #55dcc8;
-  color: #08201f;
-  font-size: 46px;
-  font-weight: 900;
- }
+ if (count >= 2) {
+  wantsPlayback = false;
 
- #xtpBoot .boot-title {
-  font-size: 26px;
-  font-weight: 800;
-  margin-bottom: 18px;
- }
+  panel.video.pause();
 
- #xtpBoot .boot-status {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #d6e2e5;
-  min-height: 45px;
-  margin: 18px 0;
- }
+  hideLoading();
 
- #xtpBoot .boot-action {
-  display: none;
-  margin: 16px auto;
-  background: #55dcc8;
-  color: #08201f;
-  padding: 13px 20px;
-  min-height: 46px;
-  border-radius: 12px;
-  border: 0;
-  font-weight: 750;
-  font-size: 15px;
- }
-
- #xtpBoot .boot-dots {
-  display: none !important;
- }
-
- #xtpBoot .boot-small {
-  font: 11px/1.5 monospace;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  text-align: left;
-  color: #9fb5b8;
-  background: #112027;
-  border-radius: 9px;
-  padding: 10px;
-  margin-top: 25px;
- }
- `;
-
- document.head.appendChild(style);
-
- bootScreen = document.getElementById('xtpBoot');
-
- if (!bootScreen) {
-  bootScreen = document.createElement('div');
-  bootScreen.id = 'xtpBoot';
-
-  bootScreen.innerHTML = `
-   <div class="boot-inner">
-    <div class="boot-symbol">X</div>
-    <div class="boot-title">XTP JP</div>
-    <p class="boot-status">
-     Đang khởi động…
-    </p>
-    <button type="button" class="boot-action">
-     ▶ Chạm để phát
-    </button>
-    <p class="boot-small"></p>
-   </div>
-  `;
-
-  document.body.appendChild(bootScreen);
- }
-
- bootStatus =
-  bootScreen.querySelector('.boot-status');
-
- bootButton =
-  bootScreen.querySelector('.boot-action');
-
- bootInfo =
-  bootScreen.querySelector('.boot-small');
-
- bootButton.addEventListener('click', () => {
-  const reel = activeReel();
-  const p = reel && panels.get(reel.key);
-
-  if (p) {
-   note('manual play');
-
-   if (p.error) {
-    p.video.pause();
-    p.video.removeAttribute('src');
-    p.video.load();
-
-    p.loaded = false;
-    p.prepared = false;
-    p.error = false;
-    p.playPending = false;
-   }
-
-   startActiveVideo(true);
-  } else {
-   note('retry library');
-   loadAll();
-  }
-
-  setBoot(
-   'Đang thử phát từ thao tác chạm...'
+  showError(
+   'Video đã tải đủ nhưng đồng hồ vẫn đứng. ' +
+   'Đã thử khôi phục 2 lần. ' +
+   'Bấm Thử lại hoặc kiểm tra MP4 trực tiếp trong Safari.'
   );
- });
 
- bootBegin();
-}
-
-/* Disable old shell cache while debugging
-   the standalone PWA startup issue. */
-
-function disableOldShellCache() {
- if ('serviceWorker' in navigator) {
-  navigator.serviceWorker
-   .getRegistrations()
-   .then(list => Promise.all(
-    list.filter(r =>
-     r.scope.startsWith(
-      location.origin +
-      location.pathname.replace(/[^/]*$/, '')
-     )
-    ).map(r => r.unregister())
-   ))
-   .catch(() => {});
+  return;
  }
 
- if ('caches' in window) {
-  caches.keys()
-   .then(keys => Promise.all(
-    keys.filter(k =>
-     k.startsWith('xtp-jp-v13-shell')
-    ).map(k => caches.delete(k))
-   ))
-   .catch(() => {});
+ clockRetries.set(key, count + 1);
+
+ recoveryBusy = true;
+
+ // Release only speculative media.
+ // The active player is preserved
+ // during the first recovery attempt.
+ releaseOtherPreloads(panel);
+
+ panel.didAdvance = false;
+ panel.preloadQueued = false;
+
+ const epoch = activeEpoch;
+
+ if (count === 0) {
+  logRecovery(
+   'Video đứng: giải phóng preload ' +
+   'và khôi phục decoder (1/2)'
+  );
+
+  const video = panel.video;
+
+  try {
+   video.pause();
+
+   const end =
+    panel.reel.end ?? video.duration;
+
+   const target = Math.max(
+    panel.reel.start + 0.15,
+    video.currentTime + 0.15
+   );
+
+   if (
+    Number.isFinite(end) &&
+    target < end - 0.2
+   ) {
+    video.currentTime = target;
+   }
+  } catch {}
+
+  panel.playPending = false;
+  clearClock(panel);
+
+  setTimeout(() => {
+   recoveryBusy = false;
+
+   if (
+    epoch === activeEpoch &&
+    isCurrentPanel(panel)
+   ) {
+    startActiveVideo();
+   }
+  }, 300);
+
+ } else {
+  logRecovery(
+   'Video vẫn đứng: tạo lại player ' +
+   'và tải URL media mới (2/2)'
+  );
+
+  const reel = panel.reel;
+
+  disposePanel(panel);
+
+  const fresh = createPanel(
+   reel,
+   currentIndex,
+   currentIndex
+  );
+
+  fresh.freshMedia = true;
+
+  panels.set(key, fresh);
+
+  clearClock(fresh);
+
+  recoveryBusy = false;
+
+  if (
+   epoch === activeEpoch &&
+   isCurrentPanel(fresh)
+  ) {
+   startActiveVideo();
+  }
  }
 }
 
-/* ---------------------------------------
+/*
+ Monitor real media-clock movement.
+
+ A playing event is insufficient:
+ Safari may report paused=false,
+ readyState=4 and playing while
+ currentTime remains frozen.
+*/
+
+setInterval(() => {
+ if (
+  recoveryBusy ||
+  !initialised ||
+  document.hidden ||
+  !els.library.classList.contains('hidden')
+ ) {
+  return;
+ }
+
+ const reel = activeReel();
+
+ const panel =
+  reel && panels.get(reel.key);
+
+ if (
+  !panel ||
+  panel.error ||
+  !wantsPlayback ||
+  !panel.loaded
+ ) {
+  return;
+ }
+
+ const video = panel.video;
+ const now = performance.now();
+
+ if (
+  video.paused ||
+  video.ended ||
+  video.seeking ||
+  video.readyState < 2
+ ) {
+  clearClock(panel);
+  return;
+ }
+
+ if (
+  panel.lastSeekAt &&
+  now - panel.lastSeekAt < 900
+ ) {
+  clearClock(panel);
+  return;
+ }
+
+ if (panel.clockTime === null) {
+  panel.clockTime = video.currentTime;
+  panel.clockAt = now;
+  return;
+ }
+
+ const delta =
+  video.currentTime - panel.clockTime;
+
+ if (delta >= CLOCK_STEP) {
+  panel.progressSteps++;
+  panel.clockAt = now;
+  panel.clockTime = video.currentTime;
+
+  /*
+   Two observations of clock movement
+   are required before preload starts.
+  */
+
+  if (panel.progressSteps >= 2) {
+   clockRetries.delete(panel.reel.key);
+
+   if (!panel.didAdvance) {
+    panel.didAdvance = true;
+
+    queueNextPreload(panel);
+   }
+  }
+
+ } else if (delta < -0.1) {
+  // A seek or reel loop changed time.
+  clearClock(panel);
+
+ } else if (
+  now - panel.clockAt >= MEDIA_STALL_MS
+ ) {
+  clearClock(panel);
+  recoverClock(panel);
+ }
+
+}, 1000);
+
+/* ========================================
    UTILITIES
---------------------------------------- */
+======================================== */
 
 function readSet(key) {
  try {
@@ -437,17 +425,13 @@ function toast(message) {
 }
 
 function showError(message, retry = true) {
- if (!bootDone) {
-  bootProblem(message);
-  return;
- }
-
  clearTimeout(loadingTimer);
 
  loadingTimer = null;
  loadingFor = null;
 
  els.loadingIndicator.classList.add('hidden');
+
  els.noticeText.textContent = message;
 
  els.noticeRetry.classList.toggle(
@@ -466,9 +450,13 @@ function clearError() {
 function showLoading() {
  els.loadingIndicator.classList.remove('hidden');
 
- const key = activeReel()?.key || 'library';
+ const key =
+  activeReel()?.key || 'library';
 
- if (loadingTimer && loadingFor === key) {
+ if (
+  loadingTimer &&
+  loadingFor === key
+ ) {
   return;
  }
 
@@ -486,20 +474,20 @@ function showLoading() {
    return;
   }
 
-  const p = panels.get(key);
+  const panel = panels.get(key);
 
   if (
-   p &&
-   p.video.readyState >= 2 &&
-   p.prepared
+   panel &&
+   panel.video.readyState >= 2 &&
+   panel.prepared
   ) {
    els.loadingIndicator.classList.add(
     'hidden'
    );
   } else {
    showError(
-    'Video không tải kịp: ' +
-    mediaDetails()
+    'Video không tải kịp. ' +
+    'Kiểm tra MP4 và HTTP Range.'
    );
   }
  }, 15000);
@@ -552,9 +540,9 @@ function findStartForSource(id) {
  );
 }
 
-/* ---------------------------------------
-   DATA / R2 LIBRARY
---------------------------------------- */
+/* ========================================
+   REEL METADATA
+======================================== */
 
 function normalizeManifest(source, json) {
  if (
@@ -619,7 +607,7 @@ function normalizeManifest(source, json) {
        token.end == null
         ? null
         : Number(token.end)
-     })).filter(t => t.hira)
+     })).filter(token => token.hira)
    : [];
 
   reels.push({
@@ -677,11 +665,13 @@ async function expandSource(source) {
 
   if (response.status === 404) {
    source.reels = fallbackReel(source);
+
   } else if (!response.ok) {
    source.reels = fallbackReel(
     source,
     `JSON lỗi HTTP ${response.status}`
    );
+
   } else {
    const json = await response.json();
 
@@ -690,10 +680,11 @@ async function expandSource(source) {
     json
    );
   }
- } catch (e) {
+
+ } catch (error) {
   source.reels = fallbackReel(
    source,
-   `Không đọc được JSON: ${e.message}`
+   'Không đọc được JSON: ' + error.message
   );
  }
 
@@ -726,16 +717,19 @@ async function readLibrary() {
  let cursor = null;
 
  for (let page = 0; page < 100; page++) {
-  const u = new URL(
+  const url = new URL(
    basePath('/api/library')
   );
 
   if (cursor) {
-   u.searchParams.set('cursor', cursor);
+   url.searchParams.set(
+    'cursor',
+    cursor
+   );
   }
 
   const response = await fetchTimed(
-   u.toString(),
+   url.toString(),
    { cache: 'no-store' }
   );
 
@@ -774,7 +768,10 @@ async function readLibrary() {
 
   if (!json.hasMore) break;
 
-  if (!json.cursor || json.cursor === cursor) {
+  if (
+   !json.cursor ||
+   json.cursor === cursor
+  ) {
    throw new Error(
     'Phân trang R2 thiếu cursor hợp lệ'
    );
@@ -784,7 +781,7 @@ async function readLibrary() {
 
   if (page === 99) {
    throw new Error(
-    'Thư viện quá lớn'
+    'Thư viện vượt giới hạn phiên'
    );
   }
  }
@@ -800,12 +797,10 @@ async function readLibrary() {
 }
 
 async function loadAll() {
- bootBegin();
- note('fetch config');
-
  const generation = ++loadGeneration;
 
  els.libraryList.replaceChildren();
+
  els.empty.classList.add('hidden');
  els.reelOverlay.classList.add('hidden');
 
@@ -814,42 +809,42 @@ async function loadAll() {
  showLoading();
 
  try {
-  const cfg = await fetchTimed(
+  const config = await fetchTimed(
    './xtp-config.json',
    { cache: 'no-store' }
-  ).then(r => {
-   if (!r.ok) {
+  ).then(response => {
+   if (!response.ok) {
     throw Error(
      'Không có xtp-config.json'
     );
    }
 
-   return r.json();
+   return response.json();
   });
 
   if (
    !/^https:\/\/[\w.-]+(?:\:\d+)?(?:\/[\w-]+)*\/?$/.test(
-    String(cfg.mediaBaseUrl || '')
+    String(config.mediaBaseUrl || '')
    ) ||
-   String(cfg.mediaBaseUrl).includes(
+   String(config.mediaBaseUrl).includes(
     'REPLACE_'
    )
   ) {
    throw new Error(
-    'Chưa cấu hình mediaBaseUrl trong xtp-config.json.'
+    'Chưa cấu hình mediaBaseUrl'
    );
   }
 
-  mediaBase = cfg.mediaBaseUrl.replace(
+  mediaBase = config.mediaBaseUrl.replace(
    /\/+$/,
    ''
   );
 
-  note('fetch library');
-
   const loaded = await readLibrary();
 
-  if (generation !== loadGeneration) return;
+  if (generation !== loadGeneration) {
+   return;
+  }
 
   sources = loaded;
   playlist = [];
@@ -857,21 +852,15 @@ async function loadAll() {
   currentIndex = 0;
   mode = 'all';
 
-  note(
-   'library count',
-   String(loaded.length)
-  );
-
   syncTabs();
   renderLibrary();
 
   if (!sources.length) {
-   bootComplete();
    hideLoading();
 
    showEmpty(
     'Chưa có video',
-    'Upload file videos/ten-video.mp4 trên Cloudflare R2 rồi bấm Tải lại thư viện.'
+    'Upload MP4 lên Cloudflare R2 rồi tải lại thư viện.'
    );
 
    return;
@@ -879,30 +868,30 @@ async function loadAll() {
 
   await ensureAhead(1);
 
-  if (generation !== loadGeneration) return;
+  if (generation !== loadGeneration) {
+   return;
+  }
 
   initialised = true;
 
-  els.reelOverlay.classList.remove('hidden');
+  els.reelOverlay.classList.remove(
+   'hidden'
+  );
 
   hideLoading();
-
-  note('start first player');
 
   activate({ instant: true });
- } catch (e) {
-  if (generation !== loadGeneration) return;
+
+ } catch (error) {
+  if (generation !== loadGeneration) {
+   return;
+  }
 
   hideLoading();
-
-  bootProblem(
-   'Không kết nối thư viện: ' +
-   String(e.message || e)
-  );
 
   showEmpty(
    'Chưa kết nối được Cloudflare',
-   String(e.message || e)
+   String(error.message || error)
   );
  }
 }
@@ -913,20 +902,17 @@ function showEmpty(title, description) {
  els.empty.classList.remove('hidden');
 }
 
-/* ---------------------------------------
-   VIDEO PLAYBACK
---------------------------------------- */
+/* ========================================
+   NATIVE VIDEO PLAYER
+======================================== */
 
 function clearPanels() {
  activeEpoch++;
  cancelNextPreload();
  stopAllVideos();
 
- for (const p of panels.values()) {
-  p.video.pause();
-  p.video.removeAttribute('src');
-  p.video.load();
-  p.node.remove();
+ for (const panel of [...panels.values()]) {
+  disposePanel(panel);
  }
 
  panels.clear();
@@ -935,7 +921,9 @@ function clearPanels() {
 function createPanel(reel, index, active) {
  const node = document.createElement('div');
 
- node.className = 'reel-panel no-transition';
+ node.className =
+  'reel-panel no-transition';
+
  node.dataset.key = reel.key;
 
  node.style.transform =
@@ -966,36 +954,28 @@ function createPanel(reel, index, active) {
   node,
   video,
   reel,
+
   prepared: false,
   error: false,
   loaded: false,
+
   didPlay: false,
-  playPending: false
+  didAdvance: false,
+  preloadQueued: false,
+  playPending: false,
+
+  clockTime: null,
+  clockAt: performance.now(),
+  progressSteps: 0,
+  lastSeekAt: 0,
+
+  freshMedia: false
  };
 
  node.appendChild(video);
  els.panels.appendChild(node);
 
- for (const name of [
-  'loadstart',
-  'loadedmetadata',
-  'loadeddata',
-  'canplay',
-  'stalled',
-  'suspend',
-  'waiting',
-  'playing',
-  'abort',
-  'emptied'
- ]) {
-  video.addEventListener(name, () => {
-   if (isCurrentPanel(panel)) {
-    note(name);
-   }
-  });
- }
-
- const seekStart = () => {
+ function seekStart() {
   if (
    panel.prepared ||
    !Number.isFinite(video.duration) ||
@@ -1009,7 +989,7 @@ function createPanel(reel, index, active) {
 
    if (isCurrentPanel(panel)) {
     showError(
-     'Reel bắt đầu sau khi video kết thúc.'
+     'Timestamp của reel nằm ngoài video.'
     );
    }
 
@@ -1034,7 +1014,7 @@ function createPanel(reel, index, active) {
   if (isCurrentPanel(panel)) {
    updateProgress();
   }
- };
+ }
 
  video.addEventListener(
   'loadedmetadata',
@@ -1046,7 +1026,15 @@ function createPanel(reel, index, active) {
   seekStart
  );
 
+ video.addEventListener('seeking', () => {
+  panel.lastSeekAt = performance.now();
+  clearClock(panel);
+ });
+
  video.addEventListener('seeked', () => {
+  panel.lastSeekAt = performance.now();
+  clearClock(panel);
+
   if (
    !panel.prepared &&
    Math.abs(
@@ -1084,8 +1072,6 @@ function createPanel(reel, index, active) {
   panel.didPlay = true;
   panel.playPending = false;
 
-  bootComplete();
-
   stopOtherVideos(video);
 
   clearError();
@@ -1093,7 +1079,15 @@ function createPanel(reel, index, active) {
 
   els.tapPlay.classList.add('hidden');
 
-  queueNextPreload(panel);
+  /*
+   DO NOT PRELOAD HERE.
+
+   Safari can emit playing while
+   currentTime is frozen.
+
+   Preload is scheduled only after
+   the clock monitor observes progress.
+  */
  });
 
  video.addEventListener('waiting', () => {
@@ -1105,7 +1099,8 @@ function createPanel(reel, index, active) {
  video.addEventListener('timeupdate', () => {
   if (!isCurrentPanel(panel)) return;
 
-  const end = reel.end ?? video.duration;
+  const end =
+   reel.end ?? video.duration;
 
   if (
    Number.isFinite(end) &&
@@ -1119,6 +1114,7 @@ function createPanel(reel, index, active) {
    } catch {}
 
    startActiveVideo();
+
   } else {
    updateProgress();
   }
@@ -1138,63 +1134,75 @@ function createPanel(reel, index, active) {
   panel.error = true;
   panel.playPending = false;
 
-  diagnostic.error =
-   'MediaError ' +
-   (video.error?.code ?? '-');
+  if (!isCurrentPanel(panel)) return;
 
-  note('media error');
+  const code = video.error?.code;
 
-  if (isCurrentPanel(panel)) {
-   const code = video.error?.code;
+  const reason =
+   code === 4
+    ? 'Safari không hỗ trợ định dạng video.'
+    : code === 3
+     ? 'Thiết bị không giải mã được MP4.'
+     : code === 2
+      ? 'Lỗi mạng hoặc HTTP Range.'
+      : code === 1
+       ? 'Yêu cầu tải video bị hủy.'
+       : 'Không thể phát MP4.';
 
-   const reason =
-    code === 4
-     ? 'Safari không hỗ trợ codec MP4.'
-     : code === 3
-      ? 'Thiết bị không giải mã được video.'
-      : code === 2
-       ? 'Lỗi mạng hoặc HTTP Range.'
-       : code === 1
-        ? 'Yêu cầu tải video bị hủy.'
-        : 'Không phát được MP4.';
-
-   showError(
-    `${reason} (MediaError ${
-     code ?? 'không xác định'
-    }; ${mediaDetails()})`
-   );
-  }
+  showError(
+   `${reason} (MediaError ${
+    code ?? 'không xác định'
+   })`
+  );
  });
 
  return panel;
 }
 
-function loadPanel(panel, preloadOnly = false) {
- if (!panel || panel.loaded) return;
+function loadPanel(
+ panel,
+ preloadOnly = false
+) {
+ if (
+  !panel ||
+  panel.loaded
+ ) {
+  return;
+ }
 
  panel.loaded = true;
 
- note(
-  'set src',
-  panel.reel.sourceId
- );
-
  panel.video.preload = 'auto';
 
- panel.video.src = basePath(
+ let url = basePath(
   '/media/' +
   encodeURIComponent(
    panel.reel.sourceId
   )
  );
 
+ /*
+  Only change the media URL when
+  rebuilding a stuck native decoder.
+ */
+
+ if (panel.freshMedia) {
+  url +=
+   '?xtp_retry=' +
+   Date.now().toString(36);
+ }
+
+ panel.video.src = url;
  panel.video.load();
 }
 
-/* Only one current player and one next
-   player are prepared at a time. */
+/* ========================================
+   PANEL MANAGEMENT AND PRELOAD
+======================================== */
 
-function updatePanels(instant = false) {
+function updatePanels(
+ instant = false
+) {
  const view = getView();
  const wanted = new Set();
 
@@ -1204,9 +1212,18 @@ function updatePanels(instant = false) {
   active && panels.get(active.key);
 
  const canPreload = Boolean(
-  activePanel?.didPlay &&
+  activePanel?.didAdvance &&
   !activePanel.video.paused
  );
+
+ /*
+  iOS: current + next.
+
+  Desktop: previous + current + next.
+
+  Only the active video is allowed
+  to play. Next is network preload only.
+ */
 
  const begin =
   !isiOS && canPreload
@@ -1215,25 +1232,29 @@ function updatePanels(instant = false) {
 
  const finish = Math.min(
   view.length - 1,
-  currentIndex + (canPreload ? 1 : 0)
+  currentIndex +
+  (canPreload ? 1 : 0)
  );
 
- for (let i = begin; i <= finish; i++) {
+ for (
+  let i = begin;
+  i <= finish;
+  i++
+ ) {
   wanted.add(view[i].key);
  }
 
- for (const [key, p] of [...panels]) {
+ for (const [key, panel] of [...panels]) {
   if (!wanted.has(key)) {
-   p.video.pause();
-   p.video.removeAttribute('src');
-   p.video.load();
-
-   p.node.remove();
-   panels.delete(key);
+   disposePanel(panel);
   }
  }
 
- for (let i = begin; i <= finish; i++) {
+ for (
+  let i = begin;
+  i <= finish;
+  i++
+ ) {
   const reel = view[i];
 
   if (!panels.has(reel.key)) {
@@ -1249,30 +1270,35 @@ function updatePanels(instant = false) {
  }
 
  if (instant) {
-  for (const p of panels.values()) {
-   p.node.classList.add(
+  for (const panel of panels.values()) {
+   panel.node.classList.add(
     'no-transition'
    );
   }
  }
 
  requestAnimationFrame(() => {
-  for (let i = begin; i <= finish; i++) {
-   const p = panels.get(view[i].key);
+  for (
+   let i = begin;
+   i <= finish;
+   i++
+  ) {
+   const panel =
+    panels.get(view[i].key);
 
-   if (!p) continue;
+   if (!panel) continue;
 
-   p.node.style.transform =
+   panel.node.style.transform =
     `translateY(${(i - currentIndex) * 100}%)`;
 
-   p.node.style.zIndex = String(
+   panel.node.style.zIndex = String(
     5 - Math.abs(i - currentIndex)
    );
   }
 
   requestAnimationFrame(() => {
-   for (const p of panels.values()) {
-    p.node.classList.remove(
+   for (const panel of panels.values()) {
+    panel.node.classList.remove(
      'no-transition'
     );
    }
@@ -1280,7 +1306,18 @@ function updatePanels(instant = false) {
  });
 }
 
+/*
+ Preload remains enabled.
+
+ It starts only after two observations
+ of real currentTime progression.
+*/
+
 function queueNextPreload(panel) {
+ if (panel.preloadQueued) return;
+
+ panel.preloadQueued = true;
+
  cancelNextPreload();
 
  const epoch = activeEpoch;
@@ -1292,7 +1329,7 @@ function queueNextPreload(panel) {
    epoch !== activeEpoch ||
    !isCurrentPanel(panel) ||
    panel.video.paused ||
-   !panel.didPlay
+   !panel.didAdvance
   ) {
    return;
   }
@@ -1303,12 +1340,15 @@ function queueNextPreload(panel) {
     currentIndex + 2 > playlist.length &&
     nextSource < sources.length
    ) {
-    await ensureAhead(currentIndex + 2);
+    await ensureAhead(
+     currentIndex + 2
+    );
    }
-  } catch (e) {
+
+  } catch (error) {
    toast(
-    'Không tải được reel kế tiếp: ' +
-    e.message
+    'Không tải được dữ liệu reel kế tiếp: ' +
+    error.message
    );
 
    return;
@@ -1324,19 +1364,28 @@ function queueNextPreload(panel) {
 
   updatePanels(true);
 
-  const next = getView()[
-   currentIndex + 1
-  ];
+  const next =
+   getView()[currentIndex + 1];
 
-  if (next) {
-   const pre = panels.get(next.key);
+  if (!next) return;
 
-   if (pre && pre !== panel) {
-    loadPanel(pre, true);
-   }
+  const pre = panels.get(next.key);
+
+  if (
+   pre &&
+   pre !== panel
+  ) {
+   // Network preload only.
+   // Never play the next video here.
+   loadPanel(pre, true);
   }
+
  }, 400);
 }
+
+/* ========================================
+   PLAYBACK
+======================================== */
 
 function startActiveVideo(
  fromGesture = false
@@ -1345,13 +1394,13 @@ function startActiveVideo(
 
  if (!reel) return;
 
- const p = panels.get(reel.key);
+ const panel = panels.get(reel.key);
 
- if (!p) return;
+ if (!panel) return;
 
- const video = p.video;
+ const video = panel.video;
 
- if (p.error) {
+ if (panel.error) {
   showError(
    'Video tải lỗi. Bấm Thử lại.'
   );
@@ -1373,35 +1422,31 @@ function startActiveVideo(
  video.muted = muted;
  video.playbackRate = speed;
 
- loadPanel(p, false);
-
- note(
-  'play request',
-  fromGesture ? 'tap' : 'auto'
- );
+ loadPanel(panel, false);
 
  if (video.paused) {
   showLoading();
  }
 
  if (
-  p.playPending &&
+  panel.playPending &&
   !fromGesture
  ) {
   return;
  }
 
- p.playPending = true;
+ panel.playPending = true;
 
  let attempt;
 
  try {
   attempt = video.play();
- } catch (err) {
-  p.playPending = false;
+
+ } catch (error) {
+  panel.playPending = false;
 
   handlePlayReject(
-   err,
+   error,
    reel.key
   );
 
@@ -1410,13 +1455,11 @@ function startActiveVideo(
 
  if (attempt?.then) {
   attempt.then(() => {
-   note('play resolved');
-
-   p.playPending = false;
+   panel.playPending = false;
 
    if (
     epoch !== activeEpoch ||
-    !isCurrentPanel(p)
+    !isCurrentPanel(panel)
    ) {
     video.pause();
     return;
@@ -1424,77 +1467,66 @@ function startActiveVideo(
 
    stopOtherVideos(video);
 
-   els.tapPlay.classList.add('hidden');
-  }).catch(err => {
-   note(
-    'play rejected',
-    err?.name || 'unknown'
+   els.tapPlay.classList.add(
+    'hidden'
    );
 
-   p.playPending = false;
+  }).catch(error => {
+   panel.playPending = false;
 
    if (
     epoch === activeEpoch &&
-    isCurrentPanel(p)
+    isCurrentPanel(panel)
    ) {
     handlePlayReject(
-     err,
+     error,
      reel.key
     );
    }
   });
+
  } else {
-  p.playPending = false;
+  panel.playPending = false;
  }
 }
 
-function handlePlayReject(err, key) {
+function handlePlayReject(error, key) {
  if (
   activeReel()?.key !== key
  ) {
   return;
  }
 
- if (!bootDone) {
-  bootProblem(
-   'Safari từ chối phát: ' +
-   (err?.name || 'PlayError') +
-   ' ' +
-   mediaDetails()
-  );
-
-  return;
- }
-
  hideLoading();
 
- els.tapPlay.classList.remove('hidden');
+ els.tapPlay.classList.remove(
+  'hidden'
+ );
 
  if (
-  err?.name === 'NotAllowedError' ||
-  err?.name === 'AbortError'
+  error?.name === 'NotAllowedError' ||
+  error?.name === 'AbortError'
  ) {
   return;
  }
 
  showError(
   'Không thể phát video: ' +
-  (err?.name || 'PlayError') +
-  (err?.message
-   ? ' — ' + err.message
-   : '')
+  (error?.name || 'PlayError') +
+  (
+   error?.message
+    ? ' — ' + error.message
+    : ''
+  )
  );
 }
 
 function activate({
  instant = false
 } = {}) {
- note(
-  'activate',
-  activeReel()?.key || 'none'
- );
-
+ recoveryBusy = false;
  activeEpoch++;
+
  cancelNextPreload();
  stopAllVideos();
 
@@ -1503,7 +1535,9 @@ function activate({
  const reel = activeReel();
 
  if (!reel) {
-  els.reelOverlay.classList.add('hidden');
+  els.reelOverlay.classList.add(
+   'hidden'
+  );
 
   clearPanels();
 
@@ -1533,9 +1567,9 @@ function activate({
  startActiveVideo();
 }
 
-/* ---------------------------------------
-   REEL UI
---------------------------------------- */
+/* ========================================
+   UI
+======================================== */
 
 function renderReelInfo() {
  const reel = activeReel();
@@ -1569,7 +1603,8 @@ function renderReelInfo() {
   following.has(reel.channel)
  );
 
- const isSaved = saved.has(reel.key);
+ const isSaved =
+  saved.has(reel.key);
 
  els.saveBtn.classList.toggle(
   'saved',
@@ -1643,13 +1678,15 @@ function renderCaption() {
 
  if (!reel.tokens.length) {
   els.captionBody.textContent =
-   reel.ja || 'Chưa có tiếng Nhật';
+   reel.ja ||
+   'Chưa có tiếng Nhật';
 
   return;
  }
 
  for (const token of reel.tokens) {
-  const span = document.createElement('span');
+  const span =
+   document.createElement('span');
 
   span.className = 'jp-token';
 
@@ -1663,16 +1700,20 @@ function renderCaption() {
     ? String(token.end)
     : '';
 
-  const ruby = document.createElement('ruby');
-  const rb = document.createElement('rb');
+  const ruby =
+   document.createElement('ruby');
+
+  const rb =
+   document.createElement('rb');
 
   rb.textContent = token.hira;
   ruby.appendChild(rb);
 
   if (token.kanji) {
-   const rt = document.createElement('rt');
-   rt.textContent = token.kanji;
+   const rt =
+    document.createElement('rt');
 
+   rt.textContent = token.kanji;
    ruby.appendChild(rt);
   }
 
@@ -1688,19 +1729,20 @@ function updateHighlight() {
 
  if (!reel) return;
 
- const p = panels.get(reel.key);
+ const panel = panels.get(reel.key);
 
  const time =
-  p?.video.currentTime ?? reel.start;
+  panel?.video.currentTime ??
+  reel.start;
 
- const on =
+ const focused =
   reel.focusStart !== null &&
   time >= reel.focusStart &&
   time <= reel.focusEnd;
 
  els.caption.classList.toggle(
   'focus-now',
-  on
+  focused
  );
 
  if (lang === 'ja') {
@@ -1708,8 +1750,11 @@ function updateHighlight() {
    const node of
    els.captionBody.querySelectorAll('.jp-token')
   ) {
-   const start = Number(node.dataset.start);
-   const end = Number(node.dataset.end);
+   const start =
+    Number(node.dataset.start);
+
+   const end =
+    Number(node.dataset.end);
 
    const timed =
     node.dataset.start !== '' &&
@@ -1733,8 +1778,8 @@ function updateProgress() {
 
  if (!reel) return;
 
- const p = panels.get(reel.key);
- const video = p?.video;
+ const panel = panels.get(reel.key);
+ const video = panel?.video;
 
  const end =
   reel.end ??
@@ -1747,7 +1792,8 @@ function updateProgress() {
  const span = end - reel.start;
 
  const time =
-  video?.currentTime ?? reel.start;
+  video?.currentTime ??
+  reel.start;
 
  const fraction =
   span > 0
@@ -1799,6 +1845,7 @@ function updateProgress() {
     (reel.focusEnd - reel.focusStart) /
     span
    ) + '%';
+
  } else {
   els.focusBand.classList.add(
    'hidden'
@@ -1808,9 +1855,9 @@ function updateProgress() {
  updateHighlight();
 }
 
-/* ---------------------------------------
-   NAVIGATION AND CONTROLS
---------------------------------------- */
+/* ========================================
+   NAVIGATION
+======================================== */
 
 async function go(delta) {
  if (
@@ -1833,14 +1880,17 @@ async function go(delta) {
   );
  }
 
- const target = currentIndex + delta;
+ const target =
+  currentIndex + delta;
 
  if (target < 0) {
   toast('Đây là reel đầu tiên');
   return;
  }
 
- if (target >= getView().length) {
+ if (
+  target >= getView().length
+ ) {
   toast('Đã hết reel');
   return;
  }
@@ -1853,19 +1903,22 @@ async function go(delta) {
 }
 
 function togglePlay() {
- const r = activeReel();
- const p = r && panels.get(r.key);
+ const reel = activeReel();
 
- if (!p) return;
+ const panel =
+  reel && panels.get(reel.key);
 
- if (p.video.paused) {
+ if (!panel) return;
+
+ if (panel.video.paused) {
   startActiveVideo(true);
+
  } else {
   wantsPlayback = false;
 
   cancelNextPreload();
 
-  p.video.pause();
+  panel.video.pause();
 
   els.tapPlay.classList.remove(
    'hidden'
@@ -1874,43 +1927,52 @@ function togglePlay() {
 }
 
 function replay() {
- const r = activeReel();
- const p = r && panels.get(r.key);
+ const reel = activeReel();
 
- if (!p) return;
+ const panel =
+  reel && panels.get(reel.key);
+
+ if (!panel) return;
 
  clearError();
- p.error = false;
+
+ panel.error = false;
+ clearClock(panel);
 
  try {
-  p.video.currentTime = r.start;
+  panel.video.currentTime =
+   reel.start;
  } catch {}
 
  startActiveVideo(true);
 }
 
-function seekFraction(f) {
- const r = activeReel();
- const p = r && panels.get(r.key);
+function seekFraction(fraction) {
+ const reel = activeReel();
 
- if (!p) return;
+ const panel =
+  reel && panels.get(reel.key);
 
- const end = r.end ?? p.video.duration;
+ if (!panel) return;
+
+ const end =
+  reel.end ??
+  panel.video.duration;
 
  if (
   !Number.isFinite(end) ||
-  end <= r.start
+  end <= reel.start
  ) {
   return;
  }
 
- p.video.currentTime =
-  r.start +
+ panel.video.currentTime =
+  reel.start +
   Math.min(
    0.999,
-   Math.max(0, f)
+   Math.max(0, fraction)
   ) *
-  (end - r.start);
+  (end - reel.start);
 
  updateProgress();
 }
@@ -1938,7 +2000,8 @@ function syncTabs() {
 async function switchMode(to) {
  if (mode === to) return;
 
- const old = activeReel()?.key;
+ const old =
+  activeReel()?.key;
 
  mode = to;
  syncTabs();
@@ -1947,18 +2010,21 @@ async function switchMode(to) {
   for (const key of [...saved]) {
    const id = key.split(':')[0];
 
-   const src = sources.find(
+   const source = sources.find(
     s => s.id === id
    );
 
-   if (src && !src.expanded) {
-    await expandSource(src);
+   if (
+    source &&
+    !source.expanded
+   ) {
+    await expandSource(source);
    }
   }
  }
 
  let target = getView().findIndex(
-  r => r.key === old
+  reel => reel.key === old
  );
 
  if (target < 0) target = 0;
@@ -1966,12 +2032,15 @@ async function switchMode(to) {
  currentIndex = target;
 
  clearPanels();
- activate({ instant: true });
+
+ activate({
+  instant: true
+ });
 }
 
-/* ---------------------------------------
+/* ========================================
    LIBRARY
---------------------------------------- */
+======================================== */
 
 function libraryShow() {
  els.library.classList.remove('hidden');
@@ -1985,7 +2054,6 @@ function libraryShow() {
 
 function libraryHide() {
  els.library.classList.add('hidden');
-
  startActiveVideo(true);
 }
 
@@ -1995,14 +2063,16 @@ function renderLibrary() {
    .trim()
    .toLowerCase();
 
- const filtered = sources.filter(s =>
-  prettyId(s.id)
-   .toLowerCase()
-   .includes(query)
+ const filtered = sources.filter(
+  source =>
+   prettyId(source.id)
+    .toLowerCase()
+    .includes(query)
  );
 
  const total = sources.reduce(
-  (acc, s) => acc + s.bytes,
+  (sum, source) =>
+   sum + source.bytes,
   0
  );
 
@@ -2013,7 +2083,8 @@ function renderLibrary() {
   document.createDocumentFragment();
 
  if (!filtered.length) {
-  const p = document.createElement('p');
+  const p =
+   document.createElement('p');
 
   p.style.color = '#b0bac3';
   p.textContent = 'Không tìm thấy video.';
@@ -2021,11 +2092,12 @@ function renderLibrary() {
   fragment.appendChild(p);
  }
 
- for (const src of filtered) {
-  const b = document.createElement('button');
+ for (const source of filtered) {
+  const button =
+   document.createElement('button');
 
-  b.type = 'button';
-  b.className = 'library-row';
+  button.type = 'button';
+  button.className = 'library-row';
 
   const poster =
    document.createElement('img');
@@ -2035,19 +2107,19 @@ function renderLibrary() {
   poster.alt = '';
 
   poster.src = basePath(
-   `/poster/${encodeURIComponent(src.id)}`
+   `/poster/${encodeURIComponent(source.id)}`
   );
 
   poster.addEventListener(
    'error',
    () => {
-    const fall =
+    const fallback =
      document.createElement('div');
 
-    fall.className = 'poster';
-    fall.textContent = '▶';
+    fallback.className = 'poster';
+    fallback.textContent = '▶';
 
-    poster.replaceWith(fall);
+    poster.replaceWith(fallback);
    },
    { once: true }
   );
@@ -2062,9 +2134,8 @@ function renderLibrary() {
 
   title.className = 'lib-title';
 
-  title.textContent = prettyId(
-   src.id
-  );
+  title.textContent =
+   prettyId(source.id);
 
   const sub =
    document.createElement('div');
@@ -2072,10 +2143,10 @@ function renderLibrary() {
   sub.className = 'lib-sub';
 
   sub.textContent =
-   `${bytes(src.bytes)} • ` +
+   `${bytes(source.bytes)} • ` +
    (
-    src.reels
-     ? src.reels.length + ' reel'
+    source.reels
+     ? source.reels.length + ' reel'
      : 'Chạm để xem'
    );
 
@@ -2087,45 +2158,54 @@ function renderLibrary() {
   arrow.className = 'lib-arrow';
   arrow.textContent = '›';
 
-  b.append(poster, data, arrow);
+  button.append(poster, data, arrow);
 
-  b.addEventListener('click', async () => {
-   b.disabled = true;
+  button.addEventListener(
+   'click',
+   async () => {
+    button.disabled = true;
 
-   try {
-    if (!src.expanded) {
-     await expandSource(src);
+    try {
+     if (!source.expanded) {
+      await expandSource(source);
+     }
+
+     const first =
+      playlist.findIndex(
+       reel =>
+        reel.sourceId === source.id
+      );
+
+     if (first < 0) {
+      throw Error(
+       'Không thể mở video'
+      );
+     }
+
+     if (mode === 'saved') {
+      mode = 'all';
+      syncTabs();
+     }
+
+     currentIndex = first;
+
+     clearPanels();
+     libraryHide();
+
+     activate({
+      instant: true
+     });
+
+    } catch (error) {
+     toast(error.message);
+
+    } finally {
+     button.disabled = false;
     }
-
-    if (mode === 'saved') {
-     mode = 'all';
-     syncTabs();
-    }
-
-    const first = playlist.findIndex(
-     reel => reel.sourceId === src.id
-    );
-
-    if (first < 0) {
-     throw Error(
-      'Không thể mở video'
-     );
-    }
-
-    currentIndex = first;
-
-    clearPanels();
-    libraryHide();
-
-    activate({ instant: true });
-   } catch (e) {
-    toast(e.message);
-   } finally {
-    b.disabled = false;
    }
-  });
+  );
 
-  fragment.appendChild(b);
+  fragment.appendChild(button);
  }
 
  els.libraryList.replaceChildren(
@@ -2133,17 +2213,17 @@ function renderLibrary() {
  );
 }
 
-/* ---------------------------------------
+/* ========================================
    EVENTS
---------------------------------------- */
+======================================== */
 
 function hookEvents() {
  els.gesture.addEventListener(
   'pointerdown',
-  e => {
+  event => {
    els.gesture._start = {
-    y: e.clientY,
-    x: e.clientX,
+    y: event.clientY,
+    x: event.clientX,
     time: Date.now()
    };
   }
@@ -2151,15 +2231,19 @@ function hookEvents() {
 
  els.gesture.addEventListener(
   'pointerup',
-  e => {
-   const a = els.gesture._start;
+  event => {
+   const start =
+    els.gesture._start;
 
-   if (!a) return;
+   if (!start) return;
 
    els.gesture._start = null;
 
-   const dy = e.clientY - a.y;
-   const dx = e.clientX - a.x;
+   const dy =
+    event.clientY - start.y;
+
+   const dx =
+    event.clientX - start.x;
 
    if (
     Math.abs(dy) > 55 &&
@@ -2172,7 +2256,7 @@ function hookEvents() {
    if (
     Math.abs(dy) < 12 &&
     Math.abs(dx) < 12 &&
-    Date.now() - a.time < 700
+    Date.now() - start.time < 700
    ) {
     togglePlay();
    }
@@ -2183,8 +2267,8 @@ function hookEvents() {
 
  els.gesture.addEventListener(
   'wheel',
-  e => {
-   e.preventDefault();
+  event => {
+   event.preventDefault();
 
    if (
     Date.now() - lastWheel < 480
@@ -2194,18 +2278,20 @@ function hookEvents() {
 
    lastWheel = Date.now();
 
-   go(e.deltaY > 0 ? 1 : -1);
+   go(
+    event.deltaY > 0 ? 1 : -1
+   );
   },
   { passive: false }
  );
 
  document.addEventListener(
   'keydown',
-  e => {
+  event => {
    if (
     !els.library.classList.contains('hidden')
    ) {
-    if (e.key === 'Escape') {
+    if (event.key === 'Escape') {
      libraryHide();
     }
 
@@ -2220,21 +2306,21 @@ function hookEvents() {
     return;
    }
 
-   if (e.key === 'ArrowDown') {
-    e.preventDefault();
+   if (event.key === 'ArrowDown') {
+    event.preventDefault();
     go(1);
    }
 
-   if (e.key === 'ArrowUp') {
-    e.preventDefault();
+   if (event.key === 'ArrowUp') {
+    event.preventDefault();
     go(-1);
    }
 
    if (
-    e.key === ' ' &&
+    event.key === ' ' &&
     document.activeElement?.tagName !== 'BUTTON'
    ) {
-    e.preventDefault();
+    event.preventDefault();
     togglePlay();
    }
   }
@@ -2243,22 +2329,36 @@ function hookEvents() {
  els.noticeRetry.addEventListener(
   'click',
   () => {
-   const r = activeReel();
-   const p = r && panels.get(r.key);
+   const reel = activeReel();
 
-   if (!p) return;
+   const panel =
+    reel && panels.get(reel.key);
+
+   if (!panel) return;
 
    clearError();
 
-   p.video.pause();
-   p.video.removeAttribute('src');
-   p.video.load();
+   panel.video.pause();
 
-   p.loaded = false;
-   p.error = false;
-   p.prepared = false;
-   p.playPending = false;
-   p.didPlay = false;
+   panel.video.removeAttribute(
+    'src'
+   );
+
+   panel.video.load();
+
+   panel.loaded = false;
+   panel.error = false;
+   panel.prepared = false;
+   panel.playPending = false;
+   panel.didPlay = false;
+   panel.didAdvance = false;
+   panel.preloadQueued = false;
+
+   clockRetries.delete(reel.key);
+
+   clearClock(panel);
+
+   recoveryBusy = false;
 
    startActiveVideo(true);
   }
@@ -2292,14 +2392,14 @@ function hookEvents() {
  els.saveBtn.addEventListener(
   'click',
   () => {
-   const r = activeReel();
+   const reel = activeReel();
 
-   if (!r) return;
+   if (!reel) return;
 
-   if (saved.has(r.key)) {
-    saved.delete(r.key);
+   if (saved.has(reel.key)) {
+    saved.delete(reel.key);
    } else {
-    saved.add(r.key);
+    saved.add(reel.key);
    }
 
    persist(
@@ -2309,7 +2409,7 @@ function hookEvents() {
 
    if (
     mode === 'saved' &&
-    !saved.has(r.key)
+    !saved.has(reel.key)
    ) {
     currentIndex = Math.max(
      0,
@@ -2317,7 +2417,11 @@ function hookEvents() {
     );
 
     clearPanels();
-    activate({ instant: true });
+
+    activate({
+     instant: true
+    });
+
    } else {
     renderReelInfo();
    }
@@ -2327,14 +2431,16 @@ function hookEvents() {
  els.followBtn.addEventListener(
   'click',
   () => {
-   const r = activeReel();
+   const reel = activeReel();
 
-   if (!r) return;
+   if (!reel) return;
 
-   if (following.has(r.channel)) {
-    following.delete(r.channel);
+   if (
+    following.has(reel.channel)
+   ) {
+    following.delete(reel.channel);
    } else {
-    following.add(r.channel);
+    following.add(reel.channel);
    }
 
    persist(
@@ -2354,8 +2460,8 @@ function hookEvents() {
     rates.length
    ];
 
-   for (const p of panels.values()) {
-    p.video.playbackRate = speed;
+   for (const panel of panels.values()) {
+    panel.video.playbackRate = speed;
    }
 
    els.speedIcon.textContent =
@@ -2368,17 +2474,21 @@ function hookEvents() {
   () => {
    muted = !muted;
 
-   for (const p of panels.values()) {
-    p.video.muted = muted;
+   for (const panel of panels.values()) {
+    panel.video.muted = muted;
    }
 
    updateSoundUI();
 
-   const p =
-    activeReel() &&
-    panels.get(activeReel().key);
+   const reel = activeReel();
 
-   if (p?.video.paused) {
+   const panel =
+    reel && panels.get(reel.key);
+
+   if (
+    panel &&
+    panel.video.paused
+   ) {
     startActiveVideo(true);
    }
   }
@@ -2386,12 +2496,12 @@ function hookEvents() {
 
  els.progressTrack.addEventListener(
   'pointerdown',
-  e => {
-   e.stopPropagation();
+  event => {
+   event.stopPropagation();
 
    seekFraction(
     (
-     e.clientX -
+     event.clientX -
      els.progressTrack
       .getBoundingClientRect().left
     ) /
@@ -2402,41 +2512,43 @@ function hookEvents() {
 
  els.progressTrack.addEventListener(
   'keydown',
-  e => {
+  event => {
    if (
-    e.key !== 'ArrowRight' &&
-    e.key !== 'ArrowLeft'
+    event.key !== 'ArrowRight' &&
+    event.key !== 'ArrowLeft'
    ) {
     return;
    }
 
-   e.preventDefault();
+   event.preventDefault();
 
-   const r = activeReel();
-   const p = r && panels.get(r.key);
+   const reel = activeReel();
 
-   if (!p) return;
+   const panel =
+    reel && panels.get(reel.key);
+
+   if (!panel) return;
 
    const end =
-    r.end ?? p.video.duration;
+    reel.end ?? panel.video.duration;
 
    if (!Number.isFinite(end)) {
     return;
    }
 
-   const f =
+   const fraction =
     (
-     p.video.currentTime -
-     r.start
+     panel.video.currentTime -
+     reel.start
     ) /
-    (end - r.start) +
+    (end - reel.start) +
     (
-     e.key === 'ArrowRight'
+     event.key === 'ArrowRight'
       ? 0.05
       : -0.05
     );
 
-   seekFraction(f);
+   seekFraction(fraction);
   }
  );
 
@@ -2485,32 +2597,31 @@ function hookEvents() {
  document.addEventListener(
   'visibilitychange',
   () => {
-   note(
-    'visibility',
-    document.visibilityState
-   );
-
    if (document.hidden) {
     const reel = activeReel();
 
     const panel =
-     reel &&
-     panels.get(reel.key);
+     reel && panels.get(reel.key);
 
     resumeOnShow =
      resumeOnShow ||
      (
       wantsPlayback &&
       Boolean(
-       (panel && !panel.video.paused) ||
+       (
+        panel &&
+        !panel.video.paused
+       ) ||
        panel?.playPending
       )
      );
 
     activeEpoch++;
+
     cancelNextPreload();
     stopAllVideos();
     hideLoading();
+
    } else if (resumeOnShow) {
     resumeOnShow = false;
 
@@ -2546,13 +2657,20 @@ function hookEvents() {
  );
 }
 
-/* ---------------------------------------
-   START APPLICATION
---------------------------------------- */
+/* ========================================
+   START
+======================================== */
 
-createBoot();
 hookEvents();
-disableOldShellCache();
 loadAll();
+
+if (
+ 'serviceWorker' in navigator &&
+ location.protocol === 'https:'
+) {
+ navigator.serviceWorker
+  .register('./sw.js')
+  .catch(() => {});
+}
 
 })();
