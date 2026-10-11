@@ -1,62 +1,945 @@
+
 <!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#07090c">
-  <meta name="description" content="XTP JP - học tiếng Nhật qua reel từ video của bạn trên Cloudflare R2">
+  <meta name="description" content="XTP JP - học tiếng Nhật qua reel từ Cloudflare R2">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?release=13.8">
+
+  <style>
+    #xtpBoot {
+      position: fixed;
+      z-index: 9999;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(
+        ellipse at 50% 33%,
+        #15302f 0%,
+        #080d10 53%,
+        #050608 100%
+      );
+      color: #fff;
+      font: inherit;
+      transition: opacity .2s ease;
+    }
+
+    #xtpBoot.xtp-hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #xtpBoot .boot-inner {
+      width: min(330px,85vw);
+      text-align: center;
+      padding: 22px;
+    }
+
+    #xtpBoot .boot-symbol {
+      display: grid;
+      place-items: center;
+      margin: 0 auto 19px;
+      width: 76px;
+      height: 76px;
+      border-radius: 22px;
+      background: #56d9c1;
+      color: #0a1717;
+      font-size: 47px;
+      font-weight: 950;
+    }
+
+    #xtpBoot .boot-title {
+      font-size: 27px;
+      font-weight: 900;
+    }
+
+    #xtpBoot .boot-title span {
+      color: #56d9c1;
+    }
+
+    #xtpBoot .boot-status {
+      margin: 20px auto 10px;
+      min-height: 42px;
+      line-height: 1.5;
+      font-size: 13px;
+      color: #bfc9cf;
+    }
+
+    #xtpBoot .boot-dots {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      height: 14px;
+      margin: 0 auto 23px;
+    }
+
+    #xtpBoot .boot-dots i {
+      height: 6px;
+      width: 6px;
+      border-radius: 50%;
+      background: #56d9c1;
+      animation: xtpPulse 1s infinite;
+    }
+
+    #xtpBoot .boot-dots i:nth-child(2) {
+      animation-delay: .17s;
+    }
+
+    #xtpBoot .boot-dots i:nth-child(3) {
+      animation-delay: .34s;
+    }
+
+    @keyframes xtpPulse {
+      0%,60%,100% {opacity:.25;transform:scale(.7)}
+      30% {opacity:1;transform:scale(1.2)}
+    }
+
+    #xtpBoot .boot-action {
+      display: none;
+      border: 0;
+      border-radius: 14px;
+      background: #56d9c1;
+      color: #09201c;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 14px 23px;
+      min-height: 48px;
+      margin: 0 auto;
+    }
+
+    #xtpBoot .boot-small {
+      font-size: 11px;
+      color: #859a9b;
+      margin-top: 18px;
+    }
+  </style>
+
   <title>XTP JP · Video học tiếng Nhật</title>
 </head>
+
 <body>
+
+<div id="xtpBoot">
+  <div class="boot-inner">
+    <div class="boot-symbol">X</div>
+    <div class="boot-title">XTP <span>JP</span></div>
+    <p class="boot-status" role="status">
+      Đang khởi động…
+    </p>
+    <div class="boot-dots">
+      <i></i><i></i><i></i>
+    </div>
+    <button class="boot-action" type="button">
+      ▶ Chạm để phát
+    </button>
+    <p class="boot-small">
+      XTP JP 13.8 · Fresh Start
+    </p>
+  </div>
+</div>
+
 <div id="phone" class="phone">
-  <main id="stage" class="stage" aria-label="Video reels">
+
+  <main id="stage" class="stage"
+        aria-label="Video reels">
+
     <div id="panels" class="panels"></div>
     <div class="video-shade"></div>
-    <div id="gesture" class="gesture" aria-label="Vuốt lên xuống để đổi reel, chạm để tạm dừng"></div>
+    <div id="gesture" class="gesture"></div>
+
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">X</span> XTP <span class="mint">JP</span></div>
-      <div class="top-tabs"><button class="tab active" id="allTab" type="button">Dành cho bạn</button><button class="tab" id="savedTab" type="button">Đã lưu</button></div>
-      <button id="libraryBtn" class="icon-btn" title="Thư viện video" aria-label="Mở thư viện" type="button">▦</button>
+      <div class="brand">
+        <span class="brand-mark">X</span>
+        XTP <span class="mint">JP</span>
+      </div>
+
+      <div class="top-tabs">
+        <button class="tab active"
+                id="allTab" type="button">
+          Dành cho bạn
+        </button>
+        <button class="tab"
+                id="savedTab" type="button">
+          Đã lưu
+        </button>
+      </div>
+
+      <button id="libraryBtn"
+              class="icon-btn"
+              type="button">▦</button>
     </header>
-    <div id="loadingIndicator" class="loading-status hidden" aria-live="polite">Đang chuẩn bị video…</div>
-    <div id="notice" class="notice hidden" role="alert"><div id="noticeText"></div><button id="noticeRetry" class="notice-btn" type="button">Thử lại</button></div>
-    <div id="empty" class="empty hidden"><div class="empty-logo">▶</div><h1 id="emptyTitle">Chưa có video</h1><p id="emptyText">Đưa MP4 vào thư mục videos/ trên Cloudflare R2 và tải lại thư viện.</p><button id="emptyRefresh" class="primary" type="button">Tải lại thư viện</button></div>
-    <section id="reelOverlay" class="reel-overlay hidden" aria-label="Thông tin reel">
-      <div class="channel-row">
-        <div class="channel-main"><span class="channel-avatar">日</span><div class="channel-meta"><span id="channelName" class="channel-name">XTP JP</span><span id="clipTitle" class="clip-title"></span></div></div>
-        <button id="followBtn" class="follow-btn" type="button">Follow</button>
-      </div>
-      <button id="caption" class="caption" type="button" aria-label="Chuyển ngôn ngữ caption">
-        <span id="captionTag" class="caption-tag">VI</span>
-        <span id="captionBody" class="caption-body">...</span>
-        <span id="captionHint" class="caption-hint">Chạm để xem 日本語</span>
+
+    <div id="loadingIndicator"
+         class="loading-status hidden">
+      Đang chuẩn bị video…
+    </div>
+
+    <div id="notice"
+         class="notice hidden"
+         role="alert">
+      <div id="noticeText"></div>
+      <button id="noticeRetry"
+              class="notice-btn"
+              type="button">
+        Thử lại
       </button>
-      <div class="actions">
-        <button id="replayBtn" class="action" type="button" aria-label="Phát lại"><span class="action-icon">↺</span><span>Phát lại</span></button>
-        <button id="saveBtn" class="action" type="button" aria-label="Lưu reel"><span id="saveIcon" class="action-icon">♡</span><span id="saveText">Lưu</span></button>
-        <button id="speedBtn" class="action" type="button" aria-label="Đổi tốc độ phát"><span id="speedIcon" class="action-icon speed-icon">1×</span><span>Tốc độ</span></button>
-        <button id="soundBtn" class="action" type="button" aria-label="Bật hoặc tắt âm thanh"><span id="soundIcon" class="action-icon">♪</span><span id="soundText">Bật tiếng</span></button>
+    </div>
+
+    <div id="empty" class="empty hidden">
+      <div class="empty-logo">▶</div>
+      <h1 id="emptyTitle">Chưa có video</h1>
+      <p id="emptyText"></p>
+      <button id="emptyRefresh"
+              class="primary"
+              type="button">
+        Tải lại thư viện
+      </button>
+    </div>
+
+    <section id="reelOverlay"
+             class="reel-overlay hidden">
+
+      <div class="channel-row">
+        <div class="channel-main">
+          <span class="channel-avatar">日</span>
+          <div class="channel-meta">
+            <span id="channelName"
+                  class="channel-name">
+              XTP JP
+            </span>
+            <span id="clipTitle"
+                  class="clip-title"></span>
+          </div>
+        </div>
+        <button id="followBtn"
+                class="follow-btn"
+                type="button">
+          Follow
+        </button>
       </div>
-      <div class="bottom-row"><span id="reelCount">1 / 1</span><span id="timeLabel">00:00 / 00:00</span></div>
-      <div id="progressTrack" class="progress-track" role="slider" tabindex="0" aria-label="Thanh tiến trình" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div id="focusBand" class="focus-band hidden"></div>
-        <div id="progressFill" class="progress-fill"></div>
-        <div id="progressThumb" class="progress-thumb"></div>
+
+      <button id="caption"
+              class="caption"
+              type="button">
+        <span id="captionTag"
+              class="caption-tag">VI</span>
+        <span id="captionBody"
+              class="caption-body">...</span>
+        <span id="captionHint"
+              class="caption-hint">
+          Chạm để xem 日本語
+        </span>
+      </button>
+
+      <div class="actions">
+        <button id="replayBtn"
+                class="action"
+                type="button">
+          <span class="action-icon">↺</span>
+          <span>Phát lại</span>
+        </button>
+
+        <button id="saveBtn"
+                class="action"
+                type="button">
+          <span id="saveIcon"
+                class="action-icon">♡</span>
+          <span id="saveText">Lưu</span>
+        </button>
+
+        <button id="speedBtn"
+                class="action"
+                type="button">
+          <span id="speedIcon"
+                class="action-icon speed-icon">
+            1×
+          </span>
+          <span>Tốc độ</span>
+        </button>
+
+        <button id="soundBtn"
+                class="action"
+                type="button">
+          <span id="soundIcon"
+                class="action-icon">♪</span>
+          <span id="soundText">
+            Bật tiếng
+          </span>
+        </button>
+      </div>
+
+      <div class="bottom-row">
+        <span id="reelCount">1 / 1</span>
+        <span id="timeLabel">
+          00:00 / 00:00
+        </span>
+      </div>
+
+      <div id="progressTrack"
+           class="progress-track"
+           role="slider"
+           tabindex="0"
+           aria-valuemin="0"
+           aria-valuemax="100"
+           aria-valuenow="0">
+        <div id="focusBand"
+             class="focus-band hidden"></div>
+        <div id="progressFill"
+             class="progress-fill"></div>
+        <div id="progressThumb"
+             class="progress-thumb"></div>
       </div>
     </section>
-    <div id="tapPlay" class="tap-play hidden"><button id="tapPlayBtn" type="button">▶ Phát video</button></div>
+
+    <div id="tapPlay" class="tap-play hidden">
+      <button id="tapPlayBtn" type="button">
+        ▶ Phát video
+      </button>
+    </div>
   </main>
-  <div id="toast" role="status" class="toast hidden"></div>
-  <section id="library" class="library hidden" aria-label="Thư viện video">
-    <div class="library-head"><div><h2>Thư viện video</h2><p id="librarySummary">Cloudflare R2</p></div><button type="button" class="close-btn" id="libraryClose" aria-label="Đóng thư viện">✕</button></div>
-    <div class="library-actions"><input type="search" id="searchInput" placeholder="Tìm video..." aria-label="Tìm video"><button id="refreshBtn" type="button">Làm mới</button></div>
-    <div id="libraryList" class="library-list"></div>
-    <p class="library-foot">Chỉ quản lý file qua Cloudflare Dashboard. App không có quyền upload hoặc xóa.</p>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <section id="library"
+           class="library hidden">
+
+    <div class="library-head">
+      <div>
+        <h2>Thư viện video</h2>
+        <p id="librarySummary">Cloudflare R2</p>
+      </div>
+      <button id="libraryClose"
+              class="close-btn"
+              type="button">
+        ✕
+      </button>
+    </div>
+
+    <div class="library-actions">
+      <input id="searchInput"
+             type="search"
+             placeholder="Tìm video...">
+      <button id="refreshBtn"
+              type="button">
+        Làm mới
+      </button>
+    </div>
+
+    <div id="libraryList"
+         class="library-list"></div>
+
+    <p class="library-foot">
+      Video được quản lý trên Cloudflare R2.
+    </p>
   </section>
 </div>
-<script src="app.js" defer></script>
+
+<script>
+/*
+ XTP JP v13.8
+ Force Fresh Start + Debug
+ Giữ nguyên app.js hiện có
+*/
+
+(() => {
+  'use strict';
+
+  const VERSION = '13.8';
+  const bootTime = Date.now();
+
+  const readSession = key => {
+    try {
+      return sessionStorage.getItem(key) || '';
+    } catch {
+      return '';
+    }
+  };
+
+  const last = readSession('xtp_last_debug');
+  const priorReason =
+    readSession('xtp_last_reason') || 'Mở mới';
+
+  let lastWasVisible = !document.hidden;
+  let leftApp = false;
+  let isNavigating = false;
+  let debugOpen = false;
+  let logLines = [];
+  let playerWasStarted = false;
+
+  const style = document.createElement('style');
+
+  style.textContent = `
+    #xtpDbgButton {
+      position: fixed;
+      top: calc(env(safe-area-inset-top,0px) + 7px);
+      right: 8px;
+      z-index: 10011;
+      background: #1a544e;
+      color: #fff;
+      border: 1px solid #56d9c1;
+      border-radius: 9px;
+      padding: 7px;
+      font: 700 11px system-ui,sans-serif;
+    }
+
+    #xtpDbgPanel {
+      display: none;
+      position: fixed;
+      top: calc(env(safe-area-inset-top,0px) + 42px);
+      right: 7px;
+      width: min(94vw,400px);
+      max-height: 70dvh;
+      overflow: auto;
+      z-index: 10012;
+      border: 1px solid #56d9c1;
+      background: #0a2023;
+      color: #e4fcf7;
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 8px 30px #000b;
+    }
+
+    #xtpDbgPanel pre {
+      font: 11px/1.5 monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      user-select: text;
+      -webkit-user-select: text;
+      text-align: left;
+      margin: 8px 0;
+    }
+
+    #xtpDbgPanel button {
+      padding: 9px;
+      background: #24574f;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      font: 12px system-ui,sans-serif;
+      margin-right: 5px;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  const dbgBtn = document.createElement('button');
+  dbgBtn.id = 'xtpDbgButton';
+  dbgBtn.textContent = 'DBG 13.8';
+  dbgBtn.type = 'button';
+
+  const dbgPanel = document.createElement('section');
+  dbgPanel.id = 'xtpDbgPanel';
+
+  const close = document.createElement('button');
+  close.textContent = 'Đóng';
+  close.type = 'button';
+
+  const copy = document.createElement('button');
+  copy.textContent = 'Copy log';
+  copy.type = 'button';
+
+  const reload = document.createElement('button');
+  reload.textContent = 'Tải mới app';
+  reload.type = 'button';
+
+  const text = document.createElement('pre');
+  text.id = 'xtpDbgText';
+
+  dbgPanel.append(close, copy, reload, text);
+  document.body.append(dbgBtn, dbgPanel);
+
+  function stamp() {
+    return new Date().toTimeString().slice(0,8);
+  }
+
+  function log(label, value = '') {
+    logLines.push(
+      `${stamp()} ${label}${
+        value ? ' ' + String(value) : ''
+      }`
+    );
+
+    if (logLines.length > 55) {
+      logLines.shift();
+    }
+
+    if (debugOpen) update();
+  }
+
+  function snapshot() {
+    const videos = [
+      ...document.querySelectorAll('video')
+    ];
+
+    const v =
+      videos.find(el => !el.paused) ||
+      videos[0];
+
+    const navigation =
+      performance.getEntriesByType('navigation')?.[0];
+
+    const sw =
+      navigator.serviceWorker?.controller?.scriptURL ||
+      'none';
+
+    let buffered = 'none';
+
+    try {
+      if (v?.buffered?.length) {
+        buffered =
+          v.buffered.start(0).toFixed(1) +
+          '-' +
+          v.buffered.end(
+            v.buffered.length - 1
+          ).toFixed(1);
+      }
+    } catch {}
+
+    return (
+      `XTP JP ${VERSION}\n` +
+      `reason=${priorReason}\n` +
+      `launch=${
+        new URL(location.href)
+          .searchParams.get('fresh') || bootTime
+      }\n` +
+      `mode=${
+        matchMedia('(display-mode: standalone)').matches
+          ? 'PWA' : 'browser'
+      }\n` +
+      `navigation=${navigation?.type || '?'}\n` +
+      `online=${navigator.onLine}\n` +
+      `visibility=${document.visibilityState}\n` +
+      `SW controller=${sw}\n` +
+      `videoCount=${videos.length}\n` +
+      `ready=${v?.readyState ?? '-'}\n` +
+      `network=${v?.networkState ?? '-'}\n` +
+      `paused=${v?.paused ?? '-'}\n` +
+      `error=${v?.error?.code ?? '-'}\n` +
+      `time=${v?.currentTime?.toFixed(2) ?? '-'}\n` +
+      `buffered=${buffered}\n` +
+      `src=${
+        v?.currentSrc ||
+        v?.getAttribute('src') ||
+        '-'
+      }\n` +
+      '--- LOG ---\n' +
+      (
+        last
+          ? 'PREVIOUS SESSION:\n' +
+            last +
+            '\n------------\n'
+          : ''
+      ) +
+      logLines.join('\n')
+    );
+  }
+
+  function update() {
+    if (debugOpen) {
+      text.textContent = snapshot();
+    }
+  }
+
+  function refresh(reason) {
+    if (isNavigating) return;
+
+    isNavigating = true;
+
+    log('FULL RELOAD', reason);
+
+    try {
+      sessionStorage.setItem(
+        'xtp_last_debug',
+        logLines.slice(-16).join('\n')
+      );
+
+      sessionStorage.setItem(
+        'xtp_last_reason',
+        reason
+      );
+    } catch {}
+
+    document.querySelectorAll('video')
+      .forEach(v => {
+        try {
+          v.pause();
+        } catch {}
+      });
+
+    const url = new URL(location.href);
+    url.searchParams.set(
+      'fresh',
+      String(Date.now())
+    );
+
+    location.replace(url.href);
+  }
+
+  dbgBtn.addEventListener('click', () => {
+    debugOpen = !debugOpen;
+
+    dbgPanel.style.display =
+      debugOpen ? 'block' : 'none';
+
+    update();
+  });
+
+  close.addEventListener('click', () => {
+    debugOpen = false;
+    dbgPanel.style.display = 'none';
+  });
+
+  reload.addEventListener('click', () => {
+    refresh('Đã bấm Tải mới app');
+  });
+
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(
+        snapshot()
+      );
+
+      copy.textContent = 'Đã copy';
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(text);
+
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      copy.textContent =
+        'Chọn và copy thủ công';
+    }
+  });
+
+  // Đóng splash khi video phát thành công,
+  // kể cả khi app.js cũ chưa hỗ trợ splash.
+
+  const bootAction = document.querySelector(
+    '#xtpBoot .boot-action'
+  );
+
+  bootAction?.addEventListener('click', () => {
+    const v = document.querySelector('video');
+
+    if (v?.paused) {
+      v.play().catch(e => {
+        log(
+          'MANUAL PLAY REJECTED',
+          e?.name || e
+        );
+      });
+    }
+  });
+
+  const empty = document.getElementById('empty');
+
+  if (empty) {
+    const observer = new MutationObserver(() => {
+      if (!empty.classList.contains('hidden')) {
+        const splash =
+          document.getElementById('xtpBoot');
+
+        if (splash) {
+          splash.style.display = 'none';
+        }
+      }
+    });
+
+    observer.observe(empty, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  }
+
+  // Theo dõi media native, không thay player.
+
+  const events = [
+    'loadstart',
+    'loadedmetadata',
+    'loadeddata',
+    'canplay',
+    'play',
+    'playing',
+    'waiting',
+    'stalled',
+    'suspend',
+    'pause',
+    'error',
+    'emptied',
+    'abort'
+  ];
+
+  for (const name of events) {
+    document.addEventListener(
+      name,
+      e => {
+        if (e.target?.tagName !== 'VIDEO') {
+          return;
+        }
+
+        const v = e.target;
+
+        log(
+          name,
+          `ready=${v.readyState} ` +
+          `network=${v.networkState} ` +
+          `err=${v.error?.code ?? '-'}`
+        );
+
+        if (name === 'playing') {
+          playerWasStarted = true;
+
+          const splash =
+            document.getElementById('xtpBoot');
+
+          if (splash) {
+            splash.style.display = 'none';
+          }
+        }
+
+        if (name === 'error') {
+          debugOpen = true;
+          dbgPanel.style.display = 'block';
+          update();
+        }
+      },
+      true
+    );
+  }
+
+  window.addEventListener('error', e => {
+    log(
+      'JS ERROR',
+      e.message || 'unknown'
+    );
+
+    debugOpen = true;
+    dbgPanel.style.display = 'block';
+    update();
+  });
+
+  window.addEventListener(
+    'unhandledrejection',
+    e => {
+      log(
+        'PROMISE REJECT',
+        e.reason || 'unknown'
+      );
+
+      debugOpen = true;
+      dbgPanel.style.display = 'block';
+      update();
+    }
+  );
+
+  // Mọi request JSON đọc qua fetch
+  // đều không sử dụng HTTP cache thường.
+
+  const nativeFetch = window.fetch.bind(window);
+
+  window.fetch = async function(input, options = {}) {
+    const url =
+      typeof input === 'string'
+        ? input
+        : input?.url || String(input);
+
+    const started = performance.now();
+
+    try {
+      const result = await nativeFetch(
+        input,
+        {
+          cache: 'no-store',
+          ...options
+        }
+      );
+
+      if (
+        url.includes('/api/') ||
+        url.includes('xtp-config')
+      ) {
+        log(
+          'FETCH',
+          `${result.status} ` +
+          `${url.split('?')[0]} ` +
+          `${
+            Math.round(
+              performance.now() - started
+            )
+          }ms`
+        );
+      }
+
+      return result;
+
+    } catch (e) {
+      log(
+        'FETCH ERROR',
+        `${url} ${e.message}`
+      );
+
+      throw e;
+    }
+  };
+
+  // Xóa cache shell cũ.
+  // Không xóa Save/Follow trong localStorage.
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then(regs => {
+        const scope =
+          location.origin +
+          location.pathname.replace(
+            /[^/]*$/,
+            ''
+          );
+
+        return Promise.all(
+          regs
+            .filter(r =>
+              r.scope.startsWith(scope)
+            )
+            .map(r => r.unregister())
+        );
+      })
+      .then(() => {
+        log('SW unregister requested');
+      })
+      .catch(e => {
+        log('SW ERROR', e.message);
+      });
+  }
+
+  if ('caches' in window) {
+    caches.keys()
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(k =>
+              k.startsWith(
+                'xtp-jp-v13-shell'
+              )
+            )
+            .map(k => caches.delete(k))
+        )
+      )
+      .then(() => {
+        log('Old shell caches cleared');
+      })
+      .catch(e => {
+        log('CACHE ERROR', e.message);
+      });
+  }
+
+  // Khi người dùng thoát khỏi PWA
+  // rồi quay lại, tạo document mới.
+
+  document.addEventListener(
+    'visibilitychange',
+    () => {
+      log(
+        'VISIBILITY',
+        document.visibilityState
+      );
+
+      if (document.hidden) {
+        if (lastWasVisible) {
+          leftApp = true;
+        }
+      } else {
+        lastWasVisible = true;
+
+        if (leftApp) {
+          refresh(
+            'Quay lại PWA từ nền'
+          );
+        }
+      }
+    }
+  );
+
+  window.addEventListener('pagehide', () => {
+    if (lastWasVisible) {
+      leftApp = true;
+    }
+
+    log('PAGEHIDE');
+  });
+
+  window.addEventListener('pageshow', e => {
+    log(
+      'PAGESHOW',
+      e.persisted ? 'bfcache' : 'new'
+    );
+
+    if (e.persisted) {
+      refresh(
+        'Khôi phục trang từ bfcache'
+      );
+    }
+  });
+
+  window.addEventListener('online', () => {
+    log('NETWORK online');
+  });
+
+  window.addEventListener('offline', () => {
+    log('NETWORK offline');
+  });
+
+  // Không để lỗi khởi động im lặng.
+
+  setTimeout(() => {
+    if (!playerWasStarted) {
+      log(
+        'STARTUP TIMEOUT',
+        '15s without playing'
+      );
+
+      debugOpen = true;
+      dbgPanel.style.display = 'block';
+      update();
+    }
+  }, 15000);
+
+  // Tải app.js với URL mới cho mỗi phiên.
+
+  log(
+    'BOOT JS',
+    'loading app.js with new URL'
+  );
+
+  const appScript =
+    document.createElement('script');
+
+  appScript.src =
+    './app.js?xtp=13.8&launch=' +
+    Date.now();
+
+  appScript.onerror = () => {
+    log(
+      'APP JS LOAD ERROR',
+      appScript.src
+    );
+
+    debugOpen = true;
+    dbgPanel.style.display = 'block';
+    update();
+  };
+
+  document.body.appendChild(appScript);
+
+})();
+</script>
+
 </body>
 </html>
