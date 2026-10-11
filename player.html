@@ -1,0 +1,1094 @@
+
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07090c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+
+<title>XTP JP · Player</title>
+
+<script>
+(() => {
+  const css = document.createElement('link');
+
+  css.rel = 'stylesheet';
+  css.href =
+    './app.css?scene=' +
+    Date.now().toString(36);
+
+  document.head.appendChild(css);
+})();
+</script>
+
+<style>
+#sceneBoot {
+  position: fixed;
+  inset: 0;
+  z-index: 10004;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #081015;
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
+#sceneBoot .inner {
+  width: min(90vw,360px);
+  padding: 26px 20px;
+}
+
+#sceneBoot .logo {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  background: #5de3ca;
+  color: #08231d;
+  border-radius: 22px;
+  font-size: 47px;
+  font-weight: 950;
+}
+
+#sceneBoot h1 {
+  font-size: 25px;
+  margin: 0 0 20px;
+}
+
+#sceneBoot p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #b5c8ca;
+}
+
+#sceneBoot button {
+  padding: 13px 17px;
+  border-radius: 12px;
+  border: 0;
+  background: #5de3ca;
+  color: #09231e;
+  font-weight: 800;
+  font-size: 14px;
+  min-height: 44px;
+  margin: 7px;
+}
+
+#sceneBoot .retry {
+  display: none;
+}
+
+#sceneBack,
+#sceneDebugButton {
+  position: fixed;
+  top: calc(env(safe-area-inset-top,0px) + 8px);
+  z-index: 10010;
+  min-height: 34px;
+  border: 1px solid #5de3ca;
+  border-radius: 9px;
+  padding: 7px 10px;
+  color: #fff;
+  font: 700 11px system-ui,sans-serif;
+}
+
+#sceneBack {
+  left: 8px;
+  background: #243d44;
+}
+
+#sceneDebugButton {
+  right: 8px;
+  background: #17574d;
+}
+
+#sceneDebug {
+  display: none;
+  position: fixed;
+  z-index: 10011;
+  right: 8px;
+  top: calc(env(safe-area-inset-top,0px) + 48px);
+  width: min(94vw,420px);
+  max-height: 72dvh;
+  overflow: auto;
+  background: #071e20;
+  color: #e0fff7;
+  border: 1px solid #5de3ca;
+  border-radius: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+#sceneDebug pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 11px/1.5 monospace;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+#sceneDebug button {
+  background: #266359;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px;
+  color: white;
+  font: 12px system-ui,sans-serif;
+  margin: 0 5px 7px 0;
+}
+
+#panels video {
+  object-fit: contain;
+  background: #000;
+}
+</style>
+</head>
+
+<body>
+
+<div id="sceneBoot">
+  <div class="inner">
+    <div class="logo">X</div>
+    <h1>XTP JP · Player</h1>
+
+    <p id="sceneBootStatus">
+      Đang tải scene video…
+    </p>
+
+    <button
+      id="sceneRetry"
+      class="retry"
+      type="button">
+      Thử mở lại scene
+    </button>
+
+    <button
+      id="sceneBootBack"
+      type="button">
+      ← Về menu
+    </button>
+  </div>
+</div>
+
+<div id="phone" class="phone">
+
+  <main
+    id="stage"
+    class="stage"
+    aria-label="Video reels">
+
+    <div id="panels" class="panels"></div>
+    <div class="video-shade"></div>
+    <div id="gesture" class="gesture"></div>
+
+    <header class="topbar">
+
+      <div class="brand">
+        <span class="brand-mark">X</span>
+        XTP <span class="mint">JP</span>
+      </div>
+
+      <div class="top-tabs">
+        <button
+          class="tab active"
+          id="allTab"
+          type="button">
+          Dành cho bạn
+        </button>
+
+        <button
+          class="tab"
+          id="savedTab"
+          type="button">
+          Đã lưu
+        </button>
+      </div>
+
+      <button
+        id="libraryBtn"
+        class="icon-btn"
+        type="button">▦</button>
+    </header>
+
+    <div
+      id="loadingIndicator"
+      class="loading-status hidden">
+      Đang chuẩn bị video…
+    </div>
+
+    <div
+      id="notice"
+      class="notice hidden"
+      role="alert">
+
+      <div id="noticeText"></div>
+
+      <button
+        id="noticeRetry"
+        class="notice-btn"
+        type="button">
+        Thử lại
+      </button>
+    </div>
+
+    <div id="empty" class="empty hidden">
+      <div class="empty-logo">▶</div>
+
+      <h1 id="emptyTitle">
+        Chưa có video
+      </h1>
+
+      <p id="emptyText"></p>
+
+      <button
+        id="emptyRefresh"
+        class="primary"
+        type="button">
+        Tải lại thư viện
+      </button>
+    </div>
+
+    <section
+      id="reelOverlay"
+      class="reel-overlay hidden">
+
+      <div class="channel-row">
+        <div class="channel-main">
+          <span class="channel-avatar">日</span>
+
+          <div class="channel-meta">
+            <span
+              id="channelName"
+              class="channel-name">
+              XTP JP
+            </span>
+
+            <span
+              id="clipTitle"
+              class="clip-title"></span>
+          </div>
+        </div>
+
+        <button
+          id="followBtn"
+          class="follow-btn"
+          type="button">
+          Follow
+        </button>
+      </div>
+
+      <button
+        id="caption"
+        class="caption"
+        type="button">
+
+        <span
+          id="captionTag"
+          class="caption-tag">VI</span>
+
+        <span
+          id="captionBody"
+          class="caption-body">...</span>
+
+        <span
+          id="captionHint"
+          class="caption-hint">
+          Chạm để xem 日本語
+        </span>
+      </button>
+
+      <div class="actions">
+
+        <button
+          id="replayBtn"
+          class="action"
+          type="button">
+          <span class="action-icon">↺</span>
+          <span>Phát lại</span>
+        </button>
+
+        <button
+          id="saveBtn"
+          class="action"
+          type="button">
+          <span
+            id="saveIcon"
+            class="action-icon">♡</span>
+          <span id="saveText">Lưu</span>
+        </button>
+
+        <button
+          id="speedBtn"
+          class="action"
+          type="button">
+          <span
+            id="speedIcon"
+            class="action-icon speed-icon">1×</span>
+          <span>Tốc độ</span>
+        </button>
+
+        <button
+          id="soundBtn"
+          class="action"
+          type="button">
+          <span
+            id="soundIcon"
+            class="action-icon">♪</span>
+          <span id="soundText">Bật tiếng</span>
+        </button>
+      </div>
+
+      <div class="bottom-row">
+        <span id="reelCount">1 / 1</span>
+
+        <span id="timeLabel">
+          00:00 / 00:00
+        </span>
+      </div>
+
+      <div
+        id="progressTrack"
+        class="progress-track"
+        role="slider"
+        tabindex="0"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0">
+
+        <div
+          id="focusBand"
+          class="focus-band hidden"></div>
+
+        <div
+          id="progressFill"
+          class="progress-fill"></div>
+
+        <div
+          id="progressThumb"
+          class="progress-thumb"></div>
+      </div>
+    </section>
+
+    <div
+      id="tapPlay"
+      class="tap-play hidden">
+
+      <button
+        id="tapPlayBtn"
+        type="button">
+        ▶ Phát video
+      </button>
+    </div>
+
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <section
+    id="library"
+    class="library hidden">
+
+    <div class="library-head">
+      <div>
+        <h2>Thư viện video</h2>
+        <p id="librarySummary">
+          Cloudflare R2
+        </p>
+      </div>
+
+      <button
+        id="libraryClose"
+        class="close-btn"
+        type="button">✕</button>
+    </div>
+
+    <div class="library-actions">
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Tìm video...">
+
+      <button
+        id="refreshBtn"
+        type="button">
+        Làm mới
+      </button>
+    </div>
+
+    <div
+      id="libraryList"
+      class="library-list"></div>
+
+    <p class="library-foot">
+      Video được quản lý trên Cloudflare R2.
+    </p>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/*
+ * XTP JP - Player Scene
+ *
+ * Entry:
+ *   Menu tạo ticket.
+ *   Player xác nhận và sử dụng ticket một lần.
+ *
+ * Resume:
+ *   Trở về Menu, không tái sử dụng
+ *   player đã chạy trước đó.
+ */
+
+const params =
+  new URL(location.href).searchParams;
+
+const ticket = params.get('ticket');
+
+let accepted = false;
+
+try {
+  accepted = Boolean(
+    ticket &&
+    sessionStorage.getItem(
+      'xtp.scene.ticket'
+    ) === ticket
+  );
+
+  sessionStorage.removeItem(
+    'xtp.scene.ticket'
+  );
+
+} catch {
+  accepted = Boolean(ticket);
+}
+
+if (!accepted) {
+  location.replace(
+    new URL(
+      './index.html',
+      location.href
+    ).href
+  );
+
+  return;
+}
+
+const boot =
+  document.getElementById('sceneBoot');
+
+const status =
+  document.getElementById('sceneBootStatus');
+
+const retry =
+  document.getElementById('sceneRetry');
+
+const logLines = [];
+const states = new WeakMap();
+
+let hiddenOnce = false;
+let leaving = false;
+let lastVideo = null;
+let firstTime = 0;
+let progressed = false;
+let debugOpen = false;
+
+/* ------------------------------
+   LOG
+------------------------------ */
+
+function log(message) {
+  logLines.push(
+    new Date().toLocaleTimeString(
+      'vi-VN',
+      { hour12: false }
+    ) +
+    ' ' +
+    message
+  );
+
+  if (logLines.length > 80) {
+    logLines.shift();
+  }
+
+  if (debugOpen) {
+    renderDebug();
+  }
+}
+
+function videos() {
+  return [
+    ...document.querySelectorAll('video')
+  ];
+}
+
+/* ------------------------------
+   DESTROY SCENE
+------------------------------ */
+
+function backToMenu(reason) {
+  if (leaving) return;
+
+  leaving = true;
+
+  log('LEAVE ' + reason);
+
+  for (const video of videos()) {
+    try {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    } catch {}
+  }
+
+  const url = new URL(
+    './index.html',
+    location.href
+  );
+
+  url.searchParams.set(
+    'return',
+    Date.now().toString(36)
+  );
+
+  location.replace(url.href);
+}
+
+document.getElementById(
+  'sceneBootBack'
+).addEventListener(
+  'click',
+  () => backToMenu('button')
+);
+
+/*
+ * Khi iPhone đưa PWA xuống nền,
+ * đánh dấu scene này đã rời foreground.
+ *
+ * Quay lại app => quay về Menu.
+ * Không resume player cũ.
+ */
+
+document.addEventListener(
+  'visibilitychange',
+  () => {
+    log(
+      'VISIBILITY ' +
+      document.visibilityState
+    );
+
+    if (document.hidden) {
+      hiddenOnce = true;
+    } else if (hiddenOnce) {
+      backToMenu('resume');
+    }
+  }
+);
+
+window.addEventListener(
+  'pageshow',
+  event => {
+    log(
+      'PAGESHOW ' +
+      (
+        event.persisted
+          ? 'bfcache'
+          : 'new'
+      )
+    );
+
+    if (event.persisted) {
+      backToMenu('bfcache');
+    }
+  }
+);
+
+/* ------------------------------
+   DEBUG UI
+------------------------------ */
+
+const debugButton =
+  document.createElement('button');
+
+debugButton.id = 'sceneDebugButton';
+debugButton.textContent = 'DBG';
+debugButton.type = 'button';
+
+const menuButton =
+  document.createElement('button');
+
+menuButton.id = 'sceneBack';
+menuButton.textContent = '← MENU';
+menuButton.type = 'button';
+
+menuButton.addEventListener(
+  'click',
+  () => backToMenu('button')
+);
+
+const debugPanel =
+  document.createElement('section');
+
+debugPanel.id = 'sceneDebug';
+
+const copyButton =
+  document.createElement('button');
+
+copyButton.textContent = 'Copy log';
+copyButton.type = 'button';
+
+const closeButton =
+  document.createElement('button');
+
+closeButton.textContent = 'Đóng';
+closeButton.type = 'button';
+
+const debugText =
+  document.createElement('pre');
+
+debugPanel.append(
+  copyButton,
+  closeButton,
+  debugText
+);
+
+document.body.append(
+  menuButton,
+  debugButton,
+  debugPanel
+);
+
+function snapshot() {
+  return (
+    'XTP JP · 2 SCENES\n' +
+
+    'visibility=' +
+    document.visibilityState +
+    '\n' +
+
+    'SW=' +
+    (
+      navigator.serviceWorker
+        ?.controller?.scriptURL || 'none'
+    ) +
+    '\n' +
+
+    'videoCount=' +
+    videos().length +
+    '\n\n' +
+
+    videos().map((video, index) => {
+      const state =
+        states.get(video) || {};
+
+      const key =
+        video.closest('.reel-panel')
+          ?.dataset.key || '?';
+
+      return (
+        '[' + index + '] key=' +
+        key +
+
+        '\npaused=' +
+        video.paused +
+
+        ' ready=' +
+        video.readyState +
+
+        ' network=' +
+        video.networkState +
+
+        ' error=' +
+        (video.error?.code ?? '-') +
+
+        '\ntime=' +
+        video.currentTime.toFixed(2) +
+
+        ' advance=' +
+        (state.advance ?? 0).toFixed(2) +
+
+        ' stuck=' +
+        (state.stuck || 0) +
+
+        '\nsrc=' +
+        (
+          video.currentSrc ||
+          video.getAttribute('src') ||
+          '-'
+        )
+      );
+    }).join('\n\n') +
+
+    '\n\n--- LOG ---\n' +
+    logLines.join('\n')
+  );
+}
+
+function renderDebug() {
+  if (debugOpen) {
+    debugText.textContent =
+      snapshot();
+  }
+}
+
+function showDebug() {
+  debugOpen = true;
+  debugPanel.style.display = 'block';
+  renderDebug();
+}
+
+debugButton.addEventListener(
+  'click',
+  () => {
+    if (debugOpen) {
+      debugOpen = false;
+
+      debugPanel.style.display =
+        'none';
+    } else {
+      showDebug();
+    }
+  }
+);
+
+closeButton.addEventListener(
+  'click',
+  () => {
+    debugOpen = false;
+    debugPanel.style.display = 'none';
+  }
+);
+
+copyButton.addEventListener(
+  'click',
+  async () => {
+    try {
+      await navigator.clipboard.writeText(
+        snapshot()
+      );
+
+      copyButton.textContent =
+        'Đã copy';
+
+    } catch {
+      debugText.textContent = snapshot();
+
+      const range =
+        document.createRange();
+
+      range.selectNodeContents(
+        debugText
+      );
+
+      const selection =
+        getSelection();
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  }
+);
+
+retry.addEventListener(
+  'click',
+  () => backToMenu('retry')
+);
+
+/* ------------------------------
+   MEDIA DIAGNOSTICS
+------------------------------ */
+
+const events = [
+  'loadstart',
+  'loadedmetadata',
+  'loadeddata',
+  'canplay',
+  'play',
+  'playing',
+  'waiting',
+  'pause',
+  'error',
+  'stalled',
+  'seeked',
+  'emptied'
+];
+
+for (const name of events) {
+  document.addEventListener(
+    name,
+    event => {
+      const video = event.target;
+
+      if (video?.tagName !== 'VIDEO') {
+        return;
+      }
+
+      const key =
+        video.closest('.reel-panel')
+          ?.dataset.key || '?';
+
+      log(
+        name +
+        ' key=' + key +
+        ' time=' +
+        video.currentTime.toFixed(2)
+      );
+
+      if (name === 'error') {
+        showDebug();
+      }
+    },
+    true
+  );
+}
+
+window.addEventListener(
+  'error',
+  event => {
+    log(
+      'JS ERROR ' +
+      event.message
+    );
+
+    showDebug();
+  }
+);
+
+window.addEventListener(
+  'unhandledrejection',
+  event => {
+    log(
+      'PROMISE ERROR ' +
+      String(event.reason)
+    );
+
+    showDebug();
+  }
+);
+
+/* ------------------------------
+   FRESH MEDIA REQUEST
+------------------------------ */
+
+/*
+ * Mỗi lần bấm Vào học:
+ * dùng URL mới cho media.
+ *
+ * Không thay Worker/R2,
+ * không tải toàn bộ thư viện MP4.
+ */
+
+const descriptor =
+  Object.getOwnPropertyDescriptor(
+    HTMLMediaElement.prototype,
+    'src'
+  );
+
+if (
+  descriptor?.configurable &&
+  descriptor.get &&
+  descriptor.set
+) {
+  Object.defineProperty(
+    HTMLMediaElement.prototype,
+    'src',
+    {
+      configurable: true,
+
+      get() {
+        return descriptor.get.call(this);
+      },
+
+      set(value) {
+        let actual = value;
+
+        try {
+          const url = new URL(
+            String(value),
+            document.baseURI
+          );
+
+          if (
+            url.hostname ===
+              'xtp-jp-media.nofrvstudio.workers.dev' &&
+            url.pathname.startsWith('/media/')
+          ) {
+            url.searchParams.set(
+              'scene',
+              ticket
+            );
+
+            actual = url.href;
+          }
+
+        } catch {}
+
+        return descriptor.set.call(
+          this,
+          actual
+        );
+      }
+    }
+  );
+}
+
+/* ------------------------------
+   ACTUAL PLAYBACK CHECK
+------------------------------ */
+
+setInterval(() => {
+  if (
+    document.hidden ||
+    leaving
+  ) {
+    return;
+  }
+
+  for (const video of videos()) {
+    const previous =
+      states.get(video) || {
+        time: video.currentTime,
+        stuck: 0
+      };
+
+    const advance = Math.max(
+      0,
+      video.currentTime -
+      previous.time
+    );
+
+    const stuck =
+      !video.paused &&
+      video.readyState >= 2 &&
+      advance < 0.03
+
+        ? previous.stuck + 1
+        : 0;
+
+    states.set(
+      video,
+      {
+        time: video.currentTime,
+        advance,
+        stuck
+      }
+    );
+
+    if (stuck === 5) {
+      log(
+        'CLOCK STALLED ' +
+        (
+          video.closest('.reel-panel')
+            ?.dataset.key || '?'
+        )
+      );
+
+      showDebug();
+    }
+  }
+
+  const current =
+    videos().find(video => (
+      video.closest('.reel-panel')
+        ?.style.transform ===
+        'translateY(0%)'
+    )) ||
+    videos()[0];
+
+  if (
+    current &&
+    current !== lastVideo
+  ) {
+    lastVideo = current;
+    firstTime = current.currentTime;
+  }
+
+  /*
+   * Chỉ đóng màn hình tải
+   * khi currentTime thực sự tăng.
+   */
+
+  if (
+    !progressed &&
+    current &&
+    current.currentTime > firstTime + 0.08
+  ) {
+    progressed = true;
+
+    boot.style.display = 'none';
+
+    log('PLAYBACK ADVANCING');
+  }
+
+  if (debugOpen) {
+    renderDebug();
+  }
+
+}, 1000);
+
+/* ------------------------------
+   STARTUP TIMEOUT
+------------------------------ */
+
+setTimeout(() => {
+  if (
+    !progressed &&
+    !document.hidden &&
+    !leaving
+  ) {
+    status.textContent =
+      'Video đã tải nhưng chưa chạy. ' +
+      'Mở DBG hoặc về menu thử vào lại.';
+
+    retry.style.display =
+      'inline-block';
+
+    showDebug();
+  }
+}, 12000);
+
+/* ------------------------------
+   LOAD MAIN GAME / PLAYER
+------------------------------ */
+
+/*
+ * Đây mới là thời điểm tải app.js.
+ *
+ * Menu không chạy đoạn này.
+ */
+
+const app = document.createElement(
+  'script'
+);
+
+app.src =
+  './app.js?scene=' +
+  encodeURIComponent(ticket);
+
+app.onerror = () => {
+  status.textContent =
+    'Không tải được app.js';
+
+  retry.style.display =
+    'inline-block';
+
+  showDebug();
+};
+
+app.onload = () => {
+  log('APP JS LOADED');
+};
+
+document.body.appendChild(app);
+
+})();
+</script>
+
+</body>
+</html>
