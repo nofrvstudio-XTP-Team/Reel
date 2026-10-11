@@ -6,699 +6,1716 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07090c">
 <meta name="description" content="XTP JP - học tiếng Nhật qua video">
+
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 
+<title>XTP JP · Video học tiếng Nhật</title>
+
 <script>
-  const xtpCss = document.createElement('link');
-  xtpCss.rel = 'stylesheet';
-  xtpCss.href = './app.css?boot=' + Date.now().toString(36);
-  document.head.appendChild(xtpCss);
+(() => {
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = './app.css?boot=' +
+    Date.now().toString(36);
+
+  document.head.appendChild(css);
+})();
 </script>
 
 <style>
 #xtpBoot {
- position:fixed;z-index:9999;inset:0;
- display:flex;align-items:center;justify-content:center;
- background:radial-gradient(ellipse at 50% 33%,#15302f 0%,#080d10 53%,#050608 100%);
- color:white;font:inherit
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(
+    ellipse at 50% 33%,
+    #15302f 0%,
+    #080d10 53%,
+    #050608 100%
+  );
+  color: #fff;
+  font-family: system-ui, sans-serif;
 }
+
 #xtpBoot .boot-inner {
- width:min(330px,85vw);text-align:center;padding:22px
+  width: min(330px,85vw);
+  text-align: center;
+  padding: 22px;
 }
+
 #xtpBoot .boot-symbol {
- display:grid;place-items:center;margin:0 auto 19px;
- width:76px;height:76px;border-radius:22px;
- background:#56d9c1;color:#0a1717;font-size:47px;font-weight:950
+  display: grid;
+  place-items: center;
+  margin: 0 auto 19px;
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  background: #56d9c1;
+  color: #0a1717;
+  font-size: 47px;
+  font-weight: 950;
 }
-#xtpBoot .boot-title {font-size:27px;font-weight:900}
-#xtpBoot .boot-title span {color:#56d9c1}
+
+#xtpBoot .boot-title {
+  font-size: 27px;
+  font-weight: 900;
+}
+
+#xtpBoot .boot-title span {
+  color: #56d9c1;
+}
+
 #xtpBoot .boot-status {
- margin:20px auto 10px;min-height:42px;line-height:1.5;
- font-size:13px;color:#bfc9cf
+  margin: 20px auto 10px;
+  min-height: 42px;
+  line-height: 1.5;
+  font-size: 13px;
+  color: #bfc9cf;
 }
+
 #xtpBoot .boot-dots {
- display:flex;justify-content:center;gap:7px;
- height:14px;margin:0 auto 23px
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  height: 14px;
+  margin: 0 auto 23px;
 }
+
 #xtpBoot .boot-dots i {
- width:6px;height:6px;border-radius:50%;
- background:#56d9c1;animation:xtpPulse 1s infinite
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #56d9c1;
+  animation: xtpPulse 1s infinite;
 }
-#xtpBoot .boot-dots i:nth-child(2){animation-delay:.17s}
-#xtpBoot .boot-dots i:nth-child(3){animation-delay:.34s}
+
+#xtpBoot .boot-dots i:nth-child(2) {
+  animation-delay: .17s;
+}
+
+#xtpBoot .boot-dots i:nth-child(3) {
+  animation-delay: .34s;
+}
+
 @keyframes xtpPulse {
- 0%,60%,100%{opacity:.25;transform:scale(.7)}
- 30%{opacity:1;transform:scale(1.2)}
+  0%,60%,100% {
+    opacity: .25;
+    transform: scale(.7);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
+
 #xtpBoot .boot-action {
- display:none;border:0;border-radius:14px;
- background:#56d9c1;color:#09201c;
- font-size:15px;font-weight:800;
- padding:14px 23px;min-height:48px;margin:0 auto
+  display: none;
+  border: 0;
+  border-radius: 14px;
+  background: #56d9c1;
+  color: #09201c;
+  font-size: 15px;
+  font-weight: 800;
+  padding: 14px 23px;
+  min-height: 48px;
+  margin: 0 auto;
 }
+
 #xtpBoot .boot-small {
- font-size:11px;color:#859a9b;margin-top:18px
+  font-size: 11px;
+  color: #859a9b;
+  margin-top: 18px;
 }
+
+/* HARD RESET + DBG */
+
+#xtpDebugToggle,
+#xtpHardReset {
+  position: fixed;
+  z-index: 10012;
+  top: calc(env(safe-area-inset-top,0px) + 7px);
+  color: white;
+  border: 1px solid #56d9c1;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: 700 11px system-ui,sans-serif;
+  min-height: 34px;
+}
+
 #xtpDebugToggle {
- position:fixed;z-index:10012;right:9px;
- top:calc(env(safe-area-inset-top,0px) + 7px);
- background:#17574d;color:white;border:1px solid #5cddc2;
- border-radius:10px;padding:8px;font:700 12px system-ui,sans-serif
+  right: 8px;
+  background: #17574d;
 }
+
+#xtpHardReset {
+  right: 92px;
+  background: #8b2636;
+  border-color: #f18e99;
+}
+
+#xtpHardReset:disabled {
+  opacity: .6;
+}
+
 #xtpDebugPane {
- display:none;position:fixed;z-index:10013;
- right:7px;top:calc(env(safe-area-inset-top,0px) + 47px);
- width:min(94vw,440px);max-height:72dvh;
- overflow:auto;padding:11px;box-sizing:border-box;
- color:#e1fff9;background:#071d20;
- border:1px solid #5cddc2;border-radius:12px;
- box-shadow:0 7px 32px #000b
+  display: none;
+  position: fixed;
+  z-index: 10013;
+  right: 7px;
+  top: calc(env(safe-area-inset-top,0px) + 47px);
+  width: min(94vw,440px);
+  max-height: 72dvh;
+  overflow: auto;
+  padding: 11px;
+  box-sizing: border-box;
+  color: #e1fff9;
+  background: #071d20;
+  border: 1px solid #56d9c1;
+  border-radius: 12px;
+  box-shadow: 0 7px 32px #000b;
 }
+
 #xtpDebugPane .debug-actions {
- display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 9px;
 }
+
 #xtpDebugPane button {
- background:#266359;border:0;border-radius:8px;
- color:#fff;padding:9px;font:12px system-ui,sans-serif
+  background: #266359;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  padding: 9px;
+  font: 12px system-ui,sans-serif;
 }
+
 #xtpDebugPane pre {
- color:#d3f5eb;white-space:pre-wrap;overflow-wrap:anywhere;
- user-select:text;-webkit-user-select:text;
- font:11px/1.45 ui-monospace,monospace;text-align:left;margin:0
+  color: #d3f5eb;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+  -webkit-user-select: text;
+  font: 11px/1.45 ui-monospace,monospace;
+  text-align: left;
+  margin: 0;
 }
 </style>
-<title>XTP JP · Video học tiếng Nhật</title>
 </head>
 
 <body>
 
 <div id="xtpBoot">
- <div class="boot-inner">
-  <div class="boot-symbol">X</div>
-  <div class="boot-title">XTP <span>JP</span></div>
-  <p class="boot-status" role="status">Đang khởi động…</p>
-  <div class="boot-dots"><i></i><i></i><i></i></div>
-  <button class="boot-action" type="button">▶ Chạm để phát</button>
-  <p class="boot-small">v13.9 · Auto-update + Debug</p>
- </div>
+  <div class="boot-inner">
+    <div class="boot-symbol">X</div>
+
+    <div class="boot-title">
+      XTP <span>JP</span>
+    </div>
+
+    <p class="boot-status" role="status">
+      Đang khởi động…
+    </p>
+
+    <div class="boot-dots">
+      <i></i><i></i><i></i>
+    </div>
+
+    <button
+      class="boot-action"
+      type="button">
+      ▶ Chạm để phát
+    </button>
+
+    <p class="boot-small">
+      v13.12 · Hard Reset + Debug
+    </p>
+  </div>
 </div>
 
 <div id="phone" class="phone">
- <main id="stage" class="stage" aria-label="Video reels">
-  <div id="panels" class="panels"></div>
-  <div class="video-shade"></div>
-  <div id="gesture" class="gesture"></div>
 
-  <header class="topbar">
-   <div class="brand">
-    <span class="brand-mark">X</span>
-    XTP <span class="mint">JP</span>
-   </div>
-   <div class="top-tabs">
-    <button class="tab active" id="allTab" type="button">Dành cho bạn</button>
-    <button class="tab" id="savedTab" type="button">Đã lưu</button>
-   </div>
-   <button id="libraryBtn" class="icon-btn" type="button">▦</button>
-  </header>
+  <main
+    id="stage"
+    class="stage"
+    aria-label="Video reels">
 
-  <div id="loadingIndicator" class="loading-status hidden">
-   Đang chuẩn bị video…
-  </div>
+    <div id="panels" class="panels"></div>
+    <div class="video-shade"></div>
+    <div id="gesture" class="gesture"></div>
 
-  <div id="notice" class="notice hidden" role="alert">
-   <div id="noticeText"></div>
-   <button id="noticeRetry" class="notice-btn" type="button">Thử lại</button>
-  </div>
+    <header class="topbar">
 
-  <div id="empty" class="empty hidden">
-   <div class="empty-logo">▶</div>
-   <h1 id="emptyTitle">Chưa có video</h1>
-   <p id="emptyText"></p>
-   <button id="emptyRefresh" class="primary" type="button">
-    Tải lại thư viện
-   </button>
-  </div>
+      <div class="brand">
+        <span class="brand-mark">X</span>
+        XTP <span class="mint">JP</span>
+      </div>
 
-  <section id="reelOverlay" class="reel-overlay hidden">
-   <div class="channel-row">
-    <div class="channel-main">
-     <span class="channel-avatar">日</span>
-     <div class="channel-meta">
-      <span id="channelName" class="channel-name">XTP JP</span>
-      <span id="clipTitle" class="clip-title"></span>
-     </div>
+      <div class="top-tabs">
+        <button
+          class="tab active"
+          id="allTab"
+          type="button">
+          Dành cho bạn
+        </button>
+
+        <button
+          class="tab"
+          id="savedTab"
+          type="button">
+          Đã lưu
+        </button>
+      </div>
+
+      <button
+        id="libraryBtn"
+        class="icon-btn"
+        type="button">▦</button>
+    </header>
+
+    <div
+      id="loadingIndicator"
+      class="loading-status hidden">
+      Đang chuẩn bị video…
     </div>
-    <button id="followBtn" class="follow-btn" type="button">Follow</button>
-   </div>
 
-   <button id="caption" class="caption" type="button">
-    <span id="captionTag" class="caption-tag">VI</span>
-    <span id="captionBody" class="caption-body">...</span>
-    <span id="captionHint" class="caption-hint">Chạm để xem 日本語</span>
-   </button>
+    <div
+      id="notice"
+      class="notice hidden"
+      role="alert">
 
-   <div class="actions">
-    <button id="replayBtn" class="action" type="button">
-     <span class="action-icon">↺</span><span>Phát lại</span>
-    </button>
-    <button id="saveBtn" class="action" type="button">
-     <span id="saveIcon" class="action-icon">♡</span>
-     <span id="saveText">Lưu</span>
-    </button>
-    <button id="speedBtn" class="action" type="button">
-     <span id="speedIcon" class="action-icon speed-icon">1×</span>
-     <span>Tốc độ</span>
-    </button>
-    <button id="soundBtn" class="action" type="button">
-     <span id="soundIcon" class="action-icon">♪</span>
-     <span id="soundText">Bật tiếng</span>
-    </button>
-   </div>
+      <div id="noticeText"></div>
 
-   <div class="bottom-row">
-    <span id="reelCount">1 / 1</span>
-    <span id="timeLabel">00:00 / 00:00</span>
-   </div>
+      <button
+        id="noticeRetry"
+        class="notice-btn"
+        type="button">
+        Thử lại
+      </button>
+    </div>
 
-   <div id="progressTrack" class="progress-track"
-        role="slider" tabindex="0"
-        aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-    <div id="focusBand" class="focus-band hidden"></div>
-    <div id="progressFill" class="progress-fill"></div>
-    <div id="progressThumb" class="progress-thumb"></div>
-   </div>
+    <div id="empty" class="empty hidden">
+      <div class="empty-logo">▶</div>
+
+      <h1 id="emptyTitle">
+        Chưa có video
+      </h1>
+
+      <p id="emptyText"></p>
+
+      <button
+        id="emptyRefresh"
+        class="primary"
+        type="button">
+        Tải lại thư viện
+      </button>
+    </div>
+
+    <section
+      id="reelOverlay"
+      class="reel-overlay hidden">
+
+      <div class="channel-row">
+        <div class="channel-main">
+          <span class="channel-avatar">
+            日
+          </span>
+
+          <div class="channel-meta">
+            <span
+              id="channelName"
+              class="channel-name">
+              XTP JP
+            </span>
+
+            <span
+              id="clipTitle"
+              class="clip-title"></span>
+          </div>
+        </div>
+
+        <button
+          id="followBtn"
+          class="follow-btn"
+          type="button">
+          Follow
+        </button>
+      </div>
+
+      <button
+        id="caption"
+        class="caption"
+        type="button">
+
+        <span
+          id="captionTag"
+          class="caption-tag">VI</span>
+
+        <span
+          id="captionBody"
+          class="caption-body">...</span>
+
+        <span
+          id="captionHint"
+          class="caption-hint">
+          Chạm để xem 日本語
+        </span>
+      </button>
+
+      <div class="actions">
+
+        <button
+          id="replayBtn"
+          class="action"
+          type="button">
+          <span class="action-icon">↺</span>
+          <span>Phát lại</span>
+        </button>
+
+        <button
+          id="saveBtn"
+          class="action"
+          type="button">
+          <span
+            id="saveIcon"
+            class="action-icon">♡</span>
+          <span id="saveText">Lưu</span>
+        </button>
+
+        <button
+          id="speedBtn"
+          class="action"
+          type="button">
+          <span
+            id="speedIcon"
+            class="action-icon speed-icon">1×</span>
+          <span>Tốc độ</span>
+        </button>
+
+        <button
+          id="soundBtn"
+          class="action"
+          type="button">
+          <span
+            id="soundIcon"
+            class="action-icon">♪</span>
+          <span id="soundText">
+            Bật tiếng
+          </span>
+        </button>
+      </div>
+
+      <div class="bottom-row">
+        <span id="reelCount">1 / 1</span>
+        <span id="timeLabel">
+          00:00 / 00:00
+        </span>
+      </div>
+
+      <div
+        id="progressTrack"
+        class="progress-track"
+        role="slider"
+        tabindex="0"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0">
+
+        <div
+          id="focusBand"
+          class="focus-band hidden"></div>
+
+        <div
+          id="progressFill"
+          class="progress-fill"></div>
+
+        <div
+          id="progressThumb"
+          class="progress-thumb"></div>
+      </div>
+    </section>
+
+    <div
+      id="tapPlay"
+      class="tap-play hidden">
+
+      <button
+        id="tapPlayBtn"
+        type="button">
+        ▶ Phát video
+      </button>
+    </div>
+
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <section
+    id="library"
+    class="library hidden">
+
+    <div class="library-head">
+      <div>
+        <h2>Thư viện video</h2>
+        <p id="librarySummary">
+          Cloudflare R2
+        </p>
+      </div>
+
+      <button
+        id="libraryClose"
+        class="close-btn"
+        type="button">✕</button>
+    </div>
+
+    <div class="library-actions">
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Tìm video...">
+
+      <button
+        id="refreshBtn"
+        type="button">
+        Làm mới
+      </button>
+    </div>
+
+    <div
+      id="libraryList"
+      class="library-list"></div>
+
+    <p class="library-foot">
+      Video được quản lý trên Cloudflare R2.
+    </p>
   </section>
-
-  <div id="tapPlay" class="tap-play hidden">
-   <button id="tapPlayBtn" type="button">▶ Phát video</button>
-  </div>
- </main>
-
- <div id="toast" class="toast hidden"></div>
-
- <section id="library" class="library hidden">
-  <div class="library-head">
-   <div>
-    <h2>Thư viện video</h2>
-    <p id="librarySummary">Cloudflare R2</p>
-   </div>
-   <button id="libraryClose" class="close-btn" type="button">✕</button>
-  </div>
-  <div class="library-actions">
-   <input id="searchInput" type="search" placeholder="Tìm video...">
-   <button id="refreshBtn" type="button">Làm mới</button>
-  </div>
-  <div id="libraryList" class="library-list"></div>
-  <p class="library-foot">
-   Video được quản lý trên Cloudflare R2.
-  </p>
- </section>
 </div>
 
 <script>
 (() => {
 'use strict';
 
-const VERSION = '13.9';
+const VERSION = '13.12';
 const BOOT_ID = Date.now().toString(36);
 const BASE = new URL('./', location.href);
-const ASSETS = ['index.html', 'app.js', 'app.css'];
+
+const ASSETS = [
+  'index.html',
+  'app.js',
+  'app.css'
+];
+
+const HARD_MODE = new URL(
+  location.href
+).searchParams.has('xtp_hard');
 
 const logs = [];
 const fingerprints = new Map();
 const playerStates = new WeakMap();
 
-let previous = '';
 let expanded = false;
+let didStart = false;
 let pendingUpdate = false;
 let checking = null;
-let seenHidden = false;
-let didStart = false;
 let lastCheck = 0;
+let seenHidden = false;
+let resetting = false;
 let reloading = false;
+let previous = '';
 
 try {
- previous = sessionStorage.getItem('xtp_debug_previous') || '';
+  previous =
+    sessionStorage.getItem(
+      'xtp_debug_previous'
+    ) || '';
 } catch {}
 
-const toggle = document.createElement('button');
-toggle.id = 'xtpDebugToggle';
-toggle.type = 'button';
-toggle.textContent = 'DBG 13.9';
-
-const panel = document.createElement('div');
-panel.id = 'xtpDebugPane';
-
-const buttons = document.createElement('div');
-buttons.className = 'debug-actions';
-
-const close = document.createElement('button');
-close.textContent = 'Đóng';
-
-const copy = document.createElement('button');
-copy.textContent = 'Copy log';
-
-const reload = document.createElement('button');
-reload.textContent = 'Tải mới';
-
-const pre = document.createElement('pre');
-
-buttons.append(close, copy, reload);
-panel.append(buttons, pre);
-document.body.append(toggle, panel);
+/* ============================
+   DEBUG LOG
+============================ */
 
 function log(event, detail = '') {
- const msg =
-  new Date().toLocaleTimeString('vi-VN', {hour12:false}) +
-  ' ' + event +
-  (detail ? ' ' + String(detail) : '');
+  const msg =
+    new Date().toLocaleTimeString(
+      'vi-VN',
+      { hour12: false }
+    ) +
+    ' ' +
+    event +
+    (
+      detail
+        ? ' ' + String(detail)
+        : ''
+    );
 
- logs.push(msg);
- if (logs.length > 90) logs.shift();
+  logs.push(msg);
 
- if (expanded) renderDebug();
-}
-
-function allVideos() {
- return Array.from(document.querySelectorAll('video'));
-}
-
-function stateString(v, index) {
- const parent = v.closest('.reel-panel');
- const key = parent?.dataset.key || '?';
- const transform = parent?.style.transform || '?';
- const st = playerStates.get(v) || {};
-
- let buffered = '-';
-
- try {
-  if (v.buffered.length) {
-   buffered =
-    v.buffered.start(0).toFixed(1) + '-' +
-    v.buffered.end(v.buffered.length - 1).toFixed(1);
+  if (logs.length > 90) {
+    logs.shift();
   }
- } catch {}
 
- return (
-  `[${index}] key=${key} panel=${transform}\n` +
-  `paused=${v.paused} ready=${v.readyState} network=${v.networkState}\n` +
-  `time=${v.currentTime.toFixed(2)} ` +
-  `duration=${Number.isFinite(v.duration) ? v.duration.toFixed(2) : '?'}\n` +
-  `advance=${(st.advance || 0).toFixed(2)}s/1s ` +
-  `stuck=${st.stuck || 0}s\n` +
-  `buffered=${buffered} error=${v.error?.code ?? '-'}\n` +
-  `src=${v.currentSrc || v.getAttribute('src') || '-'}`
- );
+  if (expanded) {
+    renderDebug();
+  }
+}
+
+/* ============================
+   FRESH MEDIA AFTER RESET
+============================ */
+
+/*
+  Sau Hard Reset, app.js gán
+  video.src sẽ tự nhận URL mới.
+
+  Việc này tránh lấy lại response
+  MP4 có cùng URL từ HTTP cache.
+*/
+
+if (HARD_MODE) {
+  const descriptor =
+    Object.getOwnPropertyDescriptor(
+      HTMLMediaElement.prototype,
+      'src'
+    );
+
+  if (
+    descriptor?.configurable &&
+    descriptor.set &&
+    descriptor.get
+  ) {
+    Object.defineProperty(
+      HTMLMediaElement.prototype,
+      'src',
+      {
+        configurable: true,
+        enumerable: descriptor.enumerable,
+
+        get() {
+          return descriptor.get.call(this);
+        },
+
+        set(value) {
+          let actual = value;
+
+          try {
+            const url = new URL(
+              String(value),
+              document.baseURI
+            );
+
+            if (
+              url.protocol === 'https:' &&
+              url.pathname.startsWith(
+                '/media/'
+              )
+            ) {
+              url.searchParams.set(
+                'xtp_fresh',
+                BOOT_ID
+              );
+
+              actual = url.href;
+            }
+          } catch {}
+
+          return descriptor.set.call(
+            this,
+            actual
+          );
+        }
+      }
+    );
+
+    log(
+      'HARD MEDIA',
+      'fresh URL enabled'
+    );
+  }
+
+  /*
+    app.js cũ tự đăng ký lại SW.
+    Trong phiên Hard Reset,
+    chặn đăng ký lại nếu có thể.
+  */
+
+  if ('serviceWorker' in navigator) {
+    try {
+      Object.defineProperty(
+        navigator.serviceWorker,
+        'register',
+        {
+          configurable: true,
+
+          value: () => Promise.reject(
+            new Error(
+              'SW disabled in HARD RESET session'
+            )
+          )
+        }
+      );
+
+      log(
+        'HARD SW',
+        'registration blocked'
+      );
+
+    } catch (error) {
+      log(
+        'HARD SW',
+        'cannot block: ' + error.message
+      );
+    }
+  }
+}
+
+/* ============================
+   BUTTONS
+============================ */
+
+const toggle =
+  document.createElement('button');
+
+toggle.id = 'xtpDebugToggle';
+toggle.type = 'button';
+toggle.textContent = 'DBG 13.12';
+
+const reset =
+  document.createElement('button');
+
+reset.id = 'xtpHardReset';
+reset.type = 'button';
+reset.textContent = 'HARD RESET';
+
+reset.title =
+  'Dọn cache app và khởi động sạch. ' +
+  'Giữ reel đã lưu và follow.';
+
+const panel =
+  document.createElement('div');
+
+panel.id = 'xtpDebugPane';
+
+const buttons =
+  document.createElement('div');
+
+buttons.className = 'debug-actions';
+
+const close =
+  document.createElement('button');
+
+close.type = 'button';
+close.textContent = 'Đóng';
+
+const copy =
+  document.createElement('button');
+
+copy.type = 'button';
+copy.textContent = 'Copy log';
+
+const reload =
+  document.createElement('button');
+
+reload.type = 'button';
+reload.textContent = 'Tải lại trang';
+
+const pre =
+  document.createElement('pre');
+
+buttons.append(
+  close,
+  copy,
+  reload
+);
+
+panel.append(
+  buttons,
+  pre
+);
+
+document.body.append(
+  reset,
+  toggle,
+  panel
+);
+
+/* ============================
+   VIDEO STATE
+============================ */
+
+function videos() {
+  return [
+    ...document.querySelectorAll('video')
+  ];
+}
+
+function stateString(video, index) {
+  const parent = video.closest(
+    '.reel-panel'
+  );
+
+  const state =
+    playerStates.get(video) || {};
+
+  let buffered = '-';
+
+  try {
+    if (video.buffered.length) {
+      buffered =
+        video.buffered.start(0).toFixed(1) +
+        '-' +
+        video.buffered.end(
+          video.buffered.length - 1
+        ).toFixed(1);
+    }
+  } catch {}
+
+  return (
+    `[${index}] ` +
+    `key=${parent?.dataset.key || '?'} ` +
+    `panel=${parent?.style.transform || '?'}\n` +
+
+    `paused=${video.paused} ` +
+    `ready=${video.readyState} ` +
+    `network=${video.networkState}\n` +
+
+    `time=${video.currentTime.toFixed(2)} ` +
+    `duration=${
+      Number.isFinite(video.duration)
+        ? video.duration.toFixed(2)
+        : '?'
+    }\n` +
+
+    `advance=${
+      (state.advance || 0).toFixed(2)
+    }s/1s ` +
+
+    `stuck=${state.stuck || 0}s\n` +
+
+    `buffered=${buffered} ` +
+    `error=${video.error?.code ?? '-'}\n` +
+
+    `src=${
+      video.currentSrc ||
+      video.getAttribute('src') ||
+      '-'
+    }`
+  );
 }
 
 function snapshot() {
- const videos = allVideos();
+  return (
+    `XTP JP ${VERSION} boot=${BOOT_ID}\n` +
 
- return (
-  `XTP JP ${VERSION} boot=${BOOT_ID}\n` +
-  `mode=${matchMedia('(display-mode:standalone)').matches ? 'PWA' : 'Browser'}\n` +
-  `online=${navigator.onLine} visible=${document.visibilityState}\n` +
-  `SW=${navigator.serviceWorker?.controller?.scriptURL || 'none'}\n` +
-  `updates=${pendingUpdate ? 'pending' : 'current'}\n` +
-  `videoCount=${videos.length}\n\n` +
-  videos.map(stateString).join('\n\n') +
-  '\n\n--- LOG ---\n' +
-  (previous ? 'PREVIOUS SESSION:\n' + previous + '\n------------\n' : '') +
-  logs.join('\n')
- );
+    `mode=${
+      matchMedia(
+        '(display-mode:standalone)'
+      ).matches
+        ? 'PWA'
+        : 'Browser'
+    }\n` +
+
+    `hardMode=${HARD_MODE} ` +
+    `online=${navigator.onLine} ` +
+    `visibility=${document.visibilityState}\n` +
+
+    `SW=${
+      navigator.serviceWorker
+        ?.controller?.scriptURL || 'none'
+    }\n` +
+
+    `updates=${
+      pendingUpdate ? 'pending' : 'current'
+    } ` +
+
+    `videoCount=${videos().length}\n\n` +
+
+    videos()
+      .map(stateString)
+      .join('\n\n') +
+
+    '\n\n--- LOG ---\n' +
+
+    (
+      previous
+        ? 'PREVIOUS SESSION:\n' +
+          previous +
+          '\n------------\n'
+        : ''
+    ) +
+
+    logs.join('\n')
+  );
 }
 
 function renderDebug() {
- if (expanded) pre.textContent = snapshot();
+  if (expanded) {
+    pre.textContent = snapshot();
+  }
 }
 
 function openDebug() {
- expanded = true;
- panel.style.display = 'block';
- renderDebug();
+  expanded = true;
+  panel.style.display = 'block';
+  renderDebug();
 }
 
 function hideDebug() {
- expanded = false;
- panel.style.display = 'none';
+  expanded = false;
+  panel.style.display = 'none';
 }
 
-function forceReload(reason) {
- if (reloading) return;
- reloading = true;
+function saveLog() {
+  try {
+    sessionStorage.setItem(
+      'xtp_debug_previous',
+      logs.slice(-22).join('\n')
+    );
+  } catch {}
+}
 
- log('RELOAD', reason);
+function reloadPage(reason) {
+  if (reloading || resetting) {
+    return;
+  }
 
- try {
-  sessionStorage.setItem(
-   'xtp_debug_previous',
-   logs.slice(-22).join('\n')
+  reloading = true;
+
+  log('RELOAD', reason);
+  saveLog();
+
+  const url = new URL(
+    location.href
   );
- } catch {}
 
- const url = new URL(location.href);
+  url.searchParams.set(
+    'xtp_reload',
+    Date.now().toString(36)
+  );
 
- url.searchParams.set(
-  'xtp_reload',
-  Date.now().toString(36)
- );
-
- location.replace(url.toString());
+  location.replace(url.href);
 }
 
-toggle.addEventListener('click', () => {
- expanded ? hideDebug() : openDebug();
-});
+/* ============================
+   HARD RESET
+============================ */
 
-close.addEventListener('click', hideDebug);
+async function hardReset() {
+  if (resetting) {
+    return;
+  }
 
-reload.addEventListener('click', () => {
- forceReload('manual');
-});
+  resetting = true;
 
-copy.addEventListener('click', async () => {
- const data = snapshot();
-
- try {
-  await navigator.clipboard.writeText(data);
-  copy.textContent = 'Đã copy';
- } catch {
-  pre.textContent = data;
-  const range = document.createRange();
-  range.selectNodeContents(pre);
-  const selection = window.getSelection();
-  selection.removeAllRanges();
-  selection.addRange(range);
-  copy.textContent = 'Chọn & copy';
- }
-});
-
-// Monitor each native video element.
-const mediaEvents = [
- 'loadstart', 'loadedmetadata', 'loadeddata',
- 'canplay', 'play', 'playing', 'pause',
- 'waiting', 'stalled', 'suspend',
- 'error', 'emptied', 'seeked', 'seeking', 'ended'
-];
-
-for (const eventName of mediaEvents) {
- document.addEventListener(eventName, event => {
-  const v = event.target;
-
-  if (v?.tagName !== 'VIDEO') return;
-
-  const key = v.closest('.reel-panel')?.dataset.key || '?';
+  reset.disabled = true;
+  reset.textContent = 'ĐANG RESET...';
 
   log(
-   'VIDEO ' + eventName,
-   `key=${key} time=${v.currentTime.toFixed(2)} ` +
-   `ready=${v.readyState} network=${v.networkState} ` +
-   `error=${v.error?.code ?? '-'}`
+    'HARD RESET',
+    'begin'
   );
 
-  if (eventName === 'playing') {
-   didStart = true;
+  /*
+    URL mới được chuẩn bị trước.
+    Nếu thao tác dọn cache bị kẹt,
+    sau 6.5 giây vẫn tải lại trang.
+  */
 
-   const splash = document.getElementById('xtpBoot');
-   if (splash) splash.style.display = 'none';
+  const cleanURL = new URL(
+    BASE.href
+  );
+
+  cleanURL.searchParams.set(
+    'xtp_hard',
+    Date.now().toString(36)
+  );
+
+  const watchdog = setTimeout(
+    () => {
+      location.replace(
+        cleanURL.href
+      );
+    },
+    6500
+  );
+
+  /*
+    HIỆN MÀN HÌNH RESET
+  */
+
+  const splash =
+    document.getElementById(
+      'xtpBoot'
+    );
+
+  if (splash) {
+    splash.style.display = 'flex';
+    splash.style.opacity = '1';
+    splash.style.pointerEvents = 'auto';
+
+    const status =
+      splash.querySelector(
+        '.boot-status'
+      );
+
+    if (status) {
+      status.textContent =
+        'Đang dọn cache, giải phóng video ' +
+        'và tải mới…';
+    }
   }
 
-  if (eventName === 'error') openDebug();
- }, true);
+  /*
+    BƯỚC 1:
+    THÁO TOÀN BỘ VIDEO CŨ
+  */
+
+  for (const video of videos()) {
+    try {
+      video.pause();
+
+      video.removeAttribute(
+        'src'
+      );
+
+      video.querySelectorAll(
+        'source'
+      ).forEach(source => {
+        source.removeAttribute(
+          'src'
+        );
+      });
+
+      video.load();
+
+    } catch (error) {
+      log(
+        'VIDEO CLEANUP',
+        error.message
+      );
+    }
+  }
+
+  /*
+    BƯỚC 2:
+    HỦY SERVICE WORKER XTP JP
+  */
+
+  if ('serviceWorker' in navigator) {
+    try {
+      const registrations =
+        await navigator.serviceWorker
+          .getRegistrations();
+
+      const selected =
+        registrations.filter(reg => (
+          reg.scope === BASE.href ||
+          reg.scope.startsWith(
+            BASE.href
+          )
+        ));
+
+      await Promise.allSettled(
+        selected.map(reg =>
+          reg.unregister()
+        )
+      );
+
+      log(
+        'SW UNREGISTER',
+        selected.length +
+        ' registration(s)'
+      );
+
+    } catch (error) {
+      log(
+        'SW UNREGISTER ERROR',
+        error.message
+      );
+    }
+  }
+
+  /*
+    BƯỚC 3:
+    XÓA CACHE STORAGE XTP JP
+
+    Không xóa cache của repo khác
+    cùng GitHub Pages domain.
+  */
+
+  if ('caches' in window) {
+    try {
+      const names =
+        await caches.keys();
+
+      const owned =
+        names.filter(name => (
+          name.startsWith(
+            'xtp-jp-'
+          ) ||
+          /^xtp.*(?:shell|cache)/i.test(
+            name
+          )
+        ));
+
+      await Promise.allSettled(
+        owned.map(name =>
+          caches.delete(name)
+        )
+      );
+
+      log(
+        'CACHE DELETE',
+        owned.join(', ') || 'none'
+      );
+
+    } catch (error) {
+      log(
+        'CACHE ERROR',
+        error.message
+      );
+    }
+  }
+
+  /*
+    BƯỚC 4:
+    XÓA TRẠNG THÁI PHIÊN TẠM
+
+    KHÔNG XÓA localStorage:
+    Saved và Follow vẫn được giữ.
+  */
+
+  try {
+    for (
+      const key of
+      Object.keys(sessionStorage)
+    ) {
+      if (/^xtp[_-]/i.test(key)) {
+        sessionStorage.removeItem(
+          key
+        );
+      }
+    }
+  } catch {}
+
+  /*
+    BƯỚC 5:
+    KHỞI ĐỘNG TRANG MỚI
+
+    URL mới -> HTML mới.
+    app.js mới -> CSS mới.
+    MP4 nhận URL mới.
+  */
+
+  log(
+    'HARD RESET',
+    'navigate clean'
+  );
+
+  clearTimeout(watchdog);
+
+  location.replace(
+    cleanURL.href
+  );
 }
 
-window.addEventListener('error', event => {
- log('JS ERROR', event.message || '?');
- openDebug();
-});
+/* ============================
+   BUTTON EVENTS
+============================ */
 
-window.addEventListener('unhandledrejection', event => {
- log(
-  'PROMISE REJECT',
-  event.reason?.message || String(event.reason)
- );
- openDebug();
-});
+reset.addEventListener(
+  'click',
+  hardReset
+);
 
-// Measure actual playback clock movement.
-setInterval(() => {
- if (document.hidden) return;
-
- let foundStuck = false;
-
- for (const v of allVideos()) {
-  const prior = playerStates.get(v) || {
-   lastTime: v.currentTime,
-   stuck: 0
-  };
-
-  const advance = Math.max(
-   0,
-   v.currentTime - prior.lastTime
-  );
-
-  const shouldAdvance =
-   !v.paused &&
-   !v.ended &&
-   v.readyState >= 2 &&
-   v.playbackRate > 0;
-
-  const stuck =
-   shouldAdvance && advance < 0.03
-    ? prior.stuck + 1
-    : 0;
-
-  playerStates.set(v, {
-   lastTime: v.currentTime,
-   advance,
-   stuck
-  });
-
-  if (stuck === 4) {
-   log(
-    'VIDEO CLOCK STALLED',
-    `key=${v.closest('.reel-panel')?.dataset.key || '?'} ` +
-    `time=${v.currentTime}`
-   );
-
-   foundStuck = true;
+toggle.addEventListener(
+  'click',
+  () => {
+    expanded
+      ? hideDebug()
+      : openDebug();
   }
- }
+);
 
- if (foundStuck) openDebug();
- if (expanded) renderDebug();
+close.addEventListener(
+  'click',
+  hideDebug
+);
+
+reload.addEventListener(
+  'click',
+  () => {
+    reloadPage('manual');
+  }
+);
+
+copy.addEventListener(
+  'click',
+  async () => {
+    const content = snapshot();
+
+    try {
+      await navigator.clipboard.writeText(
+        content
+      );
+
+      copy.textContent = 'Đã copy';
+
+    } catch {
+      pre.textContent = content;
+
+      const range =
+        document.createRange();
+
+      range.selectNodeContents(
+        pre
+      );
+
+      const selection =
+        getSelection();
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      copy.textContent =
+        'Chọn rồi copy';
+    }
+  }
+);
+
+/* ============================
+   MEDIA EVENT DEBUG
+============================ */
+
+const mediaEvents = [
+  'loadstart',
+  'loadedmetadata',
+  'loadeddata',
+  'canplay',
+  'play',
+  'playing',
+  'pause',
+  'waiting',
+  'stalled',
+  'suspend',
+  'error',
+  'emptied',
+  'seeked',
+  'seeking',
+  'ended'
+];
+
+for (const name of mediaEvents) {
+  document.addEventListener(
+    name,
+    event => {
+      const video =
+        event.target;
+
+      if (
+        video?.tagName !== 'VIDEO'
+      ) {
+        return;
+      }
+
+      log(
+        'VIDEO ' + name,
+
+        `key=${
+          video.closest(
+            '.reel-panel'
+          )?.dataset.key || '?'
+        } ` +
+
+        `time=${
+          video.currentTime.toFixed(2)
+        } ` +
+
+        `ready=${video.readyState} ` +
+        `network=${video.networkState} ` +
+        `error=${
+          video.error?.code ?? '-'
+        }`
+      );
+
+      if (name === 'playing') {
+        didStart = true;
+
+        const splashNow =
+          document.getElementById(
+            'xtpBoot'
+          );
+
+        if (splashNow) {
+          splashNow.style.display =
+            'none';
+        }
+      }
+
+      if (name === 'error') {
+        openDebug();
+      }
+    },
+    true
+  );
+}
+
+window.addEventListener(
+  'error',
+  event => {
+    log(
+      'JS ERROR',
+      event.message || '?'
+    );
+
+    openDebug();
+  }
+);
+
+window.addEventListener(
+  'unhandledrejection',
+  event => {
+    log(
+      'PROMISE REJECT',
+      event.reason?.message ||
+      String(event.reason)
+    );
+
+    openDebug();
+  }
+);
+
+/* ============================
+   CLOCK DEBUG
+============================ */
+
+setInterval(() => {
+  if (
+    document.hidden ||
+    resetting
+  ) {
+    return;
+  }
+
+  let stalled = false;
+
+  for (const video of videos()) {
+    const prev =
+      playerStates.get(video) || {
+        lastTime: video.currentTime,
+        stuck: 0
+      };
+
+    const advance = Math.max(
+      0,
+      video.currentTime -
+      prev.lastTime
+    );
+
+    const shouldAdvance =
+      !video.paused &&
+      !video.ended &&
+      video.readyState >= 2 &&
+      video.playbackRate > 0;
+
+    const stuck =
+      shouldAdvance &&
+      advance < 0.03
+
+        ? prev.stuck + 1
+
+        : 0;
+
+    playerStates.set(
+      video,
+      {
+        lastTime: video.currentTime,
+        advance,
+        stuck
+      }
+    );
+
+    if (stuck === 4) {
+      log(
+        'VIDEO CLOCK STALLED',
+        video.closest(
+          '.reel-panel'
+        )?.dataset.key || '?'
+      );
+
+      stalled = true;
+    }
+  }
+
+  if (stalled) {
+    openDebug();
+  }
+
+  if (expanded) {
+    renderDebug();
+  }
+
 }, 1000);
 
-// Initial splash handling.
-const splash = document.getElementById('xtpBoot');
-const bootStatus = splash?.querySelector('.boot-status');
-const bootButton = splash?.querySelector('.boot-action');
+/* ============================
+   SPLASH
+============================ */
 
-const empty = document.getElementById('empty');
+const splash =
+  document.getElementById(
+    'xtpBoot'
+  );
+
+const bootStatus =
+  splash?.querySelector(
+    '.boot-status'
+  );
+
+const bootButton =
+  splash?.querySelector(
+    '.boot-action'
+  );
+
+const empty =
+  document.getElementById(
+    'empty'
+  );
 
 if (empty) {
- const observer = new MutationObserver(() => {
-  if (!empty.classList.contains('hidden') && splash) {
-   splash.style.display = 'none';
-  }
- });
+  const observer =
+    new MutationObserver(() => {
+      if (
+        !empty.classList.contains(
+          'hidden'
+        ) &&
+        splash
+      ) {
+        splash.style.display =
+          'none';
+      }
+    });
 
- observer.observe(empty, {
-  attributes: true,
-  attributeFilter: ['class']
- });
+  observer.observe(
+    empty,
+    {
+      attributes: true,
+      attributeFilter: ['class']
+    }
+  );
 }
 
-bootButton?.addEventListener('click', () => {
- const videos = allVideos();
+bootButton?.addEventListener(
+  'click',
+  () => {
+    const video =
+      videos().find(v => (
+        v.closest(
+          '.reel-panel'
+        )?.style.transform ===
+        'translateY(0%)'
+      )) ||
+      videos()[0];
 
- const v =
-  videos.find(video =>
-   video.closest('.reel-panel')?.style.transform === 'translateY(0%)'
-  ) || videos[0];
+    if (video) {
+      video.play().catch(error => {
+        log(
+          'MANUAL PLAY REJECT',
+          error?.name || error
+        );
 
- if (v) {
-  v.play().catch(error => {
-   log('MANUAL PLAY REJECT', error?.name || String(error));
-   openDebug();
-  });
- }
-});
+        openDebug();
+      });
+    }
+  }
+);
 
 setTimeout(() => {
- if (!didStart && !document.hidden) {
-  log('STARTUP TIMEOUT', '15 seconds');
+  if (
+    !didStart &&
+    !document.hidden &&
+    !resetting
+  ) {
+    log(
+      'STARTUP TIMEOUT',
+      '15s'
+    );
 
-  if (bootButton) bootButton.style.display = 'block';
+    if (bootButton) {
+      bootButton.style.display =
+        'block';
+    }
 
-  if (bootStatus) {
-   bootStatus.textContent =
-    'Video chưa phát. Chạm để thử lại hoặc mở DBG.';
+    if (bootStatus) {
+      bootStatus.textContent =
+        'Video chưa phát. Thử chạm ' +
+        'để phát hoặc dùng HARD RESET.';
+    }
+
+    openDebug();
   }
-
-  openDebug();
- }
 }, 15000);
 
-// Automatic update detection.
-function fingerprintText(text) {
- let hash = 2166136261;
+/* ============================
+   AUTO UPDATE
+============================ */
 
- for (let i = 0; i < text.length; i++) {
-  hash = Math.imul(
-   hash ^ text.charCodeAt(i),
-   16777619
+function fingerprint(text) {
+  let hash = 2166136261;
+
+  for (
+    let i = 0;
+    i < text.length;
+    i++
+  ) {
+    hash = Math.imul(
+      hash ^ text.charCodeAt(i),
+      16777619
+    );
+  }
+
+  return (
+    (hash >>> 0).toString(16) +
+    ':' +
+    text.length
   );
- }
-
- return (hash >>> 0).toString(16) + ':' + text.length;
 }
 
 async function assetFingerprint(name) {
- const url = new URL(name, BASE);
+  const url = new URL(
+    name,
+    BASE
+  );
 
- url.searchParams.set(
-  'xtp_check',
-  Date.now().toString(36)
- );
+  url.searchParams.set(
+    'xtp_check',
+    Date.now().toString(36)
+  );
 
- const response = await fetch(url, {
-  cache: 'no-store'
- });
+  const response = await fetch(
+    url,
+    { cache: 'no-store' }
+  );
 
- if (!response.ok) {
-  throw new Error(`${name}: HTTP ${response.status}`);
- }
+  if (!response.ok) {
+    throw Error(
+      `${name}: HTTP ${
+        response.status
+      }`
+    );
+  }
 
- return fingerprintText(await response.text());
+  return fingerprint(
+    await response.text()
+  );
 }
 
 async function checkForUpdates(reason) {
- if (checking) return checking;
- if (!navigator.onLine) return;
-
- checking = (async () => {
-  try {
-   const values = await Promise.all(
-    ASSETS.map(assetFingerprint)
-   );
-
-   const fresh = new Map(
-    ASSETS.map((name, index) => [
-     name,
-     values[index]
-    ])
-   );
-
-   if (!fingerprints.size) {
-    fresh.forEach((value, name) => {
-     fingerprints.set(name, value);
-    });
-
-    log('UPDATE BASELINE', 'saved');
-    return;
-   }
-
-   const changed = ASSETS.filter(name =>
-    fingerprints.get(name) !== fresh.get(name)
-   );
-
-   log(
-    'UPDATE CHECK',
-    changed.length ? changed.join(', ') : 'unchanged'
-   );
-
-   if (changed.length) {
-    pendingUpdate = true;
-
-    if (reason === 'resume') {
-     forceReload('new release: ' + changed.join(','));
-    }
-   }
-  } catch (error) {
-   log('UPDATE ERROR', error.message || String(error));
-  } finally {
-   checking = null;
-   lastCheck = Date.now();
+  if (
+    checking ||
+    resetting
+  ) {
+    return checking;
   }
- })();
 
- return checking;
+  if (!navigator.onLine) {
+    return;
+  }
+
+  checking = (async () => {
+    try {
+      const results =
+        await Promise.all(
+          ASSETS.map(
+            assetFingerprint
+          )
+        );
+
+      const fresh = new Map(
+        ASSETS.map(
+          (name, index) => [
+            name,
+            results[index]
+          ]
+        )
+      );
+
+      if (!fingerprints.size) {
+        fresh.forEach(
+          (value, name) => {
+            fingerprints.set(
+              name,
+              value
+            );
+          }
+        );
+
+        log(
+          'UPDATE BASELINE',
+          'saved'
+        );
+
+        return;
+      }
+
+      const changed =
+        ASSETS.filter(
+          name =>
+            fingerprints.get(name) !==
+            fresh.get(name)
+        );
+
+      log(
+        'UPDATE CHECK',
+        changed.join(', ') ||
+        'unchanged'
+      );
+
+      if (changed.length) {
+        pendingUpdate = true;
+
+        if (
+          reason === 'resume'
+        ) {
+          reloadPage(
+            'new release: ' +
+            changed.join(',')
+          );
+        }
+      }
+
+    } catch (error) {
+      log(
+        'UPDATE ERROR',
+        error.message
+      );
+
+    } finally {
+      checking = null;
+      lastCheck = Date.now();
+    }
+  })();
+
+  return checking;
 }
 
-// Check on app resume, but do not reload if code is unchanged.
-document.addEventListener('visibilitychange', () => {
- log('VISIBILITY', document.visibilityState);
+document.addEventListener(
+  'visibilitychange',
+  () => {
+    log(
+      'VISIBILITY',
+      document.visibilityState
+    );
 
- if (document.hidden) {
-  seenHidden = true;
-  return;
- }
+    if (document.hidden) {
+      seenHidden = true;
+      return;
+    }
 
- if (seenHidden) {
-  seenHidden = false;
+    if (seenHidden) {
+      seenHidden = false;
 
-  Promise.resolve(checkForUpdates('resume')).then(() => {
-   if (pendingUpdate) {
-    forceReload('pending release');
-   }
-  });
- }
-});
+      Promise.resolve(
+        checkForUpdates(
+          'resume'
+        )
+      ).then(() => {
+        if (pendingUpdate) {
+          reloadPage(
+            'pending release'
+          );
+        }
+      });
+    }
+  }
+);
 
-window.addEventListener('pageshow', event => {
- log('PAGESHOW', event.persisted ? 'bfcache' : 'new');
+window.addEventListener(
+  'pageshow',
+  event => {
+    log(
+      'PAGESHOW',
+      event.persisted
+        ? 'bfcache'
+        : 'new'
+    );
 
- if (event.persisted) {
-  Promise.resolve(checkForUpdates('resume')).then(() => {
-   if (pendingUpdate) {
-    forceReload('bfcache update');
-   }
-  });
- }
-});
+    if (event.persisted) {
+      checkForUpdates(
+        'resume'
+      );
+    }
+  }
+);
 
-// Foreground checking every five minutes.
-// Never interrupt an active reel merely because an update exists.
 setInterval(() => {
- if (
-  !document.hidden &&
-  Date.now() - lastCheck >= 300000
- ) {
-  checkForUpdates('foreground');
- }
+  if (
+    !document.hidden &&
+    Date.now() - lastCheck >=
+      300000
+  ) {
+    checkForUpdates(
+      'foreground'
+    );
+  }
 }, 300000);
 
-// Load app.js freshly on each document launch.
-log('APP JS', 'loading fresh app.js');
+/* ============================
+   LOAD APP
+============================ */
+
+log(
+  'APP JS',
+  'loading fresh app.js'
+);
 
 if (bootStatus) {
- bootStatus.textContent = 'Đang tải app và thư viện video...';
+  bootStatus.textContent =
+    'Đang tải app và thư viện video...';
 }
 
-const appScript = document.createElement('script');
+const appScript =
+  document.createElement(
+    'script'
+  );
 
-appScript.src = new URL(
- 'app.js?boot=' + BOOT_ID,
- BASE
-).href;
+appScript.src =
+  new URL(
+    'app.js?boot=' + BOOT_ID,
+    BASE
+  ).href;
 
 appScript.onload = () => {
- log('APP JS', 'loaded');
- checkForUpdates('initial');
+  log(
+    'APP JS',
+    'loaded'
+  );
+
+  checkForUpdates(
+    'initial'
+  );
 };
 
 appScript.onerror = () => {
- log('APP JS ERROR', 'failed to load');
- openDebug();
+  log(
+    'APP JS ERROR',
+    appScript.src
+  );
 
- if (bootButton) {
-  bootButton.style.display = 'block';
- }
+  openDebug();
+
+  if (bootButton) {
+    bootButton.style.display =
+      'block';
+  }
 };
 
-document.body.appendChild(appScript);
+document.body.appendChild(
+  appScript
+);
 
 })();
 </script>
