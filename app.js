@@ -1,4 +1,5 @@
-/* XTP JP v13 — static, read-only TikTok-style R2 reel viewer.
+
+/* XTP JP v13.5 — sequential, single-active-player TikTok-style R2 reel viewer.
  * Upload/delete objects in Cloudflare R2 Dashboard, never from this app.
  */
 (() => {
@@ -23,6 +24,27 @@ let expandPromise=null;
 let loadGeneration=0;
 let initialised=false;
 let muted=true;
+// Single-active-player invariant: only the currently visible reel may play.
+// This applies to all platforms, even when inactive reels have buffered media.
+let activeEpoch=0;
+let resumeOnShow=false;
+let nextPreloadTimer=null;
+let wantsPlayback=true;
+function cancelNextPreload(){clearTimeout(nextPreloadTimer);nextPreloadTimer=null;}
+function isCurrentPanel(panel){
+ return panel && panels.get(panel.reel.key)===panel &&
+  activeReel()?.key===panel.reel.key &&
+  els.library.classList.contains('hidden') && !document.hidden;
+}
+function stopOtherVideos(except=null){
+ for(const p of panels.values()){
+  if(p.video!==except){try{p.video.pause();}catch{/* released player */}}
+ }
+}
+function stopAllVideos(){stopOtherVideos();}
+
+// iOS Safari can defer media metadata until play() is invoked by a user gesture.
+const isiOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 let speed=1;
 let lang='vi';
 let loadingTimer=null;
@@ -140,7 +162,7 @@ async function loadAll(){
   sources=loaded;playlist=[];nextSource=0;currentIndex=0;mode='all';
   syncTabs();renderLibrary();
   if(!sources.length){hideLoading();showEmpty('Chưa có video','Upload file videos/ten-video.mp4 trên Cloudflare R2 rồi bấm Tải lại thư viện.');return;}
-  await ensureAhead(3);
+  await ensureAhead(1);
   if(generation!==loadGeneration)return;
   initialised=true;els.reelOverlay.classList.remove('hidden');hideLoading();activate({instant:true});
  }catch(e){
@@ -149,88 +171,169 @@ async function loadAll(){
  }
 }
 function showEmpty(title,description){els.emptyTitle.textContent=title;els.emptyText.textContent=description;els.empty.classList.remove('hidden');}
-function clearPanels(){for(const p of panels.values()){p.video.pause();p.video.removeAttribute('src');p.video.load();p.node.remove();}panels.clear();}
+function clearPanels(){activeEpoch++;cancelNextPreload();stopAllVideos();for(const p of panels.values()){p.video.pause();p.video.removeAttribute('src');p.video.load();p.node.remove();}panels.clear();}
+// Create media elements without assigning a source. iOS standalone can stall
+// when several videos begin network loading during the initial app bootstrap.
 function createPanel(reel,index,active){
  const node=document.createElement('div');node.className='reel-panel no-transition';node.dataset.key=reel.key;
  node.style.transform=`translateY(${(index-active)*100}%)`;
- const video=document.createElement('video');video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
- video.controls=false;video.autoplay=false;video.loop=false;video.muted=muted;video.preload=Math.abs(index-active)<=1?'auto':'metadata';video.playbackRate=speed;
- video.src=basePath('/media/'+encodeURIComponent(reel.sourceId));
- const panel={node,video,reel,prepared:false,error:false};
+ const video=document.createElement('video');video.playsInline=true;
+ video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
+ video.controls=false;video.autoplay=false;video.loop=false;video.defaultMuted=muted;video.muted=muted;
+ if(muted)video.setAttribute('muted','');
+ video.preload='none';video.playbackRate=speed;
+ const panel={node,video,reel,prepared:false,error:false,loaded:false,didPlay:false,playPending:false};
  node.appendChild(video);els.panels.appendChild(node);
  const seekStart=()=>{
-  if(panel.prepared||!video.duration)return;
-  if(reel.start>=video.duration){panel.error=true;if(activeReel()?.key===reel.key)showError('Reel bắt đầu sau khi video đã kết thúc. Hãy sửa timestamp trong JSON.');return;}
-  if(reel.start>0.05){
-   if(Math.abs(video.currentTime-reel.start)>0.18){try{video.currentTime=reel.start;}catch{/* try after data */}return;}
+  if(panel.prepared||!Number.isFinite(video.duration)||video.duration<=0)return;
+  if(reel.start>=video.duration){panel.error=true;if(isCurrentPanel(panel))showError('Reel bắt đầu sau khi video đã kết thúc. Sửa timestamp trong JSON.');return;}
+  if(reel.start>0.05 && Math.abs(video.currentTime-reel.start)>0.18){
+   try{video.currentTime=reel.start;}catch{/* Retry at next media event */}
+   return;
   }
   panel.prepared=true;
-  if(activeReel()?.key===reel.key)startActiveVideo();
+  if(isCurrentPanel(panel))updateProgress();
  };
  video.addEventListener('loadedmetadata',seekStart);
  video.addEventListener('loadeddata',seekStart);
  video.addEventListener('seeked',()=>{
-  if(!panel.prepared && Math.abs(video.currentTime-reel.start)<0.2){panel.prepared=true;if(activeReel()?.key===reel.key)startActiveVideo();}
-  if(activeReel()?.key===reel.key)updateProgress();
+  if(!panel.prepared && Math.abs(video.currentTime-reel.start)<0.2)panel.prepared=true;
+  if(isCurrentPanel(panel))updateProgress();
  });
- video.addEventListener('canplay',()=>{seekStart();if(activeReel()?.key===reel.key&&panel.prepared){hideLoading();}});
- video.addEventListener('playing',()=>{if(activeReel()?.key===reel.key){clearError();hideLoading();}});
- video.addEventListener('waiting',()=>{if(activeReel()?.key===reel.key){showLoading();}});
+ video.addEventListener('canplay',()=>{seekStart();});
+ video.addEventListener('play',()=>{
+  if(!isCurrentPanel(panel)){video.pause();return;}
+  stopOtherVideos(video);
+ });
+ video.addEventListener('playing',()=>{
+  if(!isCurrentPanel(panel)){video.pause();return;}
+  panel.didPlay=true;panel.playPending=false;
+  stopOtherVideos(video);
+  clearError();hideLoading();els.tapPlay.classList.add('hidden');
+  // Only NOW start preparing the next reel. Never play it in background.
+  queueNextPreload(panel);
+ });
+ video.addEventListener('waiting',()=>{if(isCurrentPanel(panel))showLoading();});
  video.addEventListener('timeupdate',()=>{
-  if(activeReel()?.key!==reel.key)return;
+  if(!isCurrentPanel(panel))return;
   const end=reel.end??video.duration;
   if(Number.isFinite(end)&&end>reel.start&&video.currentTime>=end-0.06){
-   video.pause();try{video.currentTime=reel.start;}catch{};video.play().catch(()=>els.tapPlay.classList.remove('hidden'));
+   video.pause();try{video.currentTime=reel.start;}catch{}
+   startActiveVideo();
   }else updateProgress();
  });
  video.addEventListener('ended',()=>{
-  if(activeReel()?.key!==reel.key)return;
+  if(!isCurrentPanel(panel))return;
   try{video.currentTime=reel.start;}catch{}
-  video.play().catch(()=>els.tapPlay.classList.remove('hidden'));
+  startActiveVideo();
  });
- video.addEventListener('error',()=>{panel.error=true;if(activeReel()?.key===reel.key)showError('Không phát được MP4. Kiểm tra file, codec H.264/AAC và Worker Range.');});
- video.load();
+ video.addEventListener('error',()=>{
+  panel.error=true;panel.playPending=false;
+  if(isCurrentPanel(panel)){
+   const code=video.error?.code;
+   const reason=code===4?'Safari không hỗ trợ codec MP4. Hãy dùng H.264/AAC.':
+    code===3?'Thiết bị không giải mã được video.':
+    code===2?'Lỗi mạng hoặc HTTP Range.':
+    code===1?'Yêu cầu tải video đã bị hủy.':'Không phát được MP4.';
+   showError(`${reason} (MediaError ${code??'không xác định'})`);
+  }
+ });
  return panel;
 }
+function loadPanel(panel,preloadOnly=false){
+ if(!panel || panel.loaded)return;
+ panel.loaded=true;
+ panel.video.preload='auto';
+ panel.video.src=basePath('/media/'+encodeURIComponent(panel.reel.sourceId));
+ panel.video.load();
+}
+// The single source of truth: current player first; one next player only
+// once a real `playing` event has confirmed playback.
 function updatePanels(instant=false){
- const view=getView(), wanted=new Set();
- for(let i=Math.max(0,currentIndex-1);i<=Math.min(view.length-1,currentIndex+2);i++)wanted.add(view[i].key);
- for(const [key,p] of [...panels])if(!wanted.has(key)){p.video.pause();p.video.removeAttribute('src');p.video.load();p.node.remove();panels.delete(key);}
- for(let i=Math.max(0,currentIndex-1);i<=Math.min(view.length-1,currentIndex+2);i++){
-  const reel=view[i];let p=panels.get(reel.key);
-  if(!p){p=createPanel(reel,i,currentIndex);panels.set(reel.key,p);}
-  p.video.preload=Math.abs(i-currentIndex)<=1?'auto':'metadata';
+ const view=getView(),wanted=new Set();
+ const active=activeReel(),activePanel=active&&panels.get(active.key);
+ const canPreload=Boolean(activePanel?.didPlay && !activePanel.video.paused);
+ const begin=(!isiOS&&canPreload)?Math.max(0,currentIndex-1):currentIndex;
+ const finish=Math.min(view.length-1,currentIndex+(canPreload?1:0));
+ for(let i=begin;i<=finish;i++)wanted.add(view[i].key);
+ for(const [key,p] of [...panels])if(!wanted.has(key)){
+  p.video.pause();p.video.removeAttribute('src');p.video.load();p.node.remove();panels.delete(key);
  }
- // Existing adjacent video nodes slide into view instead of setting src a second time.
- if(instant){for(const p of panels.values())p.node.classList.add('no-transition');}
+ for(let i=begin;i<=finish;i++){
+  const reel=view[i];if(!panels.has(reel.key))panels.set(reel.key,createPanel(reel,i,currentIndex));
+ }
+ if(instant)for(const p of panels.values())p.node.classList.add('no-transition');
  requestAnimationFrame(()=>{
-  for(let i=Math.max(0,currentIndex-1);i<=Math.min(view.length-1,currentIndex+2);i++){
-   const p=panels.get(view[i].key);p.node.style.transform=`translateY(${(i-currentIndex)*100}%)`;
+  for(let i=begin;i<=finish;i++){
+   const p=panels.get(view[i].key);if(!p)continue;
+   p.node.style.transform=`translateY(${(i-currentIndex)*100}%)`;
    p.node.style.zIndex=String(5-Math.abs(i-currentIndex));
   }
   requestAnimationFrame(()=>{for(const p of panels.values())p.node.classList.remove('no-transition');});
  });
 }
-function startActiveVideo(){
+function queueNextPreload(panel){
+ cancelNextPreload();
+ const epoch=activeEpoch;
+ nextPreloadTimer=setTimeout(async()=>{
+  nextPreloadTimer=null;
+  if(epoch!==activeEpoch||!isCurrentPanel(panel)||panel.video.paused||!panel.didPlay)return;
+  try{
+   if(mode==='all'&&currentIndex+2>playlist.length&&nextSource<sources.length)
+    await ensureAhead(currentIndex+2);
+  }catch(e){toast('Không tải được dữ liệu reel kế tiếp: '+e.message);return;}
+  if(epoch!==activeEpoch||!isCurrentPanel(panel)||panel.video.paused)return;
+  updatePanels(true);
+  const next=getView()[currentIndex+1];
+  if(next){
+   const pre=panels.get(next.key);
+   if(pre && pre!==panel)loadPanel(pre,true); // network only; NO play()
+  }
+ },400);
+}
+function startActiveVideo(fromGesture=false){
  const reel=activeReel();if(!reel)return;
- for(const p of panels.values())if(p.reel.key!==reel.key)p.video.pause();
- const p=panels.get(reel.key);if(!p||p.error)return;
- p.video.muted=muted;p.video.playbackRate=speed;
- if(!p.prepared){showLoading();return;}
+ const p=panels.get(reel.key);if(!p)return;
+ const video=p.video;
+ if(p.error){showError('Video tải lỗi. Bấm Thử lại để tải lại video.');return;}
+ wantsPlayback=true;
+ stopOtherVideos(video);
+ if(document.hidden){resumeOnShow=true;return;}
+ const epoch=activeEpoch;
+ video.muted=muted;video.playbackRate=speed;
+ // Do not wait for metadata before trying play(). This is important on iOS.
+ loadPanel(p,false);
+ if(video.paused)showLoading();
+ // Manual user gestures should be able to retry even while autoplay is pending.
+ if(p.playPending&&!fromGesture)return;
+ p.playPending=true;
+ let attempt;
+ try{attempt=video.play();}catch(err){p.playPending=false;handlePlayReject(err,reel.key);return;}
+ if(attempt?.then){
+  attempt.then(()=>{
+   p.playPending=false;
+   if(epoch!==activeEpoch||!isCurrentPanel(p)){video.pause();return;}
+   stopOtherVideos(video);els.tapPlay.classList.add('hidden');
+  }).catch(err=>{
+   p.playPending=false;
+   if(epoch===activeEpoch&&isCurrentPanel(p))handlePlayReject(err,reel.key);
+  });
+ }else p.playPending=false;
+}
+function handlePlayReject(err,key){
+ if(activeReel()?.key!==key)return;
  hideLoading();
- p.video.play().then(()=>{els.tapPlay.classList.add('hidden');}).catch(()=>{
-  // iOS may block autoplay even with muted video in some modes.
-  els.tapPlay.classList.remove('hidden');
- });
+ els.tapPlay.classList.remove('hidden');
+ // Autoplay denied is not a broken video. Let the user tap play.
+ if(err?.name==='NotAllowedError'||err?.name==='AbortError')return;
+ showError(`Không thể phát video trên thiết bị này: ${err?.name||'PlayError'}${err?.message?' — '+err.message:''}`);
 }
 function activate({instant=false}={}){
+ activeEpoch++;cancelNextPreload();stopAllVideos();wantsPlayback=true;
  const reel=activeReel();
- if(!reel){els.reelOverlay.classList.add('hidden');clearPanels();showEmpty(mode==='saved'?'Chưa có reel đã lưu':'Hết video',mode==='saved'?'Nhấn Lưu ở một reel để xem lại tại đây.':'Tải lại thư viện để kiểm tra video mới.');return;}
+ if(!reel){els.reelOverlay.classList.add('hidden');clearPanels();showEmpty(mode==='saved'?'Chưa có reel đã lưu':'Hết video',mode==='saved'?'Nhấn Lưu để xem lại tại đây.':'Tải lại thư viện để kiểm tra video mới.');return;}
  els.empty.classList.add('hidden');els.reelOverlay.classList.remove('hidden');clearError();hideLoading();
  updatePanels(instant);renderReelInfo();startActiveVideo();
- if(mode==='all')ensureAhead(currentIndex+5).then(()=>{
-  if(activeReel())updatePanels(true);
- }).catch(e=>toast('Không tải thêm được reel: '+e.message));
 }
 function renderReelInfo(){
  const reel=activeReel();if(!reel)return;
@@ -287,15 +390,21 @@ function updateProgress(){
 }
 async function go(delta){
  if(!initialised||!els.library.classList.contains('hidden'))return;
- if(delta>0&&mode==='all'&&currentIndex+1>=playlist.length&&nextSource<sources.length)await ensureAhead(currentIndex+2);
+ if(delta>0&&mode==='all'&&currentIndex+1>=playlist.length&&nextSource<sources.length){stopAllVideos();await ensureAhead(currentIndex+2);}
  const target=currentIndex+delta;
  if(target<0){toast('Đây là reel đầu tiên');return;}
  if(target>=getView().length){toast('Đã hết reel');return;}
- const prev=activeReel();const prevPanel=prev&&panels.get(prev.key);if(prevPanel)prevPanel.video.pause();
+ // Pausing MUST happen before activating another reel; preloaded videos
+ // stay paused and merely donate their already-buffered data to playback.
+ stopAllVideos();
  currentIndex=target;activate();
 }
-function togglePlay(){const r=activeReel();const p=r&&panels.get(r.key);if(!p)return;if(p.video.paused){startActiveVideo();}else{p.video.pause();els.tapPlay.classList.remove('hidden');}}
-function replay(){const r=activeReel(),p=r&&panels.get(r.key);if(!p)return;clearError();p.error=false;try{p.video.currentTime=r.start;}catch{}startActiveVideo();}
+function togglePlay(){const r=activeReel();const p=r&&panels.get(r.key);if(!p)return;
+ if(p.video.paused){startActiveVideo(true);}else{
+  wantsPlayback=false;cancelNextPreload();p.video.pause();els.tapPlay.classList.remove('hidden');
+ }
+}
+function replay(){const r=activeReel(),p=r&&panels.get(r.key);if(!p)return;clearError();p.error=false;try{p.video.currentTime=r.start;}catch{}startActiveVideo(true);}
 function seekFraction(f){const r=activeReel(),p=r&&panels.get(r.key);if(!p)return;const end=r.end??p.video.duration;if(!Number.isFinite(end)||end<=r.start)return;p.video.currentTime=r.start+Math.min(.999,Math.max(0,f))*(end-r.start);updateProgress();}
 function updateSoundUI(){els.soundIcon.textContent=muted?'♪̸':'♫';els.soundText.textContent=muted?'Bật tiếng':'Tắt tiếng';}
 function syncTabs(){els.allTab.classList.toggle('active',mode==='all');els.savedTab.classList.toggle('active',mode==='saved');}
@@ -311,8 +420,8 @@ async function switchMode(to){
  let target=getView().findIndex(r=>r.key===old);if(target<0)target=0;
  currentIndex=target;clearPanels();activate({instant:true});
 }
-function libraryShow(){els.library.classList.remove('hidden');const p=activeReel()&&panels.get(activeReel().key);p?.video.pause();renderLibrary();}
-function libraryHide(){els.library.classList.add('hidden');startActiveVideo();}
+function libraryShow(){els.library.classList.remove('hidden');activeEpoch++;cancelNextPreload();stopAllVideos();renderLibrary();}
+function libraryHide(){els.library.classList.add('hidden');startActiveVideo(true);}
 function renderLibrary(){
  const query=els.searchInput.value.trim().toLowerCase();const filtered=sources.filter(s=>prettyId(s.id).toLowerCase().includes(query));
  const total=sources.reduce((acc,s)=>acc+s.bytes,0);
@@ -362,9 +471,11 @@ function hookEvents(){
  });
  els.noticeRetry.addEventListener('click',()=>{
   const r=activeReel(),p=r&&panels.get(r.key);if(!p)return;
-  clearError();p.error=false;p.prepared=false;showLoading();p.video.load();
+  clearError();p.video.pause();p.video.removeAttribute('src');p.video.load();
+  p.loaded=false;p.error=false;p.prepared=false;p.playPending=false;p.didPlay=false;
+  startActiveVideo(true);
  });
- els.tapPlayBtn.addEventListener('click',startActiveVideo);
+ els.tapPlayBtn.addEventListener('click',()=>startActiveVideo(true));
  els.emptyRefresh.addEventListener('click',loadAll);
  els.replayBtn.addEventListener('click',replay);
  els.caption.addEventListener('click',()=>{lang=lang==='vi'?'ja':'vi';renderCaption();});
@@ -380,7 +491,7 @@ function hookEvents(){
   persist('xtp-jp-follow-v13',following);renderReelInfo();
  });
  els.speedBtn.addEventListener('click',()=>{speed=rates[(rates.indexOf(speed)+1)%rates.length];for(const p of panels.values())p.video.playbackRate=speed;els.speedIcon.textContent=speed+'×';});
- els.soundBtn.addEventListener('click',()=>{muted=!muted;for(const p of panels.values())p.video.muted=muted;updateSoundUI();const p=activeReel()&&panels.get(activeReel().key);if(p?.video.paused)startActiveVideo();});
+ els.soundBtn.addEventListener('click',()=>{muted=!muted;for(const p of panels.values())p.video.muted=muted;updateSoundUI();const p=activeReel()&&panels.get(activeReel().key);if(p?.video.paused)startActiveVideo(true);});
  els.progressTrack.addEventListener('pointerdown',e=>{e.stopPropagation();seekFraction((e.clientX-els.progressTrack.getBoundingClientRect().left)/els.progressTrack.clientWidth);});
  els.progressTrack.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const r=activeReel(),p=r&&panels.get(r.key);if(!p)return;const end=r.end??p.video.duration;if(!Number.isFinite(end))return;const f=(p.video.currentTime-r.start)/(end-r.start)+(e.key==='ArrowRight'?.05:-.05);seekFraction(f);}});
  els.libraryBtn.addEventListener('click',libraryShow);els.libraryClose.addEventListener('click',libraryHide);
@@ -388,7 +499,25 @@ function hookEvents(){
  els.searchInput.addEventListener('input',renderLibrary);
  els.allTab.addEventListener('click',()=>switchMode('all'));
  els.savedTab.addEventListener('click',()=>switchMode('saved'));
- document.addEventListener('visibilitychange',()=>{const r=activeReel(),p=r&&panels.get(r.key);if(document.hidden)p?.video.pause();});
+ // iOS Home Screen apps are commonly suspended and resumed without a reload.
+ // Release playback when hidden; on return re-attempt only if we were playing,
+ // or an initial start was deferred while the PWA was hidden.
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+   const reel=activeReel(),panel=reel&&panels.get(reel.key);
+   resumeOnShow=resumeOnShow || (wantsPlayback&&Boolean((panel&&!panel.video.paused)||panel?.playPending));
+   activeEpoch++;cancelNextPreload();stopAllVideos();hideLoading();
+  }else if(resumeOnShow){
+   resumeOnShow=false;
+   requestAnimationFrame(()=>startActiveVideo());
+  }
+ });
+ window.addEventListener('pagehide',()=>{activeEpoch++;cancelNextPreload();stopAllVideos();});
+ window.addEventListener('pageshow',event=>{
+  if(event.persisted&&!document.hidden&&!els.library.classList.contains('hidden')){
+   requestAnimationFrame(()=>startActiveVideo());
+  }
+ });
 }
 hookEvents();loadAll();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
